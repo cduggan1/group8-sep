@@ -10,6 +10,7 @@ Group 8 Project. Details to follow.
 - Jacek Kaczmarek, 2nd Year
 - James Doyle, 2nd Year
 - Liam Zone, 2nd Year
+- Orson O'Sullivan, 2nd Year
 - Virag Varga, 3rd Year
 - Brian Bredican, 3rd Year
 - Zhongyuan Liu, 3rd Year
