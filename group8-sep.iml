@@ -11,5 +11,9 @@
     <orderEntry type="library" name="slf4j.api" level="project" />
     <orderEntry type="library" name="sparkjava.spark.core" level="project" />
     <orderEntry type="library" name="slf4j.simple" level="project" />
+    <orderEntry type="library" name="fasterxml.jackson.core" level="project" />
+    <orderEntry type="library" name="fasterxml.jackson.core.databind" level="project" />
+    <orderEntry type="library" name="http4k.format.jackson" level="project" />
+    <orderEntry type="library" name="fasterxml.jackson.dataformat.csv" level="project" />
   </component>
 </module>
