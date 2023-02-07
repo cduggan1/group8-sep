@@ -17,10 +17,15 @@ public class Main {
         System.out.println(accoms.get(1).toString());
             get("/id/:index", (req,res)->{
                 int index = Integer.parseInt(req.params(":index"));
-                System.out.print("Index is: " + index);
-                String returnedval = accoms.get(index).toString();
-                return returnedval;
+                System.out.print("Index requested: " + index);
+                return accoms.get(index).toString();
             });
+
+            get("/all", (req,res)->{
+                System.out.print("Requested All");
+                return accoms.toString();
+            });
+
 
 //        get("/hello", (req, res)->"Hello, world");
 //
