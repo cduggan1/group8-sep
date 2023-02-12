@@ -1,0 +1,1 @@
+Maven shall run the test on this file as well when I'll try to push it on the "main"
