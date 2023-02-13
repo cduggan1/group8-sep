@@ -14,9 +14,9 @@ import com.github.alexdlaird.ngrok.protocol.CreateTunnel;
 import com.github.alexdlaird.ngrok.protocol.Proto;
 import com.github.alexdlaird.ngrok.protocol.Tunnel;
 
-//
+
 public class Main {
-    public static List<Map<?, ?>> accoms = buildObject("src/info.csv");
+    public static List<Map<?, ?>> accoms = buildObject("src/main/info.csv");
 
     //Provided we built the initial object correctly, start
     //program and initialise API responses.

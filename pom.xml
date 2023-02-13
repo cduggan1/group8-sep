@@ -77,6 +77,11 @@
             <artifactId>thymeleaf</artifactId>
             <version>3.1.0.RELEASE</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.alexdlaird</groupId>
+            <artifactId>java-ngrok</artifactId>
+            <version>1.6.1</version>
+        </dependency>
     </dependencies>
 
 
