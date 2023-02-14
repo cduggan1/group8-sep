@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="github.alexdlaird.java.ngrok" type="repository">
+    <properties maven-id="com.github.alexdlaird:java-ngrok:1.6.1" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/github/alexdlaird/java-ngrok/1.6.1/java-ngrok-1.6.1.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/google/code/gson/gson/2.10/gson-2.10.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/yaml/snakeyaml/1.33/snakeyaml-1.33.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
