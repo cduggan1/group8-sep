@@ -1,3 +1,5 @@
+package main;
+
 import java.io.File;
 import java.io.IOException;
 import java.sql.Array;
@@ -16,6 +18,7 @@ import com.github.alexdlaird.ngrok.protocol.Tunnel;
 
 
 public class Main {
+    public static boolean tunnelNgrok = false;
     public static List<Map<?, ?>> accoms = buildObject("src/main/info.csv");
 
     //Provided we built the initial object correctly, start
@@ -97,22 +100,24 @@ public class Main {
 
 
         //Assign temp URL using ngrok
-        try {
-            final NgrokClient ngrokClient = new NgrokClient.Builder().build();
-            //Don't leak this auth token.
-            ngrokClient.setAuthToken("2LSQAcGXtCXfmAcvQ6dhKaOg9z9_242ur7wT27KLcYjR1PBzh");
+        if(tunnelNgrok) {
+            try {
+                final NgrokClient ngrokClient = new NgrokClient.Builder().build();
+                //Don't leak this auth token.
+                ngrokClient.setAuthToken("2LSQAcGXtCXfmAcvQ6dhKaOg9z9_242ur7wT27KLcYjR1PBzh");
 
-            final CreateTunnel sshCreateTunnel = new CreateTunnel.Builder()
-                    .withProto(Proto.HTTP)
-                    .withAddr(4567)
-                    .build();
-            final Tunnel httpTunnel = ngrokClient.connect(sshCreateTunnel);
+                final CreateTunnel sshCreateTunnel = new CreateTunnel.Builder()
+                        .withProto(Proto.HTTP)
+                        .withAddr(4567)
+                        .build();
+                final Tunnel httpTunnel = ngrokClient.connect(sshCreateTunnel);
 
-            String url = httpTunnel.getPublicUrl();
-            System.out.println("Url for API: " + url);
+                String url = httpTunnel.getPublicUrl();
+                System.out.println("Url for API: " + url);
 
-        }catch(Exception e){
-            System.out.println("ERROR, ngrok failed");
+            } catch (Exception e) {
+                System.out.println("ERROR, ngrok failed");
+            }
         }
     }
 
