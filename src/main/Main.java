@@ -3,10 +3,7 @@ package main;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Array;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import static spark.Spark.*;
 import com.fasterxml.jackson.databind.*;
@@ -15,10 +12,10 @@ import com.github.alexdlaird.ngrok.NgrokClient;
 import com.github.alexdlaird.ngrok.protocol.CreateTunnel;
 import com.github.alexdlaird.ngrok.protocol.Proto;
 import com.github.alexdlaird.ngrok.protocol.Tunnel;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Main {
-    public static boolean tunnelNgrok = false;
+    public static boolean tunnelNgrok = true;
     public static List<Map<?, ?>> accoms = buildObject("src/main/info.csv");
 
     //Provided we built the initial object correctly, start
@@ -31,6 +28,32 @@ public class Main {
             //Something didn't work
             System.exit(1);
         }
+
+        get("/fullQuery", (req, res) -> {
+            System.out.println("Filtering...");
+
+            // Construct a map of filters based on the query parameters
+            Map<String, String> filters = new HashMap<>();
+            for (String key : req.queryParams()) {
+                filters.put(key, req.queryParams(key));
+            }
+            System.out.println(filters.toString());
+
+            // Filter the accoms list based on the query parameters
+            //TODO - LIAM
+
+
+
+            // Convert the filtered list to a JSON formatted string
+            String json = convertToJson(null);
+
+            // Set the content type of the response to JSON
+            res.type("application/json");
+
+            return json;
+        });
+
+
 
         //Receives -> ID
         //Returns -> Site at index (ID) in list.
@@ -52,7 +75,12 @@ public class Main {
         //Returns -> Every row in list.
         get("/all", (req,res)->{
             System.out.println("Requested All");
-            return accoms.toString();
+            //Filter object
+            //---NO FILTER REQUIRED AS RETURNING ALL----
+            //Pass object into method to new string (json).
+            String json = convertToJson(accoms);
+            //Return json
+            return json;
         });
 
         //Receives->Site name
@@ -121,7 +149,25 @@ public class Main {
         }
     }
 
+
+
+
+
     //Start of functions.
+
+    //Convert our queries to JSON
+    public static String convertToJson(List<Map<?, ?>> accoms) {
+        try {
+            // Create an ObjectMapper object
+            ObjectMapper mapper = new ObjectMapper();
+            // Use the ObjectMapper to convert the list to a JSON formatted string
+            String json = mapper.writeValueAsString(accoms);
+            return json;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     //When called, will update the Object
     //in the current scope, with a provided filename.
