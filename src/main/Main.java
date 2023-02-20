@@ -90,7 +90,9 @@ public class Main {
                 int index = Integer.parseInt(req.params(":index"));
                 if(index<accoms.size()) {
                     System.out.print("Index requested: " + index);
-                    return accoms.get(index).toString();
+                    String json = convertToJson(accoms.get(index));
+                    res.type("application/json");
+                    return json;
                 }else{
                     return "Out of Bounds";
                 }
@@ -107,6 +109,7 @@ public class Main {
             //---NO FILTER REQUIRED AS RETURNING ALL----
             //Pass object into method to new string (json).
             String json = convertToJson(accoms);
+            res.type("application/json");
             //Return json
             return json;
         });
@@ -114,7 +117,15 @@ public class Main {
         //Receives->Site name
         //Returns->Rows which contain "name" in the Site column
         get("/name/:name", (req,res)->{
-            return getSiteInfo(accoms, req.params(":name"));
+            try {
+                String name = req.params(":name");
+                System.out.print("Name requested: " + name);
+                res.type("application/json");
+                return convertToJson(getSiteInfoMap(accoms, req.params(":name")));
+            } catch (Exception e) {
+                return "Invalid input";
+            }
+
         });
 
         //Receives->Brand name
@@ -196,6 +207,22 @@ public class Main {
             return null;
         }
     }
+
+    //Overload
+    //Convert our queries to JSON
+    public static String convertToJson(Map<?, ?> accoms) {
+        try {
+            // Create an ObjectMapper object
+            ObjectMapper mapper = new ObjectMapper();
+            // Use the ObjectMapper to convert the list to a JSON formatted string
+            String json = mapper.writeValueAsString(accoms);
+            return json;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 
     //When called, will update the Object
     //in the current scope, with a provided filename.
@@ -283,6 +310,21 @@ public class Main {
         }
         return "None";
     }
+
+    //PseudoOverload
+    //NOTE - Configured to return the first site it sees with provided name. Multiple sites
+    // search is not supported to not make chat-bot convoluted.
+    public static Map<?,?> getSiteInfoMap(List<Map<?, ?>> list, String site){
+        System.out.println("Getting Site info for: " + site);
+        for(int i=0;i<list.size();i++){
+            //Only pretty way of searching for site string appropriately:
+            if(list.get(i).get("Site").toString().toLowerCase().contains(site.toLowerCase())){
+                return list.get(i);
+            }
+        }
+        return null;
+    }
+
 
     public static String getOtherSitesFromBrand(List<Map<?,?>> list, String site){
         //receive a site name
