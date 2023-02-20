@@ -41,12 +41,13 @@ public class Main {
             System.out.println(filters.toString());
 
             // Filter the accoms list based on the query parameters
-            //TODO - LIAM
+
+
+            // Old in-Query processing -- Copied so own function filterQueries
+            /*
             ArrayList<Map<?,?>> filteredAccoms = new ArrayList<>();
             boolean noFail = true; // shifts false of failed query
-
             for (Map<?,?> building : accoms){
-
                 for (String column : filters.keySet()){
                     if (building.containsKey(column) && !filters.get(column).equals("")){
                         if (building.get(column).toString().toLowerCase().equals(filters.get(column).toString().toLowerCase())){
@@ -56,7 +57,6 @@ public class Main {
                             noFail = false;
                             break;
                         }
-
                     } else {
                         System.out.println("Invalid Query");
                     }
@@ -66,14 +66,13 @@ public class Main {
                 } else {
                     filteredAccoms.add(building);
                 }
-
             }
-
+            */
 
 
 
             // Convert the filtered list to a JSON formatted string
-            String json = convertToJson(filteredAccoms);
+            String json = convertToJson(filterAccoms(accoms, filters));
 
             // Set the content type of the response to JSON
             res.type("application/json");
@@ -89,7 +88,7 @@ public class Main {
             try {
                 int index = Integer.parseInt(req.params(":index"));
                 if(index<accoms.size()) {
-                    System.out.print("Index requested: " + index);
+                    System.out.println("Index requested: " + index);
                     String json = convertToJson(accoms.get(index));
                     res.type("application/json");
                     return json;
@@ -119,9 +118,12 @@ public class Main {
         get("/name/:name", (req,res)->{
             try {
                 String name = req.params(":name");
-                System.out.print("Name requested: " + name);
+                System.out.println("Name requested: " + name);
                 res.type("application/json");
-                return convertToJson(getSiteInfoMap(accoms, req.params(":name")));
+                if (getSiteInfoMap(accoms, req.params(":name")) != null){
+                    return convertToJson(getSiteInfoMap(accoms, req.params(":name")));
+                }
+                return "No Matches in Database";
             } catch (Exception e) {
                 return "Invalid input";
             }
@@ -131,7 +133,18 @@ public class Main {
         //Receives->Brand name
         //Returns->Rows which contain "brand" in the Brand column
         get("/brand/:brand", (req,res)->{
-            return getCompanyInfo(accoms, req.params(":brand"));
+            Map<String, String> filters = new HashMap<>();
+            for (String key : req.queryParams()) {
+                filters.put(key, req.queryParams(key));
+            }
+            // Convert the filtered list to a JSON formatted string
+            String json = convertToJson(filterAccoms(accoms, filters));
+
+            // Set the content type of the response to JSON
+            res.type("application/json");
+
+            return json;
+
         });
 
         //Receives->an index and the hasStudio check.
@@ -171,7 +184,7 @@ public class Main {
             try {
                 final NgrokClient ngrokClient = new NgrokClient.Builder().build();
                 //Don't leak this auth token.
-                ngrokClient.setAuthToken("2LSQAcGXtCXfmAcvQ6dhKaOg9z9_242ur7wT27KLcYjR1PBzh");
+                ngrokClient.setAuthToken("");
 
                 final CreateTunnel sshCreateTunnel = new CreateTunnel.Builder()
                         .withProto(Proto.HTTP)
@@ -193,6 +206,52 @@ public class Main {
 
 
     //Start of functions.
+
+// Unfinished function held back by issues with Set<String> inherent java implementaiton.
+/*
+    public static Map<?,?> createFilter(Set<String> filter){
+        Map<String, String> filters = new HashMap<>();
+        for (String key : filter) {
+            filters.put(key, filter.get(key));
+        }
+        System.out.println(filters.toString());
+        return null;
+    }
+*/
+
+    //Create Filter Map
+    public static List<Map<?,?>> filterAccoms(List<Map<?,?>> accoms, Map<String,String> filters){
+        ArrayList<Map<?,?>> filteredAccoms = new ArrayList<>();
+        boolean noFail = true; // shifts false of failed query
+
+        for (Map<?,?> building : accoms){
+
+            for (String column : filters.keySet()){
+                if (building.containsKey(column) && !filters.get(column).equals("")){
+                    if (building.get(column).toString().toLowerCase().equals(filters.get(column).toString().toLowerCase())){
+                        System.out.println("Query Passed");
+                    } else {
+                        System.out.println("Query Failed");
+                        noFail = false;
+                        break;
+                    }
+
+                } else {
+                    System.out.println("Invalid Query");
+                }
+            }
+            if (!noFail){
+                noFail = true;
+            } else {
+                filteredAccoms.add(building);
+            }
+
+        }
+
+        return filteredAccoms;
+    }
+
+
 
     //Convert our queries to JSON
     public static String convertToJson(List<Map<?, ?>> accoms) {
