@@ -15,7 +15,7 @@ import com.github.alexdlaird.ngrok.protocol.Tunnel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Main {
-    public static boolean tunnelNgrok = true;
+    public static boolean tunnelNgrok = false;
     public static List<Map<?, ?>> accoms = buildObject("src/main/info.csv");
 
     //Provided we built the initial object correctly, start
@@ -72,12 +72,26 @@ public class Main {
 
 
             // Convert the filtered list to a JSON formatted string
-            String json = convertToJson(filterAccoms(accoms, filters));
+
+            String jsonstring = convertToJsonList(filterAccoms(accoms, filters));
+
+            List<Map<?,?>> filteredAccoms = filterAccoms(accoms, filters);
+
+
+
 
             // Set the content type of the response to JSON
             res.type("application/json");
 
-            return json;
+            String response = convertToJsonList(filteredAccoms);
+            response = "{\"Residences\":"+response+"}";
+            return response;
+
+        });
+
+        get("/one", (req, res)->{
+            res.type("application/json");
+            return "{\"this\":\"that}\"";
         });
 
 
@@ -98,7 +112,7 @@ public class Main {
             }catch(Exception e){
                 return "Invalid input";
             }
-            });
+        });
 
         //Receives -> Ask for All
         //Returns -> Every row in list.
@@ -107,9 +121,10 @@ public class Main {
             //Filter object
             //---NO FILTER REQUIRED AS RETURNING ALL----
             //Pass object into method to new string (json).
-            String json = convertToJson(accoms);
+            String json = convertToJsonList(accoms);
             res.type("application/json");
             //Return json
+            System.out.println(json.toString());
             return json;
         });
 
@@ -138,7 +153,7 @@ public class Main {
                 filters.put(key, req.queryParams(key));
             }
             // Convert the filtered list to a JSON formatted string
-            String json = convertToJson(filterAccoms(accoms, filters));
+            String json = convertToJsonList(filterAccoms(accoms, filters));
 
             // Set the content type of the response to JSON
             res.type("application/json");
@@ -221,7 +236,7 @@ public class Main {
 
     //Create Filter Map
     public static List<Map<?,?>> filterAccoms(List<Map<?,?>> accoms, Map<String,String> filters){
-        ArrayList<Map<?,?>> filteredAccoms = new ArrayList<>();
+        List<Map<?, ?>> filteredAccoms = new ArrayList<>();
         boolean noFail = true; // shifts false of failed query
 
         for (Map<?,?> building : accoms){
@@ -254,7 +269,7 @@ public class Main {
 
 
     //Convert our queries to JSON
-    public static String convertToJson(List<Map<?, ?>> accoms) {
+    public static String convertToJsonList(List<Map<?, ?>> accoms) {
         try {
             // Create an ObjectMapper object
             ObjectMapper mapper = new ObjectMapper();
