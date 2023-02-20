@@ -84,17 +84,19 @@ public class Main {
             res.type("application/json");
 
             String response = convertToJsonList(filteredAccoms);
-            response = "{\"Residences\":"+response+"}";
+            //response = "{\"Residences\":"+response+"}";
             return response;
 
         });
 
+        // Demo Function which attempted to debug Architect failing to read output -- failed
+        /*
         get("/one", (req, res)->{
             res.type("application/json");
             return "{\"this\":\"that}\"";
         });
 
-
+        */
 
         //Receives -> ID
         //Returns -> Site at index (ID) in list.
@@ -138,9 +140,9 @@ public class Main {
                 if (getSiteInfoMap(accoms, req.params(":name")) != null){
                     return convertToJson(getSiteInfoMap(accoms, req.params(":name")));
                 }
-                return "No Matches in Database";
+                return "No Matches in Database: " + name;
             } catch (Exception e) {
-                return "Invalid input";
+                return "Error: Invalid input";
             }
 
         });
@@ -236,17 +238,18 @@ public class Main {
 
     //Create Filter Map
     public static List<Map<?,?>> filterAccoms(List<Map<?,?>> accoms, Map<String,String> filters){
-        List<Map<?, ?>> filteredAccoms = new ArrayList<>();
+        ArrayList<Map<?,?>> filteredAccoms = new ArrayList<>();
         boolean noFail = true; // shifts false of failed query
 
         for (Map<?,?> building : accoms){
 
             for (String column : filters.keySet()){
                 if (building.containsKey(column) && !filters.get(column).equals("")){
-                    if (building.get(column).toString().toLowerCase().equals(filters.get(column).toString().toLowerCase())){
-                        System.out.println("Query Passed");
+                    if (building.get(column).toString().equalsIgnoreCase(filters.get(column).toString())){
+                        System.out.println("Query for " + column +": " + building.get(column)+ " Passed");
                     } else {
-                        System.out.println("Query Failed");
+                        System.out.println("Query for " + column + ": " + building.get(column)+ " Failed" );
+                        System.out.println("Wanted " + column + ": " + filters.get(column));
                         noFail = false;
                         break;
                     }
@@ -257,14 +260,18 @@ public class Main {
             }
             if (!noFail){
                 noFail = true;
+                System.out.printf("Residence "+ building.get("Site") +" Failed\n\n");
+
             } else {
                 filteredAccoms.add(building);
+                System.out.printf("Residence "+ building.get("Site") +" Passed\n\n");
             }
 
         }
 
         return filteredAccoms;
     }
+
 
 
 
@@ -275,14 +282,19 @@ public class Main {
             ObjectMapper mapper = new ObjectMapper();
             // Use the ObjectMapper to convert the list to a JSON formatted string
             String json = mapper.writeValueAsString(accoms);
-            return json;
+            return  packageJsonResidence(json);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
 
+    public static String packageJsonResidence(String json){
+        return "{\"Residences\":"+json+"}";
+    }
+
     //Overload
+    // TODO -- FIX THIS TO MAKE ITS OUTPUT A VERSION OF THE converToJsonList AND COMPATIBLE WITH IT
     //Convert our queries to JSON
     public static String convertToJson(Map<?, ?> accoms) {
         try {
@@ -290,7 +302,7 @@ public class Main {
             ObjectMapper mapper = new ObjectMapper();
             // Use the ObjectMapper to convert the list to a JSON formatted string
             String json = mapper.writeValueAsString(accoms);
-            return json;
+            return  packageJsonResidence(json);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
