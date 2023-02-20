@@ -30,7 +30,8 @@ public class Main {
         }
 
         get("/fullQuery", (req, res) -> {
-            System.out.println("Filtering...");
+
+            System.out.println("Filtering Query...");
 
             // Construct a map of filters based on the query parameters
             Map<String, String> filters = new HashMap<>();
@@ -41,11 +42,38 @@ public class Main {
 
             // Filter the accoms list based on the query parameters
             //TODO - LIAM
+            ArrayList<Map<?,?>> filteredAccoms = new ArrayList<>();
+            boolean noFail = true; // shifts false of failed query
+
+            for (Map<?,?> building : accoms){
+
+                for (String column : filters.keySet()){
+                    if (building.containsKey(column) && !filters.get(column).equals("")){
+                        if (building.get(column).toString().toLowerCase().equals(filters.get(column).toString().toLowerCase())){
+                            System.out.println("Query Passed");
+                        } else {
+                            System.out.println("Query Failed");
+                            noFail = false;
+                            break;
+                        }
+
+                    } else {
+                        System.out.println("Invalid Query");
+                    }
+                }
+                if (!noFail){
+                    noFail = true;
+                } else {
+                    filteredAccoms.add(building);
+                }
+
+            }
+
 
 
 
             // Convert the filtered list to a JSON formatted string
-            String json = convertToJson(null);
+            String json = convertToJson(filteredAccoms);
 
             // Set the content type of the response to JSON
             res.type("application/json");
@@ -277,6 +305,7 @@ public class Main {
                 sites.add(list.get(i).toString());
             }
         }
+
         return sites.toString();
     }
 
@@ -294,6 +323,23 @@ public class Main {
             return "None";
         return listOfCompany.toString();
     }
+
+    //NOTE - Unlike getCompanyInfo, this returns a list<map<?,?>> with all sites belonging to brand
+    //This should not be returned directly in an API response.
+    public static List<Map<?, ?>> getCompanySiteList(List<Map<?, ?>> list, String company){
+        System.out.println("Getting Site List for Company: " + company);
+
+        ArrayList<Map<?,?>> listOfCompany = new ArrayList<Map<?,?>>();
+        for(int i=0;i<list.size();i++) {
+            if (list.get(i).toString().toLowerCase().contains(company.toLowerCase())) { // searches string of map to see if name of brand is in it
+                listOfCompany.add(list.get(i));
+            }
+        }
+        if(listOfCompany.size()==0)
+            return null;
+        return listOfCompany;
+    }
+
 
 
 }
