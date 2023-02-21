@@ -13,6 +13,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Main {
 
+    String url = "sql8.freemysqlhosting.net";
+    String user = "sql8600069";
+    String password = "aAGxAXEthq";
+    String query = "SELECT * FROM mytable";
+
     public static boolean tunnelNgrok = false;
     //Provided we built the initial object correctly, start
     //program and initialise API responses.
@@ -88,7 +93,6 @@ public class Main {
             ngrokTunnel.startNgrok("");
         }
     }
-
 
     //Create Filter Map
     public static List<Map<?,?>> filterAccoms(List<Map<?,?>> accoms, Map<String,String> filters){
