@@ -82,6 +82,12 @@
             <artifactId>java-ngrok</artifactId>
             <version>1.6.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.9.0</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
 
