@@ -13,9 +13,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Main {
 
-    String url = "sql8.freemysqlhosting.net";
-    String user = "sql8600069";
-    String password = "aAGxAXEthq";
+    String url = "";
+    String user = "";
+    String password = "";
     String query = "SELECT * FROM mytable";
 
     public static boolean tunnelNgrok = false;
@@ -50,6 +50,7 @@ public class Main {
             res.type("application/json");
 
             //response = "{\"Residences\":"+response+"}";
+            System.out.println(convertToJsonList(filteredAccoms).toString());
             return convertToJsonList(filteredAccoms);
 
         });
