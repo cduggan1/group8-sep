@@ -8,7 +8,6 @@ public class Logger {
     public static ArrayList<String> logFile = new ArrayList<>();
     public static String epoch = String.valueOf(System.currentTimeMillis());
 
-
     public static void addLog(String tag, String msg) {
         File file = new File("src/logs/","new_log_"+epoch+".txt");
 
@@ -22,6 +21,7 @@ public class Logger {
         }
         logFile.add(tag + "," + msg + ".\n");
     }
+
     public static void clearLog(){
         logFile = new ArrayList<>();
     }
