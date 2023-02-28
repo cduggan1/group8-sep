@@ -124,34 +124,32 @@ public class Main {
     //Create Filter Map
     public static List<Map<?,?>> filterAccoms(List<Map<?,?>> accoms, Map<String,String> filters){
         ArrayList<Map<?,?>> filteredAccoms = new ArrayList<>();
-        boolean noFail = true; // shifts false of failed query
-        for (Map<?,?> building : accoms){
-            for (String column : filters.keySet()){
-                if (building.containsKey(column) && !filters.get(column).equals("")){
-                    if (building.get(column).toString().equalsIgnoreCase(filters.get(column).toString())){
-                        System.out.println("Query for " + column +": " + building.get(column)+ " Passed");
+        boolean noFail = true; // Shifts false on failed query
+        for (Map<?,?> building : accoms){       // iterate through every student residence as a Map<>
+            for (String column : filters.keySet()){     // iterate through every filter key as a String
+                if (building.containsKey(column) && !filters.get(column).equals("")){   // If the filter is not "" and the building map contains the key of hte filler, continue
+                    if (building.get(column).toString().equalsIgnoreCase(filters.get(column).toString())){      // If the values of both the filter and building map are equal, continue
+                        System.out.println("Query for " + column +": " + building.get(column)+ " Passed");      // Output for monitoring API calls
                     } else {
-                        System.out.println("Query for " + column + ": " + building.get(column)+ " Failed" );
-                        System.out.println("Wanted " + column + ": " + filters.get(column));
-                        noFail = false;
-                        break;
+                        System.out.println("Query for " + column + ": " + building.get(column)+ " Failed" );    // Output for monitoring API calls
+                        System.out.println("Wanted " + column + ": " + filters.get(column));    // Output for monitoring API calls
+                        noFail = false;    // Fail this residence
+                        break; // Exit for loop upon failure
                     }
                 } else {
-                    System.out.println("Invalid Query");
+                    System.out.println("Invalid Query");    // Output for monitoring API calls
                 }
             }
-            if (!noFail){
-                noFail = true;
-                System.out.println("Residence "+ building.get("Site") +" Not Matched\n\n");
-
+            if (!noFail){       // if noFail is false
+                noFail = true;      // Reset to true after a fail
+                System.out.println("Residence "+ building.get("Site") +" Not Matched\n\n");     // Output for monitoring API calls
             } else {
-                filteredAccoms.add(building);
-                System.out.println("Residence "+ building.get("Site") +" Matched\n\n");
+                filteredAccoms.add(building);   // Add successful building to return List<Map<?,?>>
+                System.out.println("Residence "+ building.get("Site") +" Matched\n\n");         // Output for monitoring API calls
             }
         }
-        return filteredAccoms;
+        return filteredAccoms;  // return the shortened list of accoms that match the queries.
     }
-
 
     public static String packageJsonResidence(String json){
         return "{\"Residences\":"+json+"}";
