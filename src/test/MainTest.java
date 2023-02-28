@@ -1,4 +1,4 @@
-package tests;
+package test;
 
 import main.Main;
 import main.csvData;
@@ -31,5 +31,6 @@ class MainTest {
 
     @org.junit.jupiter.api.Test
     void convertToJsonList() {
+
     }
 }
