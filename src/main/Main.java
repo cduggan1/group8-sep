@@ -13,20 +13,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Main {
 
+
     String url = "";
     String user = "";
     String password = "";
     String query = "SELECT * FROM mytable";
 
     public static boolean tunnelNgrok = false;
+    public static boolean enableLogging = true;
     //Provided we built the initial object correctly, start
     //program and initialise API responses.
     public static void main(String[] args) throws IOException {
         csvData.init("src/main/info.csv");
 
-
         if(csvData.accoms==null){
             System.out.println("Error Parsing CSV");
+            Logger.addLog("Init", "CSV Error");
             //Something didn't work
             System.exit(1);
         }
@@ -34,6 +36,8 @@ public class Main {
         get("/fullQuery", (req, res) -> {
 
             System.out.println("Filtering Query...");
+            Logger.addLog("fullQuery", "API Called");
+
 
             // Construct a map of filters based on the query parameters
             Map<String, String> filters = new HashMap<>();
@@ -41,6 +45,11 @@ public class Main {
                 filters.put(key, req.queryParams(key));
             }
             System.out.println(filters.toString());
+            if(filters.size()>0) {
+                Logger.addLog("fullQuery", "FILTERS ADDED:" + filters.toString());
+            }else{
+                Logger.addLog("fullQuery", "No filters specified.");
+            }
 
             // Filter the accoms list based on the query parameters
             // Convert the filtered list to a JSON formatted string
@@ -50,25 +59,32 @@ public class Main {
             res.type("application/json");
 
             //response = "{\"Residences\":"+response+"}";
-            System.out.println(convertToJsonList(filteredAccoms).toString());
-            return convertToJsonList(filteredAccoms);
+            String response = convertToJsonList(filteredAccoms);
+
+            System.out.println("RESPONSE" + response);
+            Logger.addLog("RESPONSE" , response);
+            return response;
 
         });
 
         //Receives -> ID
         //Returns -> Site at index (ID) in list.
         get("/id/:index", (req,res)->{
+            Logger.addLog("ID", "API Called");
             try {
                 int index = Integer.parseInt(req.params(":index"));
                 if(index<csvData.accoms.size()) {
                     System.out.println("Index requested: " + index);
                     String json = convertToJson(csvData.accoms.get(index));
                     res.type("application/json");
+                    Logger.addLog("RESPONSE" , json);
                     return json;
                 }else{
+                    Logger.addLog("ID", "Out Of Bounds");
                     return "Out of Bounds";
                 }
             }catch(Exception e){
+                Logger.addLog("ID", "Invalid input");
                 return "Invalid input";
             }
         });
@@ -76,6 +92,7 @@ public class Main {
         //Receives -> Ask for All
         //Returns -> Every row in list.
         get("/all", (req,res)->{
+            Logger.addLog("All", "API Called");
             System.out.println("Requested All");
             //Filter object
             //---NO FILTER REQUIRED AS RETURNING ALL----
@@ -84,8 +101,17 @@ public class Main {
             res.type("application/json");
             //Return json
             System.out.println(json.toString());
+            Logger.addLog("RESPONSE", json);
             return json;
         });
+
+        get("/admin/log",(req, res)->{
+            if(enableLogging) {
+                return Logger.logFile.toString();
+            }else{
+                return "Logging Disabled.";
+            }
+                });
 
         //End of API calls.
 
