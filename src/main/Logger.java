@@ -21,6 +21,7 @@ public class Logger {
         }
         logFile.add(tag + "," + msg + ".\n");
     }
+
     public static void clearLog(){
         logFile = new ArrayList<>();
     }

@@ -5,10 +5,10 @@ import java.util.*;
 
 import static spark.Spark.*;
 
-import com.github.alexdlaird.ngrok.NgrokClient;
-import com.github.alexdlaird.ngrok.protocol.CreateTunnel;
-import com.github.alexdlaird.ngrok.protocol.Proto;
-import com.github.alexdlaird.ngrok.protocol.Tunnel;
+//import com.github.alexdlaird.ngrok.NgrokClient;
+//import com.github.alexdlaird.ngrok.protocol.CreateTunnel;
+//import com.github.alexdlaird.ngrok.protocol.Proto;
+//import com.github.alexdlaird.ngrok.protocol.Tunnel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Main {
@@ -100,8 +100,15 @@ public class Main {
             String json = convertToJsonList(csvData.accoms);
             res.type("application/json");
             //Return json
-            System.out.println(json.toString());
-            Logger.addLog("RESPONSE", json);
+            if (json != null){
+                System.out.println(json.toString());
+                Logger.addLog("RESPONSE", json);
+            } else {
+                System.out.println("json.toString() produced Null Pointer Exception");
+                Logger.addLog("ERROR","json.toString() produced Null Pointer Exception");
+            }
+
+
             return json;
         });
 
@@ -124,34 +131,32 @@ public class Main {
     //Create Filter Map
     public static List<Map<?,?>> filterAccoms(List<Map<?,?>> accoms, Map<String,String> filters){
         ArrayList<Map<?,?>> filteredAccoms = new ArrayList<>();
-        boolean noFail = true; // shifts false of failed query
-        for (Map<?,?> building : accoms){
-            for (String column : filters.keySet()){
-                if (building.containsKey(column) && !filters.get(column).equals("")){
-                    if (building.get(column).toString().equalsIgnoreCase(filters.get(column).toString())){
-                        System.out.println("Query for " + column +": " + building.get(column)+ " Passed");
+        boolean noFail = true; // Shifts false on failed query
+        for (Map<?,?> building : accoms){       // iterate through every student residence as a Map<>
+            for (String column : filters.keySet()){     // iterate through every filter key as a String
+                if (building.containsKey(column) && !filters.get(column).equals("")){   // If the filter is not "" and the building map contains the key of hte filler, continue
+                    if (building.get(column).toString().equalsIgnoreCase(filters.get(column).toString())){      // If the values of both the filter and building map are equal, continue
+                        System.out.println("Query for " + column +": " + building.get(column)+ " Passed");      // Output for monitoring API calls
                     } else {
-                        System.out.println("Query for " + column + ": " + building.get(column)+ " Failed" );
-                        System.out.println("Wanted " + column + ": " + filters.get(column));
-                        noFail = false;
-                        break;
+                        System.out.println("Query for " + column + ": " + building.get(column)+ " Failed" );    // Output for monitoring API calls
+                        System.out.println("Wanted " + column + ": " + filters.get(column));    // Output for monitoring API calls
+                        noFail = false;    // Fail this residence
+                        break; // Exit for loop upon failure
                     }
                 } else {
-                    System.out.println("Invalid Query");
+                    System.out.println("Invalid Query");    // Output for monitoring API calls
                 }
             }
-            if (!noFail){
-                noFail = true;
-                System.out.println("Residence "+ building.get("Site") +" Not Matched\n\n");
-
+            if (!noFail){       // if noFail is false
+                noFail = true;      // Reset to true after a fail
+                System.out.println("Residence "+ building.get("Site") +" Not Matched\n\n");     // Output for monitoring API calls
             } else {
-                filteredAccoms.add(building);
-                System.out.println("Residence "+ building.get("Site") +" Matched\n\n");
+                filteredAccoms.add(building);   // Add successful building to return List<Map<?,?>>
+                System.out.println("Residence "+ building.get("Site") +" Matched\n\n");         // Output for monitoring API calls
             }
         }
-        return filteredAccoms;
+        return filteredAccoms;  // return the shortened list of accoms that match the queries.
     }
-
 
     public static String packageJsonResidence(String json){
         return "{\"Residences\":"+json+"}";
@@ -192,8 +197,8 @@ public class Main {
     public static ArrayList<String> getFromCol(List<Map<?,?>> list, String col){
         System.out.println("Attempting to grab column: " + col);
         ArrayList<String> vals = new ArrayList<>();
-        for(int i=0;i<list.size(); i++){
-            vals.add(list.get(i).get(col).toString());
+        for (Map<?,?> residence: list){
+            vals.add(residence.get(col).toString());
         }
         return vals;
     }
@@ -214,19 +219,20 @@ public class Main {
     public static boolean hasStudios(List<Map<?, ?>> list, int id){
         System.out.println("Checking if ID " + id + " has Studio");
         System.out.println(list.get(id).toString());
-        if(getValue(list, id, "Has Studio").equalsIgnoreCase("y"))
+        if(getValue(list, id, "Has Studio").equalsIgnoreCase("y")) {
             return true;
+        }
         return false;
     }
 
     //NOTE - Configured to return the first site it sees with provided name. Multiple sites
-    // search is not supported to not make chat-bot convoluted.
+    // search is not supported to not make chatbot convoluted.
     public static String getSiteInfo(List<Map<?, ?>> list, String site){
         System.out.println("Getting Site info for: " + site);
-        for(int i=0;i<list.size();i++){
+        for (Map<?,?> residence : list){
             //Only pretty way of searching for site string appropriately:
-            if(list.get(i).get("Site").toString().toLowerCase().contains(site.toLowerCase())){
-                return list.get(i).toString();
+            if(residence.get("Site").toString().toLowerCase().contains(site.toLowerCase())){
+                return residence.toString();
             }
         }
         return "None";
@@ -234,13 +240,13 @@ public class Main {
 
     //PseudoOverload
     //NOTE - Configured to return the first site it sees with provided name. Multiple sites
-    // search is not supported to not make chat-bot convoluted.
+    // search is not supported to not make chatbot convoluted.
     public static Map<?,?> getSiteInfoMap(List<Map<?, ?>> list, String site){
         System.out.println("Getting Site info for: " + site);
-        for(int i=0;i<list.size();i++){
+        for (Map<?,?> residence : list){
             //Only pretty way of searching for site string appropriately:
-            if(list.get(i).get("Site").toString().toLowerCase().contains(site.toLowerCase())){
-                return list.get(i);
+            if(residence.get("Site").toString().toLowerCase().contains(site.toLowerCase())) {
+                return residence;
             }
         }
         return null;
@@ -251,9 +257,9 @@ public class Main {
     public static String getCompanyInfo(List<Map<?, ?>> list, String company){
         System.out.println("Getting Company info for: " + company);
         ArrayList<String> listOfCompany = new ArrayList<String>();
-        for(int i=0;i<list.size();i++) {
-            if (list.get(i).toString().toLowerCase().contains(company.toLowerCase())) {
-                listOfCompany.add(list.get(i).toString());
+        for (Map<?,?> site : list){
+            if (site.toString().toLowerCase().contains(company.toLowerCase())) {
+                listOfCompany.add(site.toString());
             }
         }
         if(listOfCompany.size()==0)
