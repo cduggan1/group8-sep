@@ -24,9 +24,9 @@ public class Main {
     //Provided we built the initial object correctly, start
     //program and initialise API responses.
     public static void main(String[] args) throws IOException {
-        csvData.init("info.csv");
+        csvData.init("src/main/info.csv");
 
-        if(csvData.accoms==null){
+        if(csvData.accoms==null) {
             System.out.println("Error Parsing CSV");
             Logger.addLog("Init", "CSV Error");
             //Something didn't work
@@ -63,6 +63,33 @@ public class Main {
 
             System.out.println("RESPONSE" + response);
             Logger.addLog("RESPONSE" , response);
+            return response;
+
+        });
+
+        // Builds the URL to be processed by the webscraper, as well as the requested BER rating
+        //Gets a JSON formatted string containing the properties matching the query parameters from the webCrawler class
+        get("/scrape", (req, res) -> {
+
+            System.out.println("Filtering Query...");
+            Logger.addLog("scrape", "API Called");
+
+            String parentURL = "https://www.daft.ie/property-for-rent/dublin-city-centre-dublin?furnishing=furnished";
+            String appendIndex = "pageSize=20&from=";
+            String BER_Query = "All";
+            String filters = "&";
+
+            for (String key : req.queryParams()) {
+                if (key.equals("BER")) {
+                    BER_Query = req.queryParams(key);
+                } else {
+                    filters = filters + key + "=" + req.queryParams(key) + "&";
+                }
+            }
+
+            System.out.println(parentURL + filters + appendIndex);
+            String response = webCrawler.Daft(parentURL + filters + appendIndex, BER_Query);
+
             return response;
 
         });
@@ -219,7 +246,7 @@ public class Main {
     public static boolean hasStudios(List<Map<?, ?>> list, int id){
         System.out.println("Checking if ID " + id + " has Studio");
         System.out.println(list.get(id).toString());
-        if(getValue(list, id, "Has Studio").equalsIgnoreCase("y")) {
+        if (getValue(list, id, "Has Studio").equalsIgnoreCase("y")) {
             return true;
         }
         return false;
