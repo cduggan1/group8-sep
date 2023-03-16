@@ -1,6 +1,7 @@
 package main;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -9,17 +10,18 @@ import org.jsoup.select.Elements;
 
 public class webCrawler {
 
-    public static void webCrawler(String parentURL, String BER_Query) {
-
-    //public static void main(String[] args) {
+    public static String Daft(String parentUrl, String BER_Query) {
 
         boolean endOfList = false;
+        boolean firstProperty = true;
 
         int index = 0;
-        int count = 0;
 
-        String parentUrl = "https://www.daft.ie/property-for-rent/dublin-city-centre-dublin?furnishing=furnished" +
-                "&pageSize=20&from=" + index;
+        String BER_Ratings[] = {"G","F","E2","E1","D2","D1","C3","C2","C1","B3","B2","B1","A3","A2","A1"};
+
+        String tempUrl = parentUrl + index;
+        String json = "{ \"Residences\":[{";
+        StringBuffer json_sb= new StringBuffer(json);
 
         try {
             ArrayList<String> urlList = new ArrayList<>();
@@ -32,7 +34,6 @@ public class webCrawler {
 
                 for (Element link : links) {
                     if (link.attr("abs:href").contains("/for-rent/")) {
-                        //System.out.println(link.attr("abs:href"));
                         urlList.add(link.attr("abs:href"));
                     }
                 }
@@ -41,7 +42,7 @@ public class webCrawler {
                 }
                 else {
                     index = index + 20;
-                    parentUrl = "https://www.daft.ie/property-for-rent/dublin-city-centre-dublin?pageSize=20&from=" + index;
+                    parentUrl = parentUrl + index;
                 }
             }
             System.out.println(urlList);
@@ -58,38 +59,62 @@ public class webCrawler {
                 Element beds = document.selectFirst("li:contains(Bedroom)");
                 Element baths = document.selectFirst("li:contains(Bath)");
 
-              //  if (BER.attr("alt").equalsIgnoreCase(BER_Query) && count <= 5 && type != null) {
-                    System.out.println(title.text() + "\n" + price.text());
+                if ((Arrays.asList(BER_Ratings).indexOf(BER_Query)
+                        <= Arrays.asList(BER_Ratings).indexOf(BER.attr("alt"))
+                            || BER_Query.equalsIgnoreCase("All")) && type != null) {
 
+                    System.out.println(title.text() + "\n" + price.text());
+                    if (!firstProperty) {
+                        json_sb.append("{\"title\":\"" + title.text() + "\",\"price\":\"" + price.text() + "\",");
+                    }
+                    else {
+                        json_sb.append("\"title\":\"" + title.text() + "\",\"price\":\"" + price.text() + "\",");
+                        firstProperty = false;
+                    }
                     if (BER != null) {
+                        json_sb.append("\"BER\":\"" + BER.attr("alt") + "\",");
                         System.out.println(BER.attr("alt"));
                     }
                     if (type != null) {
+                        json_sb.append("\"type\":\"" + type.text() + "\",");
                         System.out.println(type.text());
                     }
                     if (lease != null) {
+                        json_sb.append("\"lease\":\"" + lease.text() + "\",");
                         System.out.println(lease.text());
                     }
                     if (beds != null) {
+                        json_sb.append("\"beds\":\"" + beds.text() + "\",");
                         System.out.println(beds.text());
                     }
                     if (baths != null) {
+                        json_sb.append("\"baths\":\"" + baths.text() + "\",");
                         System.out.println(baths.text());
                     }
 
                     final Elements facilities = document.select("ul [class*=PropertyDetails]");
                     for (Element li : facilities) {
+                        json_sb.append("\"" + li.select("li").text() + "\":\"" + li.select("li").text()
+                                + "\",");
+
                         System.out.println(li.select("li").text());
                     }
-                    System.out.println("");
-                    count++;
 
+                    json_sb.deleteCharAt(json_sb.length()-1);
+                    json_sb.append("},");
+                    System.out.println("");
                 }
-           // }
+            }
+
+            json_sb.deleteCharAt(json_sb.length()-1);
+            json = json_sb.toString();
+            return json + "]}";
         }
+
         catch (Exception e) {
             e.printStackTrace();
         }
+        return null;
     }
 
 }
