@@ -96,16 +96,35 @@ public class Main {
 
         });
 
+        // Builds the URL to be processed by the webscraper, as well as the requested BER rating
+        //Gets a JSON formatted string containing the properties matching the query parameters from the webCrawler class
         get("/scrape", (req, res) -> {
 
-            Map<String, String> filters1 = new HashMap<>();
+            System.out.println("Filtering Query...");
+            Logger.addLog("scrape", "API Called");
+
+            String parentURL = "https://www.daft.ie/property-for-rent/dublin-city-centre-dublin?furnishing=furnished";
+            String appendIndex = "pageSize=20&from=";
+            String BER_Query = "All";
+            String filters = "&";
+
             for (String key : req.queryParams()) {
-                filters1.put(key, req.queryParams(key));
+                if (key.equals("BER")) {
+                    BER_Query = req.queryParams(key);
+                } else {
+                    filters = filters + key + "=" + req.queryParams(key) + "&";
+                }
             }
 
-            System.out.println("RESPONSE IS " + filters1.toString());
-            return "true";
+            parentURL = parentURL + filters + appendIndex;
+            System.out.println(parentURL);
+
+            String response = webCrawler.Daft(parentURL, BER_Query, null);
+
+            return response;
+
         });
+
 
         //Receives -> ID
         //Returns -> Site at index (ID) in list.
