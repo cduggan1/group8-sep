@@ -24,8 +24,14 @@ public class Main {
     //Provided we built the initial object correctly, start
     //program and initialise API responses.
     public static void main(String[] args) throws IOException {
-        csvData.init("info.csv");
-
+        try {
+            csvData.init("src/main/info.csv");
+        }catch(Exception e){
+            try {
+                csvData.init("info.csv");
+            }catch(Exception f){}
+            }
+        port(443);
         DatabaseManager.testConnection();
 
         if(csvData.accoms==null) {
@@ -69,32 +75,6 @@ public class Main {
 
         });
 
-        // Builds the URL to be processed by the webscraper, as well as the requested BER rating
-        //Gets a JSON formatted string containing the properties matching the query parameters from the webCrawler class
-        get("/scrape", (req, res) -> {
-
-            System.out.println("Filtering Query...");
-            Logger.addLog("scrape", "API Called");
-
-            String parentURL = "https://www.daft.ie/property-for-rent/dublin-city-centre-dublin?furnishing=furnished";
-            String appendIndex = "pageSize=20&from=";
-            String BER_Query = "All";
-            String filters = "&";
-
-            for (String key : req.queryParams()) {
-                if (key.equals("BER")) {
-                    BER_Query = req.queryParams(key);
-                } else {
-                    filters = filters + key + "=" + req.queryParams(key) + "&";
-                }
-            }
-
-            System.out.println(parentURL + filters + appendIndex);
-            String response = webCrawler.Daft(parentURL + filters + appendIndex, BER_Query);
-
-            return response;
-
-        });
 
         // Builds the URL to be processed by the webscraper, as well as the requested BER rating
         //Gets a JSON formatted string containing the properties matching the query parameters from the webCrawler class
