@@ -24,7 +24,9 @@ public class Main {
     //Provided we built the initial object correctly, start
     //program and initialise API responses.
     public static void main(String[] args) throws IOException {
-        csvData.init("src/main/info.csv");
+        csvData.init("info.csv");
+
+        DatabaseManager.testConnection();
 
         if(csvData.accoms==null) {
             System.out.println("Error Parsing CSV");
@@ -92,6 +94,17 @@ public class Main {
 
             return response;
 
+        });
+
+        get("/scrape", (req, res) -> {
+
+            Map<String, String> filters1 = new HashMap<>();
+            for (String key : req.queryParams()) {
+                filters1.put(key, req.queryParams(key));
+            }
+
+            System.out.println("RESPONSE IS " + filters1.toString());
+            return "true";
         });
 
         //Receives -> ID
