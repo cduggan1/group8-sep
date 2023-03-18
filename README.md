@@ -23,11 +23,11 @@ A list of all valid queries and query parameters for the API, and an explanation
 
 /scrape - This query calls the webscraper class.
 
-#### Daft
+#### Daft  
 
 *rentalPrice_to=* 
 - Sets maximum acceptable price
-
+  
 *propertyType=*
 - Sets desired property type. 
 - Can be passed multiple times to select more than one type, or not at all to select all types.  
@@ -35,16 +35,16 @@ A list of all valid queries and query parameters for the API, and an explanation
   - apartments
   - studio-apartments
   - houses
-
+  
 *numBaths_from=*
 - Sets the minimum number of bathrooms.
-
+  
 *numBeds_from=*
 - Sets minimum number of beds
-
+  
 *leaseLength_from=*
--Sets minimum lease length in months (e.g. leaseLength_from=12 is a one year lease)
-
+- Sets minimum lease length in months (e.g. leaseLength_from=12 is a one year lease)
+  
 *facilities=*
 - Takes a string from the user and parses out valid facilities.
 - Valid facilities : 
@@ -61,12 +61,12 @@ A list of all valid queries and query parameters for the API, and an explanation
   - dryer
   - wheelchair-access
   - washing-machine
-  
-  *BER=*
-  - Takes a string from the user, looks for properties with a BER rating matching, or better than, the rating contained in the string
-  - In the case of the string not being a valid BER rating, an empty list of residences is returned.
-  - In the case of the input being "Exempt", "SI_666" is passed to the web crawler instead, and all BER ratings are returned
-  - Valid BER Ratings : 
+     
+*BER=*
+ - Takes a string from the user, looks for properties with a BER rating matching, or better than, the rating contained in the string
+ - In the case of the string not being a valid BER rating, an empty list of residences is returned.
+ - In the case of the input being "Exempt", "SI_666" is passed to the web crawler instead, and all BER ratings are returned
+ - Valid BER Ratings : 
     - Exempt
     - G
     - F
