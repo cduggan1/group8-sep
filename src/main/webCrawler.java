@@ -2,53 +2,150 @@ package main;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-public class webCrawler {
+public class webCrawler implements Callable {
 
-    public static String Daft(String parentUrl, String BER_Query) {
+    public static String parentUrl;
+    public static ArrayList<String> urlList;
+    public static String BER_Query;
+    public static HashMap<String, ArrayList<String> > urlListMap = new HashMap<String, ArrayList<String> >();
+    public static HashMap<String, String> urlMap = new HashMap<String, String>();
+    public webCrawler (String parentUrl, String BER_Query, ArrayList<String> urlList, int index, ArrayList<String> properties){
+
+        this.parentUrl = parentUrl;
+        this.BER_Query = BER_Query;
+        this.urlList = urlList;
+        urlMap.put(Integer.toString(index),parentUrl);
+        urlListMap.put(Integer.toString(index), properties);
+    }
+
+    public static String Daft(String parentUrl, String BER_Query, ArrayList<String> urlList) {
+
+        int index = 0;
+        int crawlerIndex = 0;
+
+        ArrayList<String> Pages = daftGetParentUrlList(parentUrl);
+        ArrayList<webCrawler> Crawlers = new ArrayList<>();
+
+        String json = "{\"Residences\":[";
+
+        ArrayList<FutureTask> pageTasks = new ArrayList<>();
+
+        for (String page : Pages) {
+            ArrayList<String> properties = daftGetUrlList(page);
+            Crawlers.add(new webCrawler(page, BER_Query, null, crawlerIndex, properties));
+            crawlerIndex++;
+        }
+
+        for (webCrawler Crawler : Crawlers) {
+            pageTasks.add(new FutureTask(Crawler));
+        }
+
+        for (FutureTask task : pageTasks) {
+            Thread thread = new Thread(task, Integer.toString(index));
+            thread.start();
+            index++;
+        }
+
+        for (FutureTask task : pageTasks) {
+            try {
+                json = json + task.get();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        StringBuffer json_sb= new StringBuffer(json);
+        json_sb.deleteCharAt(json_sb.length()-1);
+        json = json_sb.toString();
+        return json + "]}";
+    }
+
+
+    public static ArrayList<String> daftGetUrlList(String parentUrl) {
+
+        try {
+            urlList = new ArrayList<>();
+
+            Document urlDoc = Jsoup.connect(parentUrl).get();
+            Elements links = urlDoc.select("[href*=/for-rent/]");
+
+            for (Element link : links) {
+                if (link.attr("abs:href").contains("/for-rent/")) {
+                    urlList.add(link.attr("abs:href"));
+                }
+            }
+
+            return urlList;
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+
+    public static ArrayList<String> daftGetParentUrlList(String parentUrl) {
 
         boolean endOfList = false;
-        boolean firstProperty = true;
 
         int index = 0;
 
-        String BER_Ratings[] = {"G","F","E2","E1","D2","D1","C3","C2","C1","B3","B2","B1","A3","A2","A1"};
-
-        String tempUrl = parentUrl + index;
-        String json = "{ \"Residences\":[{";
-        StringBuffer json_sb= new StringBuffer(json);
+        String tempUrl = parentUrl;
 
         try {
-            ArrayList<String> urlList = new ArrayList<>();
-
+            urlList = new ArrayList<>();
+            urlList.add(parentUrl + index);
             //Crawly Bit
             while (!endOfList) {
 
-                Document urlDoc =  Jsoup.connect(parentUrl).get();
+                Document urlDoc = Jsoup.connect(parentUrl).get();
+                parentUrl = tempUrl;
                 Elements links = urlDoc.select("[href*=/for-rent/]");
 
-                for (Element link : links) {
-                    if (link.attr("abs:href").contains("/for-rent/")) {
-                        urlList.add(link.attr("abs:href"));
-                    }
-                }
                 if (!links.attr("abs:href").contains("/for-rent/")) {
                     endOfList = true;
-                }
-                else {
+                } else {
                     index = index + 20;
                     parentUrl = parentUrl + index;
+                    urlList.add(parentUrl);
                 }
             }
-            System.out.println(urlList);
 
-            //Scrapy Bit
-            for (String url : urlList) {
+            return urlList;
+        }
+            catch(Exception e){
+                e.printStackTrace();
+            }
+        return null;
+        }
+
+
+
+        public static String daftScrape(String BER_Query) {
+
+        System.out.println("Thread Number " + Thread.currentThread().getName());
+
+        String BER_Ratings[] = {"G","F","E2","E1","D2","D1","C3","C2","C1","B3","B2","B1","A3","A2","A1"};
+
+        String json = "";
+        StringBuffer json_sb= new StringBuffer(json);
+
+        try {
+
+        for (String url : urlListMap.get(Thread.currentThread().getName())) {
 
                 Document document = Jsoup.connect(url).get();
                 Element title = document.selectFirst("h1[class*=TitleBlock]");
@@ -59,56 +156,53 @@ public class webCrawler {
                 Element beds = document.selectFirst("li:contains(Bedroom)");
                 Element baths = document.selectFirst("li:contains(Bath)");
 
+
+
                 if ((Arrays.asList(BER_Ratings).indexOf(BER_Query)
                         <= Arrays.asList(BER_Ratings).indexOf(BER.attr("alt"))
                             || BER_Query.equalsIgnoreCase("All")) && type != null) {
 
-                    System.out.println(title.text() + "\n" + price.text());
-                    if (!firstProperty) {
+                    //System.out.println(title.text() + "\n" + price.text());
+                    if (title != null && price != null) {
                         json_sb.append("{\"title\":\"" + title.text() + "\",\"price\":\"" + price.text() + "\",");
-                    }
-                    else {
-                        json_sb.append("\"title\":\"" + title.text() + "\",\"price\":\"" + price.text() + "\",");
-                        firstProperty = false;
                     }
                     if (BER != null) {
                         json_sb.append("\"BER\":\"" + BER.attr("alt") + "\",");
-                        System.out.println(BER.attr("alt"));
+                        //System.out.println(BER.attr("alt"));
                     }
                     if (type != null) {
                         json_sb.append("\"type\":\"" + type.text() + "\",");
-                        System.out.println(type.text());
+                        //System.out.println(type.text());
                     }
                     if (lease != null) {
                         json_sb.append("\"lease\":\"" + lease.text() + "\",");
-                        System.out.println(lease.text());
+                        //System.out.println(lease.text());
                     }
                     if (beds != null) {
                         json_sb.append("\"beds\":\"" + beds.text() + "\",");
-                        System.out.println(beds.text());
+                        //System.out.println(beds.text());
                     }
                     if (baths != null) {
                         json_sb.append("\"baths\":\"" + baths.text() + "\",");
-                        System.out.println(baths.text());
+                        //System.out.println(baths.text());
                     }
 
-                    final Elements facilities = document.select("ul [class*=PropertyDetails]");
+                    Elements facilities = document.select("ul [class*=PropertyDetails]");
                     for (Element li : facilities) {
                         json_sb.append("\"" + li.select("li").text() + "\":\"" + li.select("li").text()
                                 + "\",");
 
-                        System.out.println(li.select("li").text());
+                        //System.out.println(li.select("li").text());
                     }
 
                     json_sb.deleteCharAt(json_sb.length()-1);
                     json_sb.append("},");
-                    System.out.println("");
+                    //System.out.println("");
                 }
             }
 
-            json_sb.deleteCharAt(json_sb.length()-1);
             json = json_sb.toString();
-            return json + "]}";
+            return json;
         }
 
         catch (Exception e) {
@@ -117,4 +211,10 @@ public class webCrawler {
         return null;
     }
 
+    @Override
+    public Object call() throws Exception {
+        Thread.sleep(2000);
+        String threadJson = daftScrape(BER_Query);
+        return threadJson;
+    }
 }
