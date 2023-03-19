@@ -64,7 +64,11 @@ public class webCrawler implements Callable {
         }
 
         StringBuffer json_sb= new StringBuffer(json);
-        json_sb.deleteCharAt(json_sb.length()-1);
+        if (json.contains("title")) {
+            json_sb.deleteCharAt(json_sb.length() - 1);
+        } else {
+            json_sb.append("{}");
+        }
         json = json_sb.toString();
         return json + "]}";
     }
@@ -133,7 +137,10 @@ public class webCrawler implements Callable {
 
         public static String daftScrape(String BER_Query) {
 
-        System.out.println("Thread Number " + Thread.currentThread().getName());
+        System.out.println("Thread Number " + Thread.currentThread().getName() + " Started");
+
+        ArrayList<ArrayList<String>> BackupBER = new ArrayList<ArrayList<String>>(16);
+        int count = 0;
 
         String BER_Ratings[] = {"G","F","E2","E1","D2","D1","C3","C2","C1","B3","B2","B1","A3","A2","A1"};
 
@@ -152,8 +159,6 @@ public class webCrawler implements Callable {
                 Element lease = document.selectFirst("li:contains(Minimum)");
                 Element beds = document.selectFirst("li:contains(Bedroom)");
                 Element baths = document.selectFirst("li:contains(Bath)");
-
-
 
                 if ((Arrays.asList(BER_Ratings).indexOf(BER_Query)
                         <= Arrays.asList(BER_Ratings).indexOf(BER.attr("alt"))
@@ -195,10 +200,12 @@ public class webCrawler implements Callable {
                     json_sb.deleteCharAt(json_sb.length()-1);
                     json_sb.append("},");
                     //System.out.println("");
+                    count++;
                 }
             }
 
             json = json_sb.toString();
+            System.out.println("Thread Number " + Thread.currentThread().getName() + " Finished");
             return json;
         }
 
