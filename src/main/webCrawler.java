@@ -35,6 +35,7 @@ public class webCrawler implements Callable {
 
         ArrayList<String> Pages = daftGetParentUrlList(parentUrl);
         ArrayList<webCrawler> Crawlers = new ArrayList<>();
+        ArrayList<Thread> Threads = new ArrayList<>();
 
         String json = "{\"Residences\":[";
 
@@ -44,15 +45,11 @@ public class webCrawler implements Callable {
             ArrayList<String> properties = daftGetUrlList(page);
             Crawlers.add(new webCrawler(page, BER_Query, null, crawlerIndex, properties));
             crawlerIndex++;
-        }
 
-        for (webCrawler Crawler : Crawlers) {
-            pageTasks.add(new FutureTask(Crawler));
-        }
+            pageTasks.add(new FutureTask(Crawlers.get(Crawlers.size()-1)));
 
-        for (FutureTask task : pageTasks) {
-            Thread thread = new Thread(task, Integer.toString(index));
-            thread.start();
+            Threads.add(new Thread(pageTasks.get(pageTasks.size()-1), Integer.toString(index)));
+            Threads.get(Threads.size()-1).start();
             index++;
         }
 
@@ -213,7 +210,6 @@ public class webCrawler implements Callable {
 
     @Override
     public Object call() throws Exception {
-        Thread.sleep(2000);
         String threadJson = daftScrape(BER_Query);
         return threadJson;
     }
