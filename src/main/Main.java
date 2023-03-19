@@ -25,13 +25,12 @@ public class Main {
     //program and initialise API responses.
     public static void main(String[] args) throws IOException {
         try {
-            csvData.init("src/main/info.csv");
+            csvData.init("info.csv");
         } catch(Exception e) {
             try {
                 csvData.init("src/main/info.csv");
             } catch(Exception f){}
             }
-        port(443);
         DatabaseManager.testConnection();
 
         if(csvData.accoms==null) {
