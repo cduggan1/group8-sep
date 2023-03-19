@@ -24,14 +24,27 @@ public class Main {
     //Provided we built the initial object correctly, start
     //program and initialise API responses.
     public static void main(String[] args) throws IOException {
-        csvData.init("info.csv");
 
-        if(csvData.accoms==null){
+        System.out.println(Logger.BLUE + "Initialising...." + Logger.RESET);
+        try{Thread.sleep(500);}catch(Exception f){}
+
+        csvData.init();
+
+        DatabaseManager.testConnection();
+        port(443);
+
+        if(csvData.accoms==null) {
             System.out.println("Error Parsing CSV");
             Logger.addLog("Init", "CSV Error");
             //Something didn't work
             System.exit(1);
         }
+
+        get("/killapi", (req, res)->{
+            System.out.println(Logger.RED + "Request to quit API" + Logger.RESET);
+            System.exit(0);
+            return "done."; //Ignore
+        });
 
         get("/fullQuery", (req, res) -> {
 
@@ -66,6 +79,37 @@ public class Main {
             return response;
 
         });
+
+
+        // Builds the URL to be processed by the webscraper, as well as the requested BER rating
+        //Gets a JSON formatted string containing the properties matching the query parameters from the webCrawler class
+        get("/scrape", (req, res) -> {
+
+            System.out.println("Filtering Query...");
+            Logger.addLog("scrape", "API Called");
+
+            String parentURL = "https://www.daft.ie/property-for-rent/dublin-city-centre-dublin?furnishing=furnished";
+            String appendIndex = "pageSize=20&from=";
+            String BER_Query = "All";
+            String filters = "&";
+
+            for (String key : req.queryParams()) {
+                if (key.equals("BER")) {
+                    BER_Query = req.queryParams(key);
+                } else {
+                    filters = filters + key + "=" + req.queryParams(key) + "&";
+                }
+            }
+
+            parentURL = parentURL + filters + appendIndex;
+            System.out.println(parentURL);
+
+            String response = webCrawler.Daft(parentURL, BER_Query, null);
+
+            return response;
+
+        });
+
 
         //Receives -> ID
         //Returns -> Site at index (ID) in list.
@@ -219,7 +263,7 @@ public class Main {
     public static boolean hasStudios(List<Map<?, ?>> list, int id){
         System.out.println("Checking if ID " + id + " has Studio");
         System.out.println(list.get(id).toString());
-        if(getValue(list, id, "Has Studio").equalsIgnoreCase("y")) {
+        if (getValue(list, id, "Has Studio").equalsIgnoreCase("y")) {
             return true;
         }
         return false;
