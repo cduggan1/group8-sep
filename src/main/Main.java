@@ -26,10 +26,10 @@ public class Main {
     public static void main(String[] args) throws IOException {
         try {
             csvData.init("src/main/info.csv");
-        }catch(Exception e){
+        } catch(Exception e) {
             try {
-                csvData.init("info.csv");
-            }catch(Exception f){}
+                csvData.init("src/main/info.csv");
+            } catch(Exception f){}
             }
         port(443);
         DatabaseManager.testConnection();
@@ -40,6 +40,11 @@ public class Main {
             //Something didn't work
             System.exit(1);
         }
+
+        get("/killapi,", (req, res)->{
+            System.exit(0);
+            return "done."; //Ignore
+        });
 
         get("/fullQuery", (req, res) -> {
 
