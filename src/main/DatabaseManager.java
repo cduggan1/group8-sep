@@ -27,7 +27,7 @@ public class DatabaseManager {
             System.out.println("Database connection successful!");
             return true;
         } catch (Exception e) {
-            System.err.println("Database connection failed:");
+            System.err.println("Database connection failed.");
             return false;
         }
     }

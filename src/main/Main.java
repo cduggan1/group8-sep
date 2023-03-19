@@ -24,14 +24,14 @@ public class Main {
     //Provided we built the initial object correctly, start
     //program and initialise API responses.
     public static void main(String[] args) throws IOException {
-        try {
-            csvData.init("info.csv");
-        } catch(Exception e) {
-            try {
-                csvData.init("src/main/info.csv");
-            } catch(Exception f){}
-            }
+
+        System.out.println(Logger.BLUE + "Initialising...." + Logger.RESET);
+        try{Thread.sleep(500);}catch(Exception f){}
+
+        csvData.init();
+
         DatabaseManager.testConnection();
+        port(443);
 
         if(csvData.accoms==null) {
             System.out.println("Error Parsing CSV");
@@ -40,7 +40,8 @@ public class Main {
             System.exit(1);
         }
 
-        get("/killapi,", (req, res)->{
+        get("/killapi", (req, res)->{
+            System.out.println(Logger.RED + "Request to quit API" + Logger.RESET);
             System.exit(0);
             return "done."; //Ignore
         });
