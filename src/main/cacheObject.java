@@ -15,7 +15,7 @@ public class cacheObject {
     }
 
     public static String getRequest(String request){
-        return cache.getOrDefault(request, "");
+        return cache.getOrDefault(request, null);
     }
 
 
