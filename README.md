@@ -83,11 +83,41 @@ A list of all valid queries and query parameters for the API, and an explanation
     - A3
     - A2
     - A1
+    
+    
+### DATABASE QUERIES
+## 
+
+#### fullQuery  
+
+*propertyType=*
+- ?Filter=Value where filter can be any of the following:
+Brand	Site	Email	HasEnsuite	HasStudio	HasTwin	LowestPrice	HighestPrice	YearOpened	Distance_TCD(Walk)	Distance_TCD(Bike)	Distance_TCD(Public Transport)	Gym?	TV Room?	Study_Space?	Laundry_Room	Cinema_Room	Rooftop_Garden	Balcony	Dishwasher	Stovetop	Cafeteria	Sports_Hall	Fast_WiFi	District	Flatmates	Disability_Access	Other_Info
+
+
+  
+#### ID  
+
+*/:index
+- Returns Property at position :index of database.
+  
+
+#### ALL  
+
+*/all
+- Returns Full Database Query
+  
+### ADMIN QUERIES
+
+*/admin/log*
+  - Will Return logs if it is enabled
+
 
 
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)
+
 MIT License
 
 Copyright (c) [year] [fullname]
