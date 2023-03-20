@@ -63,7 +63,7 @@ public class webCrawler implements Callable {
             json_sb.append("{}");
         }
         json = json_sb.toString();
-        return json + "]}";
+        return json + "], \"Count\": " + (Pages.toArray().length - 1) + "}";
     }
 
 
