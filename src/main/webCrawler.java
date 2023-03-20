@@ -81,7 +81,9 @@ public class webCrawler implements Callable {
             //Crawly Bit
             while (!endOfList) {
 
-                Document urlDoc =  Jsoup.connect(parentUrl).get();
+                try {
+                    Document urlDoc = Jsoup.connect(parentUrl).get();
+
                 Elements links = urlDoc.select("[href*=/for-rent/]");
 
                 for (Element link : links) {
@@ -91,8 +93,12 @@ public class webCrawler implements Callable {
                 }
                 if (!links.attr("abs:href").contains("/for-rent/")) {
                     endOfList = true;
+                } else {
+                    index = index + 20;
+                    parentUrl = tempUrl + index;
                 }
-                else {
+            }
+                catch (Exception e){
                     index = index + 20;
                     parentUrl = tempUrl + index;
                 }
@@ -176,9 +182,8 @@ public class webCrawler implements Callable {
         }
 
         catch (Exception e) {
-            e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     @Override
