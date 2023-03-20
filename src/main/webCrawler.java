@@ -63,7 +63,7 @@ public class webCrawler implements Callable {
             }
         }
 
-        StringBuffer json_sb= new StringBuffer(json);
+        StringBuilder json_sb= new StringBuilder(json);
         if (json.contains("title")) {
             json_sb.deleteCharAt(json_sb.length() - 1);
         } else {
@@ -145,7 +145,7 @@ public class webCrawler implements Callable {
         String BER_Ratings[] = {"G","F","E2","E1","D2","D1","C3","C2","C1","B3","B2","B1","A3","A2","A1"};
 
         String json = "";
-        StringBuffer json_sb= new StringBuffer(json);
+        StringBuilder json_sb= new StringBuilder(json);
 
         try {
 
