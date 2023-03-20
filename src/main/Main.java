@@ -76,6 +76,10 @@ public class Main {
             //response = "{\"Residences\":"+response+"}";
             String response = convertToJsonList(filteredAccoms);
 
+            if(addCount){
+                response = addCount(response);
+            }
+
             System.out.println("RESPONSE" + response);
             Logger.addLog("RESPONSE" , response);
             return response;
@@ -206,14 +210,15 @@ public class Main {
 
     public static String packageJsonResidence(String json){
         String packaged = "{\"Residences\":"+json+"}";
-        if(addCount){
-            int siteCount = JSONParser.countProperties(packaged);
-            StringBuilder sb = new StringBuilder(packaged);
-            sb.insert(sb.length() - 1, ",\n\"Count\":"+siteCount);
-            String result = sb.toString();
-            return result;
-        }
-        else return packaged;
+        return packaged;
+    }
+
+    public static String addCount(String jsonresponse){
+        int siteCount = JSONParser.countProperties(jsonresponse);
+        StringBuilder sb = new StringBuilder(jsonresponse);
+        sb.insert(sb.length() - 1, ",\n\"Count\":"+siteCount);
+        String result = sb.toString();
+        return result;
     }
 
 
