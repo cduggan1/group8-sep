@@ -207,7 +207,11 @@ public class Main {
     public static String packageJsonResidence(String json){
         String packaged = "{\"Residences\":"+json+"}";
         if(addCount){
-            return "{\"Count\":\""+JSONParser.countProperties(packaged) + "\"},"+packaged;
+            int siteCount = JSONParser.countProperties(packaged);
+            StringBuilder sb = new StringBuilder(packaged);
+            sb.insert(sb.length() - 1, ",\n\"Count\":"+siteCount);
+            String result = sb.toString();
+            return result;
         }
         else return packaged;
     }
