@@ -14,26 +14,20 @@ import org.jsoup.select.Elements;
 
 public class webCrawler implements Callable {
 
-    public static String parentUrl;
-    public static ArrayList<String> urlList;
     public static String BER_Query;
-    public static HashMap<String, ArrayList<String> > urlListMap = new HashMap<String, ArrayList<String> >();
     public static HashMap<String, String> urlMap = new HashMap<String, String>();
-    public webCrawler (String parentUrl, String BER_Query, ArrayList<String> urlList, int index, ArrayList<String> properties){
+    public webCrawler (String Url, String BER_Query, int index){
 
-        this.parentUrl = parentUrl;
         this.BER_Query = BER_Query;
-        this.urlList = urlList;
-        urlMap.put(Integer.toString(index),parentUrl);
-        urlListMap.put(Integer.toString(index), properties);
+        urlMap.put(Integer.toString(index), Url);
     }
 
-    public static String Daft(String parentUrl, String BER_Query, ArrayList<String> urlList) {
+    public static String Daft(String parentUrl, String BER_Query) {
 
         int index = 0;
         int crawlerIndex = 0;
 
-        ArrayList<String> Pages = daftGetParentUrlList(parentUrl);
+        ArrayList<String> Pages = daftGetUrlList(parentUrl);
         ArrayList<webCrawler> Crawlers = new ArrayList<>();
         ArrayList<Thread> Threads = new ArrayList<>();
 
@@ -42,8 +36,7 @@ public class webCrawler implements Callable {
         ArrayList<FutureTask> pageTasks = new ArrayList<>();
 
         for (String page : Pages) {
-            ArrayList<String> properties = daftGetUrlList(page);
-            Crawlers.add(new webCrawler(page, BER_Query, null, crawlerIndex, properties));
+            Crawlers.add(new webCrawler(page, BER_Query, crawlerIndex));
             crawlerIndex++;
 
             pageTasks.add(new FutureTask(Crawlers.get(Crawlers.size()-1)));
@@ -76,64 +69,42 @@ public class webCrawler implements Callable {
 
     public static ArrayList<String> daftGetUrlList(String parentUrl) {
 
-        try {
-            urlList = new ArrayList<>();
-
-            Document urlDoc = Jsoup.connect(parentUrl).get();
-            Elements links = urlDoc.select("[href*=/for-rent/]");
-
-            for (Element link : links) {
-                if (link.attr("abs:href").contains("/for-rent/")) {
-                    urlList.add(link.attr("abs:href"));
-                }
-            }
-
-            return urlList;
-        }
-        catch(Exception e){
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-
-
-    public static ArrayList<String> daftGetParentUrlList(String parentUrl) {
+        int index = 0;
 
         boolean endOfList = false;
-
-        int index = 0;
 
         String tempUrl = parentUrl;
 
         try {
-            urlList = new ArrayList<>();
-            urlList.add(parentUrl + index);
+            ArrayList<String> urlList = new ArrayList<>();
+
             //Crawly Bit
             while (!endOfList) {
 
-                Document urlDoc = Jsoup.connect(parentUrl).get();
-                parentUrl = tempUrl;
+                Document urlDoc =  Jsoup.connect(parentUrl).get();
                 Elements links = urlDoc.select("[href*=/for-rent/]");
 
+                for (Element link : links) {
+                    if (link.attr("abs:href").contains("/for-rent/")) {
+                        urlList.add(link.attr("abs:href"));
+                    }
+                }
                 if (!links.attr("abs:href").contains("/for-rent/")) {
                     endOfList = true;
-                } else {
+                }
+                else {
                     index = index + 20;
-                    parentUrl = parentUrl + index;
-                    urlList.add(parentUrl);
+                    parentUrl = tempUrl + index;
                 }
             }
-
-            return urlList;
-        }
-            catch(Exception e){
+                System.out.println(urlList);
+                return urlList;
+            } catch (Exception e) {
                 e.printStackTrace();
             }
+
         return null;
-        }
-
-
+    }
 
         public static String daftScrape(String BER_Query) {
 
@@ -148,10 +119,7 @@ public class webCrawler implements Callable {
         StringBuilder json_sb= new StringBuilder(json);
 
         try {
-
-        for (String url : urlListMap.get(Thread.currentThread().getName())) {
-
-                Document document = Jsoup.connect(url).get();
+                Document document = Jsoup.connect(urlMap.get(Thread.currentThread().getName())).get();
                 Element title = document.selectFirst("h1[class*=TitleBlock]");
                 Element price = document.selectFirst("p:contains(€)");
                 Element BER = document.selectFirst("img[class*=BerDetails]");
@@ -200,8 +168,6 @@ public class webCrawler implements Callable {
                     json_sb.deleteCharAt(json_sb.length()-1);
                     json_sb.append("},");
                     //System.out.println("");
-                    count++;
-                }
             }
 
             json = json_sb.toString();
