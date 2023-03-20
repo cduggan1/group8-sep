@@ -9,6 +9,7 @@ import static spark.Spark.*;
 //import com.github.alexdlaird.ngrok.protocol.CreateTunnel;
 //import com.github.alexdlaird.ngrok.protocol.Proto;
 //import com.github.alexdlaird.ngrok.protocol.Tunnel;
+import com.fasterxml.jackson.core.util.InternCache;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Main {
@@ -21,18 +22,18 @@ public class Main {
 
     public static boolean tunnelNgrok = false;
     public static boolean enableLogging = true;
+    public static boolean addCount = true;
     //Provided we built the initial object correctly, start
     //program and initialise API responses.
     public static void main(String[] args) throws IOException {
-        try {
-            csvData.init("src/main/info.csv");
-        } catch(Exception e) {
-            try {
-                csvData.init("src/main/info.csv");
-            } catch(Exception f){}
-            }
-        port(443);
+
+        System.out.println(Logger.BLUE + "Initialising...." + Logger.RESET);
+        try{Thread.sleep(500);}catch(Exception f){}
+
+        csvData.init();
+
         DatabaseManager.testConnection();
+        port(443);
 
         if(csvData.accoms==null) {
             System.out.println("Error Parsing CSV");
@@ -41,7 +42,8 @@ public class Main {
             System.exit(1);
         }
 
-        get("/killapi,", (req, res)->{
+        get("/killapi", (req, res)->{
+            System.out.println(Logger.RED + "Request to quit API" + Logger.RESET);
             System.exit(0);
             return "done."; //Ignore
         });
@@ -203,7 +205,11 @@ public class Main {
     }
 
     public static String packageJsonResidence(String json){
-        return "{\"Residences\":"+json+"}";
+        String packaged = "{\"Residences\":"+json+"}";
+        if(addCount){
+            return "{\"Count\":\""+JSONParser.countProperties(packaged) + "\"},"+packaged;
+        }
+        else return packaged;
     }
 
 
