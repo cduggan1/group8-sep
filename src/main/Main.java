@@ -106,7 +106,7 @@ public class Main {
             parentURL = parentURL + filters + appendIndex;
             System.out.println(parentURL);
 
-            String response = webCrawler.Daft(parentURL, BER_Query, null);
+            String response = webCrawler.Daft(parentURL, BER_Query);
 
             return response;
 
