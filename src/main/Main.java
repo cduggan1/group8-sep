@@ -90,7 +90,7 @@ public class Main {
         // Builds the URL to be processed by the webscraper, as well as the requested BER rating
         //Gets a JSON formatted string containing the properties matching the query parameters from the webCrawler class
         get("/scrape", (req, res) -> {
-
+            res.type("application/json");
             System.out.println("Filtering Query...");
             Logger.addLog("scrape", "API Called");
 
