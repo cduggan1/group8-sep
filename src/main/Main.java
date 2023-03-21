@@ -96,6 +96,8 @@ public class Main {
             System.out.println("Filtering Query...");
             Logger.addLog("scrape", "API Called");
 
+            HashMap<String,String>scrapeFilters = new HashMap<>();
+
             //Base url used to built parentUrl
             String parentURL = "https://www.daft.ie/property-for-rent/dublin-city-centre-dublin?furnishing=furnished";
             //Page parameters to be appended to the end of the url string, for the purposes of iterating through multiple pages
@@ -103,14 +105,15 @@ public class Main {
             //BER_Query default set to All, so that if no BER_Query is passed, all properties are returned
             String BER_Query = "All";
             String filters = "&";
-            
+
             //Building query parameters for webCrawler urls using API call query parameters
             for (String key : req.queryParams()) {
-                if (!req.queryParams(key).equals("Def")) {
+                if (!req.queryParams(key).equals("Def") && !req.queryParams(key).equals(null)) {
                     if (key.equals("BER")) {
                         BER_Query = req.queryParams(key);
                     } else {
                         filters = filters + key + "=" + req.queryParams(key) + "&";
+                        scrapeFilters.put(key, req.queryParams(key));
                     }
                 }
             }
@@ -120,7 +123,7 @@ public class Main {
             System.out.println(parentURL);
 
             //Getting Json response from webCrawler
-            String response = webCrawler.Daft(parentURL, BER_Query);
+            String response = webCrawler.Daft(parentURL, BER_Query, scrapeFilters);
 
             //Returning Json
             return response;
