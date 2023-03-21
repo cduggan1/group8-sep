@@ -104,7 +104,13 @@ public class Main {
             String appendIndex = "pageSize=20&from=";
             //BER_Query default set to All, so that if no BER_Query is passed, all properties are returned
             String BER_Query = "All";
-            String filters = "&";
+            String filterString = "&";
+
+            String[] filters = {"facilities=", "leaseLength_from=", "numBeds_from=", "numBaths_from=", "propertyType=","rentalPrice_to="};
+
+           for (String filter : filters) {
+               scrapeFilters.put(filter, "");
+           }
 
             //Building query parameters for webCrawler urls using API call query parameters
             for (String key : req.queryParams()) {
@@ -112,7 +118,7 @@ public class Main {
                     if (key.equals("BER")) {
                         BER_Query = req.queryParams(key);
                     } else {
-                        filters = filters + key + "=" + req.queryParams(key) + "&";
+                        filterString = filterString + key + "=" + req.queryParams(key) + "&";
                         scrapeFilters.put(key, req.queryParams(key));
                     }
                 }
