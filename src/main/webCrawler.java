@@ -17,6 +17,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import static main.JSONParser.countProperties;
+
 public class webCrawler implements Callable {
 //Callabe is the multithreading interface we will be using
     public static String BER_Query;
@@ -70,7 +72,8 @@ public class webCrawler implements Callable {
             json_sb.append("{}"); //If there are no properties, simply add an empty json object, {}
         }
         json = json_sb.toString(); //make the json string equal to the stringBuilder we were working with
-        return json + "]}"; //return final json
+        String tempJson =  json + "]}";
+        return json + "], \"Count\":" + countProperties(tempJson) + "}"; //return final json
     }
 
     //Method to get list of property urls from a parent/seed url
@@ -187,7 +190,7 @@ public class webCrawler implements Callable {
                 // and the index of the BER_Query passed in is less than or equal to the index of the BER rating of the property in question, or equals "All"...
                 if ((Arrays.asList(BER_Ratings).indexOf(BER_Query)
                         <= Arrays.asList(BER_Ratings).indexOf(BER.attr("alt"))
-                            || BER_Query.equalsIgnoreCase("All")) && type != null) {
+                            || BER_Query.equalsIgnoreCase("All")) && type != null && title != null && price != null) {
 
                     //System.out.println(title.text() + "\n" + price.text());
 
@@ -218,10 +221,11 @@ public class webCrawler implements Callable {
 
                     Elements facilities = document.select("ul [class*=PropertyDetails]"); //Select the unordered list with class containing "PropertyDetails"
                     for (Element li : facilities) { //For each element in the unordered list we just extracted...
-                        json_sb.append("\"" + li.select("li").text() + "\":\"" + li.select("li").text() //append them to the json StringBuilder twice: once for key, once for value
+                        json_sb.append("\"amenity" + count + "\":\"" + li.select("li").text() //append them to the json StringBuilder twice: once for key, once for value
                                 + "\",");
 
-                        //System.out.println(li.select("li").text());
+                        count++;
+                    //System.out.println(li.select("li").text());
                     }
 
                     json_sb.deleteCharAt(json_sb.length()-1); //Delete the stray comma at the end  >:^(
