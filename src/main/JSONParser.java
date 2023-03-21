@@ -19,7 +19,7 @@ public class JSONParser {
             JSONObject jsonObj = new JSONObject(jsonStr);
             JSONArray jsonArray = jsonObj.getJSONArray(object);
 
-            int totalObjects = jsonArray.length();
+            int totalObjects = jsonArray.length() - 1;
             summaryMap.put("TOTAL_OBJECTS", totalObjects);
 
             return summaryMap;
