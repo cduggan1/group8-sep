@@ -4,6 +4,10 @@ import org.eclipse.jetty.util.ajax.JSON;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,5 +78,14 @@ class JSONParserTest {
         String response = Main.convertToJsonList(testAccomsList);
 
         assertEquals(8, parser.countProperties(response));
+    }
+
+    @Test
+    void findValuesOf() throws IOException {
+        byte[] encodedBytes = Files.readAllBytes(Paths.get("src/main/testjson.txt"));
+        String json = new String(encodedBytes, StandardCharsets.UTF_8);
+        ArrayList<String> list = JSONParser.findValuesOf(json, "seoFriendlyPath");
+        System.out.println(list.toString());
+        assertEquals(3204, list.toString().length());
     }
 }
