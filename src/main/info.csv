@@ -1,4 +1,4 @@
-﻿Brand,Site,Email,HasEnsuite,HasStudio,HasTwin,LowestPrice,HighestPrice,YearOpened,Distance_TCD(Walk),Distance_TCD(Bike),Distance_TCD(Public_Transport),Gym,TV_Room,Study_Space,Laundry_Room,Cinema_Room,Rooftop_Garden,Balcony,Dishwasher,Stovetop,Cafeteria,Sports_Hall,Fast_WiFi,Disability_Access,District,Flatmates,Other_Info,Outdated
+Brand,Site,Email,HasEnsuite,HasStudio,HasTwin,LowestPrice,HighestPrice,YearOpened,Distance_TCD(Walk),Distance_TCD(Bike),Distance_TCD(Public_Transport),Gym,TV_Room,Study_Space,Laundry_Room,Cinema_Room,Rooftop_Garden,Balcony,Dishwasher,Stovetop,Cafeteria,Sports_Hall,Fast_WiFi,Disability_Access,District,Flatmates,Other_Info,Outdated
 Yugo,Highfield Park,highfieldpark@yugo.com,y,y,y,€255.00,€364.00,2020,35 min,11 min,,Gym,TV Room,,,,,,,,,,,,7,,,
 Yugo,Ardcairn House,ardcairnhouse@yugo.com,y,y,n,€255.00,€320.00,2018,25 min,11 min,,Gym,TV Room,,,,,,,,,,,,,,,
 Yugo,Broadstone Hall,broadstonehall@yugo.com,y,n,y,€208.00,€308.00,2016,25 min,10 min,,Gym,TV Room,,,,,,,,,,,,,,,
@@ -23,3 +23,4 @@ Liv,LIV Dublin,,y,n,,€273.00,€279.00,2018,15 min,,,Gym,TV Room,,,,,,,,,,,,,,
 Nido,Ardee Point,,y,y,,€265.00,€372.00,2021,20 min,,,Gym,TV Room,,,,,,,,,,,,,,,
 Mezzino,Highfield House,,y,y,,€232.00,€264.00,2019,40 min,,,Gym,TV Room,,,,,,,,,,,,,,,
 Scape,Scape Dublin,,y,y,,,,,10,,,,,,,,,,,,,,,,,,,y
+
