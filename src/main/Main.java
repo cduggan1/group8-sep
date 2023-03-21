@@ -1,6 +1,7 @@
 package main;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.*;
 
 import static spark.Spark.*;
@@ -59,10 +60,11 @@ public class Main {
             for (String key : req.queryParams()) {
                 filters.put(key, req.queryParams(key));
             }
+
             System.out.println(filters.toString());
             if(filters.size()>0) {
                 Logger.addLog("fullQuery", "FILTERS ADDED:" + filters.toString());
-            }else{
+            } else {
                 Logger.addLog("fullQuery", "No filters specified.");
             }
 
@@ -187,17 +189,122 @@ public class Main {
     //Create Filter Map
     public static List<Map<?,?>> filterAccoms(List<Map<?,?>> accoms, Map<String,String> filters){
         ArrayList<Map<?,?>> filteredAccoms = new ArrayList<>();
+
         boolean noFail = true; // Shifts false on failed query
+
+
+
+        // TODO ljdzed make this one function that takes a list<map<string,List<string>>> and sorts intelligently (maybe) ex. of map in this list :  <"TV_Room", {"tv", "television"}> to allow for better filtering
+        if (filters.containsKey("Amenities")){ // slow but manually go through and check if the word or related words are in the string inputted
+            // takes a while to iterate through
+            Logger.addLog("Amenities Query", filters.get("Amenities"));
+            String amenitiesList = "";
+            String query = filters.get("Amenities").toLowerCase();
+            filters.remove("Amenities");
+
+            if (query.contains("gym") || query.contains("weight room")
+                    || query.contains("exercise room")){
+                amenitiesList += "Gym ";
+                filters.put("Gym", "Gym");
+            }
+            if (query.contains("tv") || query.contains("television")){
+                amenitiesList += "Television Room ";
+                filters.put("TV_Room", "TV Room");
+            }
+            if (query.contains("study") || query.contains("academic") || query.contains("college work")){
+                amenitiesList += "Study Space ";
+                filters.put("Study_Space", "Study Space");
+            }
+            if (query.contains("laundry") || query.contains("laundrette")
+                    || query.contains("laundromat") || query.contains("bagwash")
+                    || query.contains("bag wash")){
+                amenitiesList += "Laundry Room";
+                filters.put("Laundry_Room", "Laundry Room");
+            }
+            if (query.contains("cinema") || query.contains("movie")){
+                amenitiesList += "Cinema Room ";
+                filters.put("Cinema_Room", "Cinema");
+            }
+            if (query.contains("rooftop garden")){
+                amenitiesList += "Rooftop Garden ";
+                filters.put("Rooftop_Garden", "Rooftop Garden");
+            }
+            if (query.contains("balcony") || query.contains("terrace")
+                    || query.contains("mezzanine") || query.contains("veranda") ){
+                amenitiesList += "Balcony ";
+                filters.put("Balcony", "Balcony");
+            }
+            if (query.contains("dishwasher") || query.contains("dish-washer") || query.contains("dish washer") || query.contains("dishes")){
+                amenitiesList += "Dishwasher ";
+                filters.put("Dishwasher", "Dishwasher");
+            }
+            if (query.contains("stove") || query.contains("hob")
+                    || query.contains("cooker")){
+                amenitiesList += "Stovetop  ";
+                filters.put("Stovetop", "Stovetop");
+            }
+            if (query.contains("cafeteria") || query.contains("mess hall")
+                    || query.contains("canteen") || query.contains("buffet") || query.contains("dining hall") || query.contains("cafe") ){
+                amenitiesList += "Cafeteria ";
+                filters.put("Cafeteria", "Cafeteria");
+            }
+            if (query.contains("sports")){
+                amenitiesList += "Sports Hall ";
+                filters.put("Sports_Hall", "Sports Hall");
+            }
+            if (query.contains("wifi") || query.contains("wireless internet")){
+                amenitiesList += "Wifi ";
+                filters.put("Fast_Wifi", "Fast Wifi");
+            }
+            // Uncomment if this gets added
+            /*
+            if (query.contains()("ethernet") || query.contains()("wired internet")
+                    || query.contains()("wired connection")) {
+                amenitiesList += "Ethernet ";
+            }
+            */
+            if (query.contains("disability") || query.contains("disable")){
+                amenitiesList += "Disability Access ";
+                filters.put("Disability_Access", "Disability Access");
+                //Logger.addLog("filterMap", "Query for Disability_Access: triggered");
+            }
+            Logger.addLog("Processed Amenities Query", amenitiesList);
+        }
+        // after to show accurate amount of filters
+        ArrayList<ArrayList<Map<?,?>>> filterAccomsStrikeList = new ArrayList<>();
+        for (int i = 0; i <= filters.size(); i++){
+            ArrayList<Map<?,?>> tmpFilter = new ArrayList<Map<?,?>>();
+            filterAccomsStrikeList.add(i, tmpFilter);
+        }
+
+        int strikes; // reflect number of fails to sort by
+
         for (Map<?,?> building : accoms){       // iterate through every student residence as a Map<>
+            strikes = 0;
             for (String column : filters.keySet()){     // iterate through every filter key as a String
+
+                ArrayList<String> nonNegotiable = new ArrayList<String>();
+                nonNegotiable.add("Brand");
+                nonNegotiable.add("Site");
+                nonNegotiable.add("HasEnsuite");
+                nonNegotiable.add("HasStudio");
+                nonNegotiable.add("HasTwin");
+                nonNegotiable.add("Disability_Access");
                 if (building.containsKey(column) && !filters.get(column).equals("")){   // If the filter is not "" and the building map contains the key of hte filler, continue
                     if (building.get(column).toString().equalsIgnoreCase(filters.get(column).toString())){      // If the values of both the filter and building map are equal, continue
                         System.out.println("Query for " + column +": " + building.get(column)+ " Passed");      // Output for monitoring API calls
+                        //Logger.addLog("filterMap", "Query for " + column +": " + building.get(column)+ " Passed");             // adds to logger
                     } else {
-                        System.out.println("Query for " + column + ": " + building.get(column)+ " Failed" );    // Output for monitoring API calls
-                        System.out.println("Wanted " + column + ": " + filters.get(column));    // Output for monitoring API calls
-                        noFail = false;    // Fail this residence
-                        break; // Exit for loop upon failure
+                        if(nonNegotiable.contains(column)){
+                            System.out.println("Query for " + column + ": " + building.get(column)+ " Failed" );    // Output for monitoring API calls
+                            System.out.println("Wanted " + column + ": " + filters.get(column));    // Output for monitoring API calls
+                            //Logger.addLog("filterMap", "Query for " + column +": " + building.get(column)+ " Failed. Wanted "+ column + ": " + filters.get(column));             // adds to logger
+                            noFail = false;    // Fail this residence
+                            break; // Exit for loop upon failure
+                        } else {
+                            strikes++;
+                        }
+
                     }
                 } else {
                     System.out.println("Invalid Query");    // Output for monitoring API calls
@@ -206,11 +313,23 @@ public class Main {
             if (!noFail){       // if noFail is false
                 noFail = true;      // Reset to true after a fail
                 System.out.println("Residence "+ building.get("Site") +" Not Matched\n\n");     // Output for monitoring API calls
+                //Logger.addLog("filterMap", "Residence "+ building.get("Site") +" Not Matched");             // adds to logger
             } else {
-                filteredAccoms.add(building);   // Add successful building to return List<Map<?,?>>
+                if (strikes == 0){
+                    filteredAccoms.add(building);   // Add successful building to return List<Map<?,?>>
+                } else {
+                    filterAccomsStrikeList.get(strikes).add(building);
+                }
+
                 System.out.println("Residence "+ building.get("Site") +" Matched\n\n");         // Output for monitoring API calls
+                //Logger.addLog("filterMap", "Residence "+ building.get("Site") +" Matched");             // adds to logger
             }
         }
+
+        for (int i = 0; i <filterAccomsStrikeList.size(); i++){
+            filteredAccoms.addAll(filterAccomsStrikeList.get(i));
+        }
+
         return filteredAccoms;  // return the shortened list of accoms that match the queries.
     }
 
@@ -234,7 +353,11 @@ public class Main {
             // Create an ObjectMapper object
             ObjectMapper mapper = new ObjectMapper();
             // Use the ObjectMapper to convert the list to a JSON formatted string
-            String json = mapper.writeValueAsString(accoms);
+            String json = mapper.writeValueAsString(accoms); // ] [
+
+            // removed because earlier alternative found
+            //StringBuilder json_noFail = new StringBuilder(mapper.writeValueAsString(accoms));
+
             return  packageJsonResidence(json);
         } catch (Exception e) {
             e.printStackTrace();

@@ -1,4 +1,4 @@
-package tests;
+package test;
 
 import main.csvData;
 import org.junit.jupiter.api.BeforeEach;
