@@ -103,12 +103,15 @@ public class Main {
             //BER_Query default set to All, so that if no BER_Query is passed, all properties are returned
             String BER_Query = "All";
             String filters = "&";
+            
             //Building query parameters for webCrawler urls using API call query parameters
             for (String key : req.queryParams()) {
-                if (key.equals("BER")) {
-                    BER_Query = req.queryParams(key);
-                } else {
-                    filters = filters + key + "=" + req.queryParams(key) + "&";
+                if (!req.queryParams(key).equals("Def")) {
+                    if (key.equals("BER")) {
+                        BER_Query = req.queryParams(key);
+                    } else {
+                        filters = filters + key + "=" + req.queryParams(key) + "&";
+                    }
                 }
             }
 
