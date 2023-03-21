@@ -10,6 +10,7 @@ import static spark.Spark.*;
 //import com.github.alexdlaird.ngrok.protocol.CreateTunnel;
 //import com.github.alexdlaird.ngrok.protocol.Proto;
 //import com.github.alexdlaird.ngrok.protocol.Tunnel;
+import com.fasterxml.jackson.core.util.InternCache;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Main {
@@ -22,6 +23,7 @@ public class Main {
 
     public static boolean tunnelNgrok = false;
     public static boolean enableLogging = true;
+    public static boolean addCount = true;
     //Provided we built the initial object correctly, start
     //program and initialise API responses.
     public static void main(String[] args) throws IOException {
@@ -76,6 +78,10 @@ public class Main {
             //response = "{\"Residences\":"+response+"}";
             String response = convertToJsonList(filteredAccoms);
 
+            if(addCount){
+                response = addCount(response);
+            }
+
             System.out.println("RESPONSE" + response);
             Logger.addLog("RESPONSE" , response);
             return response;
@@ -106,7 +112,7 @@ public class Main {
             parentURL = parentURL + filters + appendIndex;
             System.out.println(parentURL);
 
-            String response = webCrawler.Daft(parentURL, BER_Query, null);
+            String response = webCrawler.Daft(parentURL, BER_Query);
 
             return response;
 
@@ -322,7 +328,16 @@ public class Main {
     }
 
     public static String packageJsonResidence(String json){
-        return "{\"Residences\":"+json+"}";
+        String packaged = "{\"Residences\":"+json+"}";
+        return packaged;
+    }
+
+    public static String addCount(String jsonresponse){
+        int siteCount = JSONParser.countProperties(jsonresponse);
+        StringBuilder sb = new StringBuilder(jsonresponse);
+        sb.insert(sb.length() - 1, ",\n\"Count\":"+siteCount);
+        String result = sb.toString();
+        return result;
     }
 
 
