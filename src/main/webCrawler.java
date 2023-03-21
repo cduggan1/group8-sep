@@ -57,7 +57,9 @@ public class webCrawler implements Callable {
 
         for (FutureTask task : pageTasks) { //After all threads initialised, for each FutureTask...
             try {
-                json = json + task.get();//Get the response and add it to our json string
+                if (task.get() != null) {
+                    json = json + task.get();//Get the response and add it to our json string
+                }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             } catch (ExecutionException e) {
