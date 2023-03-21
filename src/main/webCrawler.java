@@ -216,6 +216,8 @@ public class webCrawler implements Callable {
 
                 Element baths = document.selectFirst("li:contains(Bath)"); //Select the first ordered list element containing "Bath"
 
+                Element img = document.selectFirst("img[data-testid$=main-header-image]");
+
                 //If the type element is not null
                 // and the index of the BER_Query passed in is less than or equal to the index of the BER rating of the property in question, or equals "All"...
                 if ((Arrays.asList(BER_Ratings).indexOf(BER_Query)
@@ -246,7 +248,18 @@ public class webCrawler implements Callable {
                     }
                     if (baths != null) {
                         json_sb.append("\"baths\":\"" + baths.text() + "\",");
-                        //System.out.println(baths.text());
+
+                    }
+                    if (img.attr("src") != null) {
+                        json_sb.append("\"img\":\"" + img.attr("src") + "\",");
+
+                    }
+                    if (urlMap.get(Thread.currentThread().getName()).contains("https://www.daft.ie")) {
+                        json_sb.append("\"url\":\"" + urlMap.get(Thread.currentThread().getName()) + "\",");
+
+                    } else {
+                        json_sb.append("\"url\":\"" + "https://www.daft.ie" + urlMap.get(Thread.currentThread().getName()) + "\",");
+
                     }
 
                     Elements facilities = document.select("ul [class*=PropertyDetails]"); //Select the unordered list with class containing "PropertyDetails"
