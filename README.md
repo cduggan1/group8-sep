@@ -92,7 +92,7 @@ A list of all valid queries and query parameters for the API, and an explanation
 
 *propertyType=*
 - ?Filter=Value where filter can be any of the following:
-Brand	Site	Email	HasEnsuite	HasStudio	HasTwin	LowestPrice	HighestPrice	YearOpened	Distance_TCD(Walk)	Distance_TCD(Bike)	Distance_TCD(Public Transport)	Gym?	TV Room?	Study_Space?	Laundry_Room	Cinema_Room	Rooftop_Garden	Balcony	Dishwasher	Stovetop	Cafeteria	Sports_Hall	Fast_WiFi	District	Flatmates	Disability_Access	Other_Info
+Brand	Site  Email	HasEnsuite  HasStudio HasTwin LowestPrice HighestPrice  YearOpened  Distance_TCD(Walk)  Distance_TCD(Bike)  Distance_TCD(Public_Transport)  Gym TV_Room Study_Space Laundry_Room  Cinema_Room Rooftop_Garden  Balcony Dishwasher  Stovetop  Cafeteria Sports_Hall Fast_WiFi Disability_Access District  Flatmates Other_Info
 
 
   
