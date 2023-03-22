@@ -23,19 +23,16 @@ public class synonymMapBuilder {
 
     public static Map<String, ArrayList<String>> buildMap (String file) {
 
-        System.out.println("TESS");
+
         // create map
         Map<String, ArrayList<String>> buildAmenities = new HashMap<>();
         try {
             // initialize file reader
 
-            FileReader fileReader = new FileReader(file);// Enter the entire path of the file if needed
-
-            System.out.println("TESS");
-
+            FileReader fileReader = new FileReader("src/main/"+file);// Enter the entire path of the file if needed
             BufferedReader bufferedReader = new BufferedReader(fileReader);
 
-            // create lines arrary
+            // create lines array
             ArrayList<String> lineAL = new ArrayList<String>();
             String i;
 
@@ -51,16 +48,18 @@ public class synonymMapBuilder {
             for (String entry : lineAL){
                 try{
                     // delimit strings by = and , respectively
-                    String[] initialSplit= entry.split("=",2);
-                    String[] synonyms = initialSplit[1].split(",");
-                    ArrayList<String> synonymOutput = new ArrayList<>();
+                    String[] initialSplit= entry.split("=",2); // maximize the amount of strings this can break down into to a maximum of 2
+                    String[] synonyms = initialSplit[1].split(","); // no maximum
+                    ArrayList<String> synonymOutput = new ArrayList<>(List.of(synonyms));
+                    // Corrected warning for doing array to list conversion manually
                     /*
                     for (String syn: synonyms){
                         // add each synonym list
                         synonymOutput.add(syn);
                     }
                     */
-                    synonymOutput.addAll(List.of(synonyms));
+                    // corrected warning for 'addAll()' call can be replaced with parametrized constructor call
+                    //synonymOutput.addAll(List.of(synonyms));
                     //synonymOutput = (ArrayList<String>) List.of(synonyms);
                     //Map<String, ArrayList<String>> synonymMap = new HashMap<>();
                     buildAmenities.put(initialSplit[0], synonymOutput);

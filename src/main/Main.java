@@ -1,7 +1,6 @@
 package main;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,7 +31,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
 
         System.out.println(Logger.BLUE + "Initialising...." + Logger.RESET);
-        try{Thread.sleep(500);}catch(Exception f){}
+        try{Thread.sleep(500);}catch(Exception f){f.printStackTrace();}
 
         csvData.init();
         synonymMapBuilder.init();
@@ -68,7 +67,13 @@ public class Main {
                 if (key.equalsIgnoreCase("District")){
                     String receivedDistrict = req.queryParams(key);
                     if(extractNumber(receivedDistrict)!=null)
-                        filters.put(key, extractNumber(receivedDistrict).toString());
+                        try{
+                            filters.put(key, extractNumber(receivedDistrict).toString());
+                        } catch(Exception e) {
+                            e.printStackTrace();
+                            Logger.addLog("District Cleaning", "Null Pointer(?) : " + e);
+                        }
+
                 }
 
                 //Distance Filtering
@@ -83,7 +88,7 @@ public class Main {
                     try {
                         maxMinutes = maxDuration.get("m");
 
-                    }catch(Exception e){} //Ignore
+                    }catch(Exception e){e.printStackTrace();} //Ignore
                     if (maxMinutes!=0){
                         filters.put(key, Integer.toString(maxMinutes));
                     }
@@ -315,15 +320,37 @@ public class Main {
 
 
 
-        // TODO ljdzed make this one function that takes a list<map<string,List<string>>> and sorts intelligently (maybe) ex. of map in this list :  <"TV_Room", {"tv", "television"}> to allow for better filtering
+        // DONE ljdzed make this one function that takes a list<map<string,List<string>>> and sorts intelligently (maybe) ex. of map in this list :  <"TV_Room", {"tv", "television"}> to allow for better filtering
 
 
-        if (filters.containsKey("Amenities")){ // slow but manually go through and check if the word or related words are in the string inputted
-            // takes a while to iterate through
+        if (filters.containsKey("Amenities")){
+
             Logger.addLog("Amenities Query", filters.get("Amenities"));
             String amenitiesList = "";
             String query = filters.get("Amenities").toLowerCase();
             filters.remove("Amenities");
+
+            for (Map.Entry<String, ArrayList<String>> entry : synonymMapBuilder.amenitiesSynonym.entrySet()){
+                entry.getKey();
+                boolean matchSyn = false;
+                for (String synonym : entry.getValue()){
+                    if (query.contains(synonym)){
+                        matchSyn = true;
+                        break;
+                    }
+                }
+                if (matchSyn){
+                    amenitiesList += entry.getKey() + " ";
+                    filters.put(entry.getKey(), entry.getKey().replace("_", " "));
+                }
+            }
+
+
+            // slow but manually go through and check if the word or related words are in the string inputted
+            // takes a while to iterate through
+            //OLD MANUAL METHOD FOR REF
+            /*
+
 
             if (query.contains("gym") || query.contains("weight room")
                     || query.contains("exercise room")){
@@ -380,24 +407,31 @@ public class Main {
                 filters.put("Fast_Wifi", "Fast Wifi");
             }
             // Uncomment if this gets added
-            /*
-            if (query.contains()("ethernet") || query.contains()("wired internet")
-                    || query.contains()("wired connection")) {
-                amenitiesList += "Ethernet ";
-            }
-            */
+            //
+            //if (query.contains()("ethernet") || query.contains()("wired internet")
+            //        || query.contains()("wired connection")) {
+            //   amenitiesList += "Ethernet ";
+            //}
+            //
             if (query.contains("disability") || query.contains("disable")){
                 amenitiesList += "Disability Access ";
                 filters.put("Disability_Access", "Disability Access");
                 //Logger.addLog("filterMap", "Query for Disability_Access: triggered");
             }
+
+            */
             Logger.addLog("Processed Amenities Query", amenitiesList);
         }
         // after to show accurate amount of filters
         ArrayList<ArrayList<Map<?,?>>> filterAccomsStrikeList = new ArrayList<>();
-        for (int i = 0; i <= filters.size(); i++){
+        for (int i = 0; i < filters.size(); i++){
             ArrayList<Map<?,?>> tmpFilter = new ArrayList<Map<?,?>>();
-            filterAccomsStrikeList.add(i, tmpFilter);
+            try{
+               filterAccomsStrikeList.add(i, tmpFilter);
+            } catch (Exception e){
+                e.printStackTrace();
+                Logger.addLog("Strike List","Failed StrikeList Creation");
+            }
         }
 
         int strikes; // reflect number of fails to sort by
@@ -406,6 +440,7 @@ public class Main {
             strikes = 0;
             for (String column : filters.keySet()){     // iterate through every filter key as a String
 
+                // Define all non negotiables (do not care about strike system)
                 ArrayList<String> nonNegotiable = new ArrayList<String>();
                 nonNegotiable.add("Brand");
                 nonNegotiable.add("Site");
@@ -413,6 +448,8 @@ public class Main {
                 nonNegotiable.add("HasStudio");
                 nonNegotiable.add("HasTwin");
                 nonNegotiable.add("Disability_Access");
+
+
                 if (building.containsKey(column) && !filters.get(column).equals("")){   // If the filter is not "" and the building map contains the key of hte filler, continue
                     if (building.get(column).toString().equalsIgnoreCase(filters.get(column).toString())){      // If the values of both the filter and building map are equal, continue
                         System.out.println("Query for " + column +": " + building.get(column)+ " Passed");      // Output for monitoring API calls
@@ -425,7 +462,7 @@ public class Main {
                             noFail = false;    // Fail this residence
                             break; // Exit for loop upon failure
                         } else {
-                            strikes++;
+                            strikes++; // increment the strikes against this site
                         }
 
                     }
@@ -441,7 +478,7 @@ public class Main {
                 if (strikes == 0){
                     filteredAccoms.add(building);   // Add successful building to return List<Map<?,?>>
                 } else {
-                    filterAccomsStrikeList.get(strikes).add(building);
+                    filterAccomsStrikeList.get(strikes-1).add(building);
                 }
 
                 System.out.println("Residence "+ building.get("Site") +" Matched\n\n");         // Output for monitoring API calls
@@ -522,8 +559,9 @@ public class Main {
     public static boolean hasEnsuites(List<Map<?, ?>> list, int id){
         System.out.println("Checking if ID " + id + " has Ensuite");
         System.out.println(list.get(id).toString());
-        if(getValue(list, id, "Has Ensuite").equalsIgnoreCase("y"))
+        if(getValue(list, id, "Has Ensuite").equalsIgnoreCase("y")) {
             return true;
+        }
         return false;
     }
     //Explained in API call.
