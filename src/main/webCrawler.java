@@ -19,16 +19,26 @@ import org.jsoup.select.Elements;
 
 import static main.JSONParser.countProperties;
 import static main.JSONParser.findValuesOf;
+import static main.Main.accMap;
 
 public class webCrawler implements Callable {
 //Callabe is the multithreading interface we will be using
     public static String BER_Query;
-    public static HashMap<String, String> urlMap = new HashMap<String, String>();
+    static HashMap<String, String> urlMap = new HashMap<String, String>();
+
+    static HashMap<String, String> shortUrlMap =  new HashMap<String, String>();
     public webCrawler (String Url, String BER_Query, int index){ //Constructor, which also updates shared resources for threads.
 
         this.BER_Query = BER_Query;
-        urlMap.put(Integer.toString(index), Url); //Adding the url associated with this crawler, along with an index corresponding to its thread number,
-                                                  //to a hashmap for the threads to access concurrently.
+        if (Url.contains("daft.ie")) {
+            urlMap.put(Integer.toString(index), Url); //Adding the url associated with this crawler, along with an index corresponding to its thread number
+            accMap.put(Integer.toHexString(index), Url);
+            shortUrlMap.put(Integer.toString(index),"https://trinitystudentaccommodation.com/c/" + Integer.toHexString(index));
+        } else {
+            urlMap.put(Integer.toString(index), "https://www.daft.ie" + Url); // to a hashmap for the threads to access concurrently.
+            accMap.put(Integer.toHexString(index), "https://www.daft.ie" + Url);
+            shortUrlMap.put(Integer.toString(index),"https://trinitystudentaccommodation.com/c/" + Integer.toHexString(index));
+        }
     }
 
 
@@ -103,7 +113,7 @@ public class webCrawler implements Callable {
             String append = "\",\"pageSize\":\"50\"},\"geoFilter\":{\"storedShapeIds\":[\"4410\"]," +
                     "\"geoSearchType\":\"STORED_SHAPES\"},\"terms\":\"\"}";
 
-            //Code for a hidden API call on the Daft website that could be used to circumvent the inaccessible webpages issue, but is not currently in use.
+            //Code for a hidden API call on the Daft website used to circumvent the inaccessible webpages issue.
             while (!endOfList) {
                 Connection.Response postReq = Jsoup.connect("https://gateway.daft.ie/old/v1/listings")
                         .ignoreContentType(true)
@@ -149,7 +159,7 @@ public class webCrawler implements Callable {
             System.out.println(urlList);
             return urlList;
         }
-            //Crawly Bit
+            //Crawly Bit - Old Method
             catch(Exception e){
             e.printStackTrace();
                 while (!endOfList) {
@@ -254,11 +264,8 @@ public class webCrawler implements Callable {
                         json_sb.append("\"img\":\"" + img.attr("src") + "\",");
 
                     }
-                    if (urlMap.get(Thread.currentThread().getName()).contains("https://www.daft.ie")) {
-                        json_sb.append("\"url\":\"" + urlMap.get(Thread.currentThread().getName()) + "\",");
-
-                    } else {
-                        json_sb.append("\"url\":\"" + "https://www.daft.ie" + urlMap.get(Thread.currentThread().getName()) + "\",");
+                    if (urlMap.get(Thread.currentThread().getName()) != null) {
+                        json_sb.append("\"url\":\"" + shortUrlMap.get(Thread.currentThread().getName()) + "\",");
 
                     }
 
