@@ -32,6 +32,7 @@ public class Main {
         try{Thread.sleep(500);}catch(Exception f){}
 
         csvData.init();
+        synonymMapBuilder.init();
 
         DatabaseManager.testConnection();
         port(443);
@@ -92,7 +93,7 @@ public class Main {
         // Builds the URL to be processed by the webscraper, as well as the requested BER rating
         //Gets a JSON formatted string containing the properties matching the query parameters from the webCrawler class
         get("/scrape", (req, res) -> {
-
+            res.type("application/json");
             System.out.println("Filtering Query...");
             Logger.addLog("scrape", "API Called");
 
@@ -195,6 +196,8 @@ public class Main {
 
 
         // TODO ljdzed make this one function that takes a list<map<string,List<string>>> and sorts intelligently (maybe) ex. of map in this list :  <"TV_Room", {"tv", "television"}> to allow for better filtering
+
+
         if (filters.containsKey("Amenities")){ // slow but manually go through and check if the word or related words are in the string inputted
             // takes a while to iterate through
             Logger.addLog("Amenities Query", filters.get("Amenities"));
