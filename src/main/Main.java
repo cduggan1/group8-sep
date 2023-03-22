@@ -170,7 +170,7 @@ public class Main {
                         BER_Query = req.queryParams(key);
                     } else {
                         filterString = filterString + key + "=" + req.queryParams(key) + "&";
-                        scrapeFilters.put(key, req.queryParams(key));
+                        scrapeFilters.put(key + "=", req.queryParams(key));
                     }
                 }
             }
