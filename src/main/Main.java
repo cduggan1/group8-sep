@@ -13,6 +13,9 @@ import static spark.Spark.*;
 //import com.github.alexdlaird.ngrok.protocol.Tunnel;
 import com.fasterxml.jackson.core.util.InternCache;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.languagetool.JLanguageTool;
+import org.languagetool.language.English; // https://dev.languagetool.org/java-api.html
+import org.languagetool.rules.RuleMatch;
 
 public class Main {
 
@@ -330,19 +333,45 @@ public class Main {
             String query = filters.get("Amenities").toLowerCase();
             filters.remove("Amenities");
 
-            for (Map.Entry<String, ArrayList<String>> entry : synonymMapBuilder.amenitiesSynonym.entrySet()){
-                entry.getKey();
-                boolean matchSyn = false;
-                for (String synonym : entry.getValue()){
-                    if (query.contains(synonym)){
-                        matchSyn = true;
-                        break;
+            JLanguageTool amenitiesCorrector = new JLanguageTool(new English());
+            try {
+                List<RuleMatch>  test = amenitiesCorrector.check(query);
+                System.out.println("TEST" + amenitiesCorrector.getAllSpellingCheckRules().toString());
+
+
+                for (Map.Entry<String, ArrayList<String>> entry : synonymMapBuilder.amenitiesSynonym.entrySet()) {
+                    // Rogue call left in from dev - ljdzed
+                    //entry.getKey();
+                    boolean matchSyn = false;
+                    for (String synonym : entry.getValue()) {
+                        if (query.contains(synonym)) {
+                            matchSyn = true;
+                            break;
+                        }
+                        /*
+                        System.out.println("PRE:CHECK" + test.toString() + " vs " + query.toString());
+                        for (RuleMatch correctionsList : test) {
+                            System.out.println("ERRORS" + correctionsList.getSuggestedReplacements());
+                            for (String corrections : correctionsList.getSuggestedReplacements()) {
+                                if (corrections.contains(synonym)) {
+                                    matchSyn = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                         */
+
                     }
+
+                    if (matchSyn) {
+                        amenitiesList += entry.getKey() + " ";
+                        filters.put(entry.getKey(), entry.getKey().replace("_", " "));
+                    }
+
                 }
-                if (matchSyn){
-                    amenitiesList += entry.getKey() + " ";
-                    filters.put(entry.getKey(), entry.getKey().replace("_", " "));
-                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
 
