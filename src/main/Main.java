@@ -53,6 +53,16 @@ public class Main {
             return "done."; //Ignore
         });
 
+        get("/s/*", (req, res)->{
+            String abbreviation = req.splat()[0];
+            String redirect;
+            if(abbreviation!=null)
+                try{
+                    res.redirect(getURLFromAbbreviation(csvData.accoms, abbreviation));
+                }catch(Exception e){}
+           return null;
+        });
+
         get("/fullQuery", (req, res) -> {
 
             System.out.println("Filtering Query...");
@@ -513,6 +523,13 @@ public class Main {
 
     public static String getValue(List<Map<?,?>> list, int index, String col){
         return(list.get(index).get(col)).toString();
+    }
+    public static String getURLFromAbbreviation(List<Map<?,?>> list, String ab){
+        for(Map<?,?> residence : list){
+            if (residence.get("Abbreviation").toString().equalsIgnoreCase(ab))
+                    return residence.get("Site_URL").toString();
+        }
+        return null;
     }
 
     //Explained in API call.
