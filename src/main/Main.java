@@ -3,6 +3,8 @@ package main;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static spark.Spark.*;
 
@@ -24,6 +26,7 @@ public class Main {
     public static boolean tunnelNgrok = false;
     public static boolean enableLogging = true;
     public static boolean addCount = true;
+
     //Provided we built the initial object correctly, start
     //program and initialise API responses.
     public static void main(String[] args) throws IOException {
@@ -32,6 +35,7 @@ public class Main {
         try{Thread.sleep(500);}catch(Exception f){}
 
         csvData.init();
+
 
         DatabaseManager.testConnection();
         port(443);
@@ -54,12 +58,39 @@ public class Main {
             System.out.println("Filtering Query...");
             Logger.addLog("fullQuery", "API Called");
 
-
             // Construct a map of filters based on the query parameters
             Map<String, String> filters = new HashMap<>();
             for (String key : req.queryParams()) {
-                filters.put(key, req.queryParams(key));
+
+                //District Filtering
+                //Extracts a number and places it into the filters list.
+                if (key.equalsIgnoreCase("District")){
+                    String receivedDistrict = req.queryParams(key);
+                    if(extractNumber(receivedDistrict)!=null)
+                        filters.put(key, extractNumber(receivedDistrict).toString());
+                }
+
+                //Distance Filtering
+                //Receives a string representing a duration in hrs/mins.
+                //Parses minutes from this duration
+                //Adds filter with key=parameter containing "Distance" and value = mins
+                else if(key.toLowerCase().contains("distance")){
+
+                    String request = req.queryParams(key);
+                    Map<String, Integer> maxDuration = parseTime(request,true);//True = minutes only
+                    int maxMinutes=0;
+                    try {
+                        maxMinutes = maxDuration.get("m");
+
+                    }catch(Exception e){} //Ignore
+                    if (maxMinutes!=0){
+                        filters.put(key, Integer.toString(maxMinutes));
+                    }
+                }else {
+                    filters.put(key, req.queryParams(key));
+                }
             }
+
 
             System.out.println(filters.toString());
             if(filters.size()>0) {
@@ -87,6 +118,7 @@ public class Main {
             return response;
 
         });
+
 
 
         // Builds the URL to be processed by the webscraper, as well as the requested BER rating
@@ -190,6 +222,10 @@ public class Main {
             }
                 });
 
+        get("/admin/testTimeParser",(req, res)->{
+            String request = req.queryParams("time");
+            return parseTime(request, true);
+        });
         //End of API calls.
 
         //Assign temp URL using ngrok
@@ -197,6 +233,78 @@ public class Main {
             ngrokTunnel.startNgrok("");
         }
     }
+
+    public static Integer extractNumber(String str) {
+        System.out.println("Number Extractor Received " + str);
+        Logger.addLog("extractNumber Received: ",str);
+        Pattern pattern = Pattern.compile("\\d+");
+        Matcher matcher = pattern.matcher(str);
+        if (matcher.find()) {
+            String numberStr = matcher.group();
+            System.out.println("Number Extractor Returned " + numberStr);
+            Logger.addLog("extractNumber Received: ",numberStr);
+            return Integer.parseInt(numberStr);
+        } else {
+            System.out.println("Number Extractor Returned null");
+            Logger.addLog("extractNumber", "Returned null");
+            return null;
+        }
+    }
+
+    public static Map<String, Integer> parseTime(String input, boolean minutesOnly) {
+        System.out.println("Time received: " + input);
+        Map<String, Integer> timeMap = new HashMap<>();
+        input = input.replace(" ","");//remove spaces
+        Integer h = null;
+        Integer m = null;
+
+        int hIndex = input.indexOf("h");
+        int mIndex = input.indexOf("m");
+
+        if (hIndex >= 0) {
+            int i = hIndex - 1;
+            while (i >= 0 && Character.isDigit(input.charAt(i))) {
+                i--;
+            }
+            if (i != hIndex - 1) {
+                h = Integer.parseInt(input.substring(i + 1, hIndex));
+            }
+        }
+
+        if (mIndex >= 0) {
+            int i = mIndex - 1;
+            while (i >= 0 && Character.isDigit(input.charAt(i))) {
+                i--;
+            }
+            if (i != mIndex - 1) {
+                m = Integer.parseInt(input.substring(i + 1, mIndex));
+            }
+        }
+        //Correct too many minutes
+        while(m>60){
+            h++;
+            m=m-60;
+        }
+        timeMap.put("h", h);
+        timeMap.put("m", m);
+
+
+        if (minutesOnly) {
+            if(h==null || h==0) {
+                timeMap.put("m", m);
+            }
+            else {
+                timeMap.remove("h");
+                timeMap.put("m", m + (h * 60));
+            }
+
+        }
+        System.out.println("Returning" + timeMap);
+
+        return timeMap;
+    }
+
+
 
     //Create Filter Map
     public static List<Map<?,?>> filterAccoms(List<Map<?,?>> accoms, Map<String,String> filters){
