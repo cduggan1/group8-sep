@@ -144,6 +144,7 @@ public class Main {
         //Gets a JSON formatted string containing the properties matching the query parameters from the webCrawler class
         get("/scrape", (req, res) -> {
             res.type("application/json");
+
             System.out.println("Filtering Query...");
             Logger.addLog("scrape", "API Called");
 
@@ -168,21 +169,59 @@ public class Main {
                 if (!req.queryParams(key).equals("Def") && !req.queryParams(key).equals(null)) {
                     if (key.equals("BER")) {
                         BER_Query = req.queryParams(key);
-                    } else {
+                    }
+                    else if (key.equals("leaseLength_from")) {
+                        System.out.println(req.queryParams(key));
+                        Matcher matcher = Pattern.compile("(\\d+)?.*?(?<!\\d)(\\d+)").matcher(req.queryParams(key));
+                        matcher.find();
+
+                        if (req.queryParams(key).contains("y") || req.queryParams(key).contains("Y")) {
+                            int months = 0;
+                                if (matcher.group(1) != null) {
+                                    months = Integer.valueOf(matcher.group(1)) * 12;
+
+                                if (matcher.group(2) != null) {
+                                    System.out.println(matcher.group(2));
+                                    months = Integer.valueOf(matcher.group(2)) + months;
+                                }
+                            }
+                            else {
+                                    months = Integer.valueOf(matcher.group(2)) * 12;
+                            }
+                            System.out.println("Months: " + months);
+                            scrapeFilters.put(key + "=", String.valueOf(months));
+                            filterString = filterString + key + "=" + months + "&";
+                        }
+                        else {
+                            int months = 0;
+                            try {
+                               months = Integer.valueOf(matcher.group());
+                            } catch (Exception e){
+                               months = Integer.valueOf(matcher.group(1));
+                            }
+                            System.out.println("Months: " + months);
+                            scrapeFilters.put(key + "=", String.valueOf(months));
+                            filterString = filterString + key + "=" + months + "&";
+                        }
+                    }
+                    else {
                         filterString = filterString + key + "=" + req.queryParams(key) + "&";
                         scrapeFilters.put(key + "=", req.queryParams(key));
                     }
                 }
             }
 
+            Logger.addLog("scrape","Map of filters fo post request: " + scrapeFilters.toString());
+
             //Putting all the pieces of the url together
             parentURL = parentURL + filterString + appendIndex;
-            System.out.println(parentURL);
+            Logger.addLog("scrape","Assembled parent Url for backup crawling method: " + parentURL);
 
             //Getting Json response from webCrawler
             String response = webCrawler.Daft(parentURL, BER_Query, scrapeFilters);
 
             //Returning Json
+            Logger.addLog("RESPONSE",response);
             return response;
 
         });
