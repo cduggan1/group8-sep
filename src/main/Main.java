@@ -125,7 +125,7 @@ public class Main {
             }
 
             //Putting all the pieces of the url together
-            parentURL = parentURL + filters + appendIndex;
+            parentURL = parentURL + filterString + appendIndex;
             System.out.println(parentURL);
 
             //Getting Json response from webCrawler
