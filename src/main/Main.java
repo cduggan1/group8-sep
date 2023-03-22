@@ -3,6 +3,8 @@ package main;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static spark.Spark.*;
 
@@ -24,6 +26,7 @@ public class Main {
     public static boolean tunnelNgrok = false;
     public static boolean enableLogging = true;
     public static boolean addCount = true;
+
     //Provided we built the initial object correctly, start
     //program and initialise API responses.
     public static void main(String[] args) throws IOException {
@@ -33,6 +36,7 @@ public class Main {
 
         csvData.init();
         synonymMapBuilder.init();
+
 
         DatabaseManager.testConnection();
         port(443);
@@ -55,12 +59,39 @@ public class Main {
             System.out.println("Filtering Query...");
             Logger.addLog("fullQuery", "API Called");
 
-
             // Construct a map of filters based on the query parameters
             Map<String, String> filters = new HashMap<>();
             for (String key : req.queryParams()) {
-                filters.put(key, req.queryParams(key));
+
+                //District Filtering
+                //Extracts a number and places it into the filters list.
+                if (key.equalsIgnoreCase("District")){
+                    String receivedDistrict = req.queryParams(key);
+                    if(extractNumber(receivedDistrict)!=null)
+                        filters.put(key, extractNumber(receivedDistrict).toString());
+                }
+
+                //Distance Filtering
+                //Receives a string representing a duration in hrs/mins.
+                //Parses minutes from this duration
+                //Adds filter with key=parameter containing "Distance" and value = mins
+                else if(key.toLowerCase().contains("distance")){
+
+                    String request = req.queryParams(key);
+                    Map<String, Integer> maxDuration = parseTime(request,true);//True = minutes only
+                    int maxMinutes=0;
+                    try {
+                        maxMinutes = maxDuration.get("m");
+
+                    }catch(Exception e){} //Ignore
+                    if (maxMinutes!=0){
+                        filters.put(key, Integer.toString(maxMinutes));
+                    }
+                }else {
+                    filters.put(key, req.queryParams(key));
+                }
             }
+
 
             System.out.println(filters.toString());
             if(filters.size()>0) {
@@ -90,6 +121,7 @@ public class Main {
         });
 
 
+
         // Builds the URL to be processed by the webscraper, as well as the requested BER rating
         //Gets a JSON formatted string containing the properties matching the query parameters from the webCrawler class
         get("/scrape", (req, res) -> {
@@ -97,28 +129,40 @@ public class Main {
             System.out.println("Filtering Query...");
             Logger.addLog("scrape", "API Called");
 
+            HashMap<String,String>scrapeFilters = new HashMap<>();
+
             //Base url used to built parentUrl
             String parentURL = "https://www.daft.ie/property-for-rent/dublin-city-centre-dublin?furnishing=furnished";
             //Page parameters to be appended to the end of the url string, for the purposes of iterating through multiple pages
             String appendIndex = "pageSize=20&from=";
             //BER_Query default set to All, so that if no BER_Query is passed, all properties are returned
             String BER_Query = "All";
-            String filters = "&";
+            String filterString = "&";
+
+            String[] filters = {"facilities=", "leaseLength_from=", "numBeds_from=", "numBaths_from=", "propertyType=","rentalPrice_to="};
+
+           for (String filter : filters) {
+               scrapeFilters.put(filter, "");
+           }
+
             //Building query parameters for webCrawler urls using API call query parameters
             for (String key : req.queryParams()) {
-                if (key.equals("BER")) {
-                    BER_Query = req.queryParams(key);
-                } else {
-                    filters = filters + key + "=" + req.queryParams(key) + "&";
+                if (!req.queryParams(key).equals("Def") && !req.queryParams(key).equals(null)) {
+                    if (key.equals("BER")) {
+                        BER_Query = req.queryParams(key);
+                    } else {
+                        filterString = filterString + key + "=" + req.queryParams(key) + "&";
+                        scrapeFilters.put(key, req.queryParams(key));
+                    }
                 }
             }
 
             //Putting all the pieces of the url together
-            parentURL = parentURL + filters + appendIndex;
+            parentURL = parentURL + filterString + appendIndex;
             System.out.println(parentURL);
 
             //Getting Json response from webCrawler
-            String response = webCrawler.Daft(parentURL, BER_Query);
+            String response = webCrawler.Daft(parentURL, BER_Query, scrapeFilters);
 
             //Returning Json
             return response;
@@ -179,6 +223,10 @@ public class Main {
             }
                 });
 
+        get("/admin/testTimeParser",(req, res)->{
+            String request = req.queryParams("time");
+            return parseTime(request, true);
+        });
         //End of API calls.
 
         //Assign temp URL using ngrok
@@ -186,6 +234,78 @@ public class Main {
             ngrokTunnel.startNgrok("");
         }
     }
+
+    public static Integer extractNumber(String str) {
+        System.out.println("Number Extractor Received " + str);
+        Logger.addLog("extractNumber Received: ",str);
+        Pattern pattern = Pattern.compile("\\d+");
+        Matcher matcher = pattern.matcher(str);
+        if (matcher.find()) {
+            String numberStr = matcher.group();
+            System.out.println("Number Extractor Returned " + numberStr);
+            Logger.addLog("extractNumber Received: ",numberStr);
+            return Integer.parseInt(numberStr);
+        } else {
+            System.out.println("Number Extractor Returned null");
+            Logger.addLog("extractNumber", "Returned null");
+            return null;
+        }
+    }
+
+    public static Map<String, Integer> parseTime(String input, boolean minutesOnly) {
+        System.out.println("Time received: " + input);
+        Map<String, Integer> timeMap = new HashMap<>();
+        input = input.replace(" ","");//remove spaces
+        Integer h = null;
+        Integer m = null;
+
+        int hIndex = input.indexOf("h");
+        int mIndex = input.indexOf("m");
+
+        if (hIndex >= 0) {
+            int i = hIndex - 1;
+            while (i >= 0 && Character.isDigit(input.charAt(i))) {
+                i--;
+            }
+            if (i != hIndex - 1) {
+                h = Integer.parseInt(input.substring(i + 1, hIndex));
+            }
+        }
+
+        if (mIndex >= 0) {
+            int i = mIndex - 1;
+            while (i >= 0 && Character.isDigit(input.charAt(i))) {
+                i--;
+            }
+            if (i != mIndex - 1) {
+                m = Integer.parseInt(input.substring(i + 1, mIndex));
+            }
+        }
+        //Correct too many minutes
+        while(m>60){
+            h++;
+            m=m-60;
+        }
+        timeMap.put("h", h);
+        timeMap.put("m", m);
+
+
+        if (minutesOnly) {
+            if(h==null || h==0) {
+                timeMap.put("m", m);
+            }
+            else {
+                timeMap.remove("h");
+                timeMap.put("m", m + (h * 60));
+            }
+
+        }
+        System.out.println("Returning" + timeMap);
+
+        return timeMap;
+    }
+
+
 
     //Create Filter Map
     public static List<Map<?,?>> filterAccoms(List<Map<?,?>> accoms, Map<String,String> filters){

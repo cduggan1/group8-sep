@@ -18,6 +18,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import static main.JSONParser.countProperties;
+import static main.JSONParser.findValuesOf;
 
 public class webCrawler implements Callable {
 //Callabe is the multithreading interface we will be using
@@ -31,12 +32,12 @@ public class webCrawler implements Callable {
     }
 
 
-    public static String Daft(String parentUrl, String BER_Query) { //Main method. Handles all other methods.
+    public static String Daft(String parentUrl, String BER_Query, HashMap<String, String> filterMap) { //Main method. Handles all other methods.
 
         int index = 0;
         int crawlerIndex = 0;
 
-        ArrayList<String> Pages = daftGetUrlList(parentUrl); //Calling daftGetUrlList() with a parentUrl to get an arraylist of the urls for all properties.
+        ArrayList<String> Pages = daftGetUrlList(parentUrl, filterMap); //Calling daftGetUrlList() with a parentUrl to get an arraylist of the urls for all properties.
         ArrayList<webCrawler> Crawlers = new ArrayList<>(); //Empty arraylist for instances of webCrawler class
         ArrayList<Thread> Threads = new ArrayList<>(); //Empty arraylist for threads
 
@@ -57,7 +58,9 @@ public class webCrawler implements Callable {
 
         for (FutureTask task : pageTasks) { //After all threads initialised, for each FutureTask...
             try {
-                json = json + task.get();//Get the response and add it to our json string
+                if (task.get() != null) {
+                    json = json + task.get();//Get the response and add it to our json string
+                }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             } catch (ExecutionException e) {
@@ -77,7 +80,7 @@ public class webCrawler implements Callable {
     }
 
     //Method to get list of property urls from a parent/seed url
-    public static ArrayList<String> daftGetUrlList(String parentUrl) {
+    public static ArrayList<String> daftGetUrlList(String parentUrl, HashMap<String, String> filterMap) {
 
         int index = 0;
 
@@ -85,80 +88,105 @@ public class webCrawler implements Callable {
 
         String tempUrl = parentUrl; //storing the base string, without an index
 
+        //Creating an empty array list to store the urls in
+        ArrayList<String> urlList = new ArrayList<>();
+
         try {
-            ArrayList<String> urlList = new ArrayList<>(); //Creating an empty array list to store the urls in
 
-            /*
-            Code for a hidden API call on the Daft website that could be used to circumvent the inaccessible webpages issue, but is not currently in use.
+            String prepend = "{\"section\":\"residential-to-rent\",\"filters\":[{\"name\":\"adState\",\"values\":[\"published\"]}" +
+                    ",{\"values\":[\"furnished\"],\"name\":\"furnishing\"},{\"values\":[\"" + filterMap.get("propertyType=") + "\"],\"name\":\"propertyType\"}]," +
+                    "\"andFilters\":[{\"values\":[" + filterMap.get("facilities=") + "],\"name\":\"facilities\"}]" +
+                    ",\"ranges\":[{\"from\":\"" + filterMap.get("numBaths_from=") + "\",\"to\":\"\",\"name\":\"numBaths\"},{\"from\":\"" + filterMap.get("leaseLength_from=") + "\",\"to\":\"\",\"name\":\"leaseLength\"}," +
+                    "{\"from\":\"\",\"to\":\"" + filterMap.get("rentalPrice_to=") + "\",\"name\":\"rentalPrice\"},{\"from\":\"" + filterMap.get("numBeds_from=") + "\",\"to\":\"\",\"name\":\"numBeds\"}]," +
+                    "\"paging\":{\"from\":\"";
 
-            Document postReq = Jsoup.connect("https://gateway.daft.ie/old/v1/listings")
-                    .ignoreContentType(true)
-                    .header("authority", "gateway.daft.ie")
-                    .header("accept", "application/json")
-                    .header("accept-language", "en-US,en;q=0.9")
-                    .header("brand", "daft")
-                    .header("cache-control", "no-cache, no-store")
-                    .header("content-type", "application/json")
-                    .header("expires",  "0")
-                    .header("origin", "https://www.daft.ie")
-                    .header("platform", "web")
-                    .header("pragma", "no-cache")
-                    .header("referer",  "https://www.daft.ie/")
-                    .header("sec-ch-ua", "Google Chrome\";v=\"111\", \"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"111\"")
-                    .header("sec-ch-ua-mobile", "?0")
-                    .header("sec-ch-ua-platform", "\"Windows\"")
-                    .header("sec-fetch-dest", "empty")
-                    .header("sec-fetch-mode", "cors")
-                    .header("sec-fetch-site", "same-site")
-                    .header("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36")
-                    .requestBody("{\"section\":\"residential-to-rent\",\"filters\":[{\"name\":\"adState\",\"values\":[\"published\"]}" +
-                            ",{\"values\":[\"furnished\"],\"name\":\"furnishing\"}],\"andFilters\":[],\"ranges\":[]," +
-                            "\"paging\":{\"from\":\"0\",\"pageSize\":\"20\"},\"geoFilter\":{\"storedShapeIds\":[\"4410\"]," +
-                            "\"geoSearchType\":\"STORED_SHAPES\"},\"terms\":\"\"}")
-                    .post();
+            String append = "\",\"pageSize\":\"50\"},\"geoFilter\":{\"storedShapeIds\":[\"4410\"]," +
+                    "\"geoSearchType\":\"STORED_SHAPES\"},\"terms\":\"\"}";
 
-                    System.out.println(postReq);
-                    */
-
-            //Crawly Bit
+            //Code for a hidden API call on the Daft website that could be used to circumvent the inaccessible webpages issue, but is not currently in use.
             while (!endOfList) {
+                Connection.Response postReq = Jsoup.connect("https://gateway.daft.ie/old/v1/listings")
+                        .ignoreContentType(true)
+                        .header("authority", "gateway.daft.ie")
+                        .header("accept", "application/json")
+                        .header("accept-language", "en-US,en;q=0.9")
+                        .header("brand", "daft")
+                        .header("cache-control", "no-cache, no-store")
+                        .header("content-type", "application/json")
+                        .header("expires", "0")
+                        .header("origin", "https://www.daft.ie")
+                        .header("platform", "web")
+                        .header("pragma", "no-cache")
+                        .header("referer", "https://www.daft.ie/")
+                        .header("sec-ch-ua", "Google Chrome\";v=\"111\", \"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"111\"")
+                        .header("sec-ch-ua-mobile", "?0")
+                        .header("sec-ch-ua-platform", "\"Windows\"")
+                        .header("sec-fetch-dest", "empty")
+                        .header("sec-fetch-mode", "cors")
+                        .header("sec-fetch-site", "same-site")
+                        .header("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36")
+                        .requestBody(prepend + index + append)
+                        .method(Connection.Method.POST)
+                        .execute();
 
-                try {
-                    Document urlDoc = Jsoup.connect(parentUrl).get(); //Connect to the parent in a while loop, and download the HTML source
+                index = index + 50;
 
-                Elements links = urlDoc.select("[href*=/for-rent/]"); //Create an "Elements", which is a collection of type Element, specific to Jsoup,
-                                                                              // which contains all links containing /for-rent/
-                                                                              // href refers to any link, *= means "contains"
+                Document daftCall = postReq.parse();
+                String daftCallString = daftCall.toString();
+                Document daftCallDoc = Jsoup.parse(daftCallString);
 
-                for (Element link : links) { //For every individual element in our "Elements"...
-                    if (link.attr("abs:href").contains("/for-rent/")) { //If the absolute href contains /for-rent/...
-                        urlList.add(link.attr("abs:href")); //Add the absolute href to our url list
+                StringBuilder daftCallStringBuilder = new StringBuilder(daftCallDoc.toString());
+                daftCallStringBuilder.delete(0, 30).delete(daftCallStringBuilder.length() - 16, daftCallStringBuilder.length() - 1);
+                daftCallString = daftCallStringBuilder.toString();
+
+                ArrayList<String> JSONParse = findValuesOf(daftCallString, "seoFriendlyPath");
+                if (!JSONParse.isEmpty()) {
+                    urlList.addAll(JSONParse);
+                } else {
+                    endOfList = true;
+                }
+            }
+            System.out.println(urlList);
+            return urlList;
+        }
+            //Crawly Bit
+            catch(Exception e){
+            e.printStackTrace();
+                while (!endOfList) {
+
+                    try {
+                        Document urlDoc = Jsoup.connect(parentUrl).get(); //Connect to the parent in a while loop, and download the HTML source
+
+                        Elements links = urlDoc.select("[href*=/for-rent/]"); //Create an "Elements", which is a collection of type Element, specific to Jsoup,
+                        // which contains all links containing /for-rent/
+                        // href refers to any link, *= means "contains"
+
+                        for (Element link : links) { //For every individual element in our "Elements"...
+                            if (link.attr("abs:href").contains("/for-rent/")) { //If the absolute href contains /for-rent/...
+                                urlList.add(link.attr("abs:href")); //Add the absolute href to our url list
+                            }
+                        }
+                        if (!links.attr("abs:href").contains("/for-rent/")) { //if our "Elements" doesn't contain a link containing /for-rent/...
+                            endOfList = true; //we have reached the end of the list, as there are no more properties.
+                        } else {
+                            index = index + 20; //If it still contains /for-rent/ links, we need to increment the parenturl's index
+                            parentUrl = tempUrl + index; //append index to parent url.
+                        }
+                    } catch (Exception ex) { //In the event that the link we try to connect to is bad...
+                        index = index + 20; //Increment index
+                        parentUrl = tempUrl + index; //Append new index, and try again
                     }
                 }
-                if (!links.attr("abs:href").contains("/for-rent/")) { //if our "Elements" doesn't contain a link containing /for-rent/...
-                    endOfList = true; //we have reached the end of the list, as there are no more properties.
-                } else {
-                    index = index + 20; //If it still contains /for-rent/ links, we need to increment the parenturl's index
-                    parentUrl = tempUrl + index; //append index to parent url.
-                }
             }
-                catch (Exception e){ //In the event that the link we try to connect to is bad...
-                    index = index + 20; //Increment index
-                    parentUrl = tempUrl + index; //Append new index, and try again
-                }
-            }
-                System.out.println(urlList);
-                return urlList; //Return the list of urls
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        return null;
+            System.out.println(urlList);
+            return urlList; //Return the list of urls
     }
         //Pulls info from a property. This method is accessed by all threads concurrently, so be careful modifying it.
         public static String daftScrape(String BER_Query) {
 
         System.out.println("Thread Number " + Thread.currentThread().getName() + " Started"); //Simply prints out which thread number just started, for debug purposes
+
+         Document document;
 
         int count = 0;
 
@@ -168,9 +196,11 @@ public class webCrawler implements Callable {
         StringBuilder json_sb= new StringBuilder(json); //Convert string to StringBuilder so that we can edit it
 
         try {
-                Document document = Jsoup.connect(urlMap.get(Thread.currentThread().getName())).get(); //Get the url with an index matching the thread number
-                                                                                                       //From the urlList hashmap
-
+            if (urlMap.get(Thread.currentThread().getName()).contains("https://www.daft.ie")) {
+                document = Jsoup.connect(urlMap.get(Thread.currentThread().getName())).get(); //Get the url with an index matching the thread number
+            } else {                                                                                   //From the urlList hashmap
+                document = Jsoup.connect("https://www.daft.ie" + urlMap.get(Thread.currentThread().getName())).get();
+            }
                 //Creating elements containing required info.
                 Element title = document.selectFirst("h1[class*=TitleBlock]"); //Select first h1 tag with a class containing "TitleBlock"
 
@@ -185,6 +215,8 @@ public class webCrawler implements Callable {
                 Element beds = document.selectFirst("li:contains(Bedroom)"); //Select the first ordered list element containing "Bedroom"
 
                 Element baths = document.selectFirst("li:contains(Bath)"); //Select the first ordered list element containing "Bath"
+
+                Element img = document.selectFirst("img[data-testid$=main-header-image]");
 
                 //If the type element is not null
                 // and the index of the BER_Query passed in is less than or equal to the index of the BER rating of the property in question, or equals "All"...
@@ -216,7 +248,18 @@ public class webCrawler implements Callable {
                     }
                     if (baths != null) {
                         json_sb.append("\"baths\":\"" + baths.text() + "\",");
-                        //System.out.println(baths.text());
+
+                    }
+                    if (img.attr("src") != null) {
+                        json_sb.append("\"img\":\"" + img.attr("src") + "\",");
+
+                    }
+                    if (urlMap.get(Thread.currentThread().getName()).contains("https://www.daft.ie")) {
+                        json_sb.append("\"url\":\"" + urlMap.get(Thread.currentThread().getName()) + "\",");
+
+                    } else {
+                        json_sb.append("\"url\":\"" + "https://www.daft.ie" + urlMap.get(Thread.currentThread().getName()) + "\",");
+
                     }
 
                     Elements facilities = document.select("ul [class*=PropertyDetails]"); //Select the unordered list with class containing "PropertyDetails"

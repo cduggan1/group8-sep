@@ -1,25 +1,25 @@
-﻿Brand,Site,Email,HasEnsuite,HasStudio,HasTwin,LowestPrice,HighestPrice,YearOpened,Distance_TCD(Walk),Distance_TCD(Bike),Distance_TCD(Public_Transport),Gym,TV_Room,Study_Space,Laundry_Room,Cinema_Room,Rooftop_Garden,Balcony,Dishwasher,Stovetop,Cafeteria,Sports_Hall,Fast_WiFi,Disability_Access,District,Flatmates,Other_Info,Outdated
-Yugo,Highfield Park,highfieldpark@yugo.com,y,y,y,€255.00,€364.00,2020,35 min,11 min,,Gym,TV Room,,,,,,,,,,,,7,,,
-Yugo,Ardcairn House,ardcairnhouse@yugo.com,y,y,n,€255.00,€320.00,2018,25 min,11 min,,Gym,TV Room,,,,,,,,,,,,,,,
-Yugo,Broadstone Hall,broadstonehall@yugo.com,y,n,y,€208.00,€308.00,2016,25 min,10 min,,Gym,TV Room,,,,,,,,,,,,,,,
-Yugo,Dominick Place,dominickplace@yugo.com,y,y,y,€260.00,€283.00,2020,20 min,9 min,,Gym,TV Room,Study Space,Laundry Room,Cinema,Rooftop Garden,Balcony,Dishwasher,Stovetop,,,Fast Wifi,Disabilty Access,,7,,
-Yugo,Kavanagh Court,kavanaghcourt@yugo.com,y,y,n,€272.00,€282.00,2017,15 min,5 min,,Gym,TV Room,,,,,,,,,,,,,,,
-Yugo,New Mill,newmill@yugo.com,y,y,n,€272.00,€343.00,2017,20 min,8 min,,Gym,TV Room,,,,,Balcony,Dishwasher,,,,Fast Wifi,,,,,
-Yugo,The Tannery,thetannery@yugo.com,y,n,n,€272.00,€308.00,2018,20 min,8 min,,Gym,TV Room,,,,,,,,,,,,,,,
-Yugo,Brewers Close,brewersclose@yugo.com,y,y,n,€275.00,€469.00,2022,20 min,8 min,,Gym,TV Room,,,,,,,,,,,,,,,
-Aparto,Binary Hub,,y,n,n,€256.00,€287.00,2016,25 min,8 min,,Gym,TV Room,,,,,,,,,,,,,,,
-Aparto,The Loom,,y,n,n,€262.00,€277.00,2021,25 min,7 min,,Gym,TV Room,,,,,,,,,,,,,,,
-Aparto,Montrose Hall,,y,n,y,€220.00,€320.00,2022,1 hr,,,Gym,TV Room,,,,,,,,Cafeteria,,Fast Wifi,,4,,,
-Aparto,Beckett House,,y,n,n,€251.00,€292.00,2018,20 min,,,Gym,TV Room,,,,,,,,,,,Disability Access,,,,
-Aparto,Dorset Point,,y,n,y,€231.00,€256.00,2017,20 min,,,Gym,TV Room,,,,,,,,,,,,,,,
-Mezzino,Brickworks,,y,n,y,€228.00,€290.00,2018,30 min,,,Gym,TV Room,,,,,,,,,,,,,,,
-Fresh,Highlight Thomas Street,,y,n,,€219.00,€314.00,2018,20 min,,,Gym,TV Room,,,,,,,,,,,,,,,
-Fresh,Cork Street,,y,y,,€257.00,€392.00,2020,25 min,,,Gym,TV Room,,,,,,,,,,,,,,,
-Fresh,Highlight Parkgate Street,,y,n,,€230.00,€278.00,2020,30 min,,,Gym,TV Room,,,,,,,,,,,,,,,
-Casita,From Here Blackhall Place,,y,n,,€223.00,€275.00,2018,25 min,,,Gym,TV Room,,,,,,,,,,,,,,,y
-HeyDay,Carmanhall Crosslane,,y,n,,€268.00,€335.00,2019,15 min,,,Gym,TV Room,,,,,,,,,,,,,,,y
-Scape,Aungier Street,,y,y,,€279.00,€283.00,2020,10 min,,,Gym,TV Room,,,,,,,,,,,,,,,y
-Liv,LIV Dublin,,y,n,,€273.00,€279.00,2018,15 min,,,Gym,TV Room,,,,,,,,,,,,,,,
-Nido,Ardee Point,,y,y,,€265.00,€372.00,2021,20 min,,,Gym,TV Room,,,,,,,,,,,,,,,
-Mezzino,Highfield House,,y,y,,€232.00,€264.00,2019,40 min,,,Gym,TV Room,,,,,,,,,,,,,,,
-Scape,Scape Dublin,,y,y,,,,,10,,,,,,,,,,,,,,,,,,,y
+Brand,Site,Image_URL,Email,HasEnsuite,HasStudio,HasTwin,LowestPrice,HighestPrice,YearOpened,Distance_TCD(Walk),Distance_TCD(Bike),Distance_TCD(Public_Transport),Gym,TV_Room,Study_Space,Laundry_Room,Cinema_Room,Rooftop_Garden,Balcony,Dishwasher,Stovetop,Cafeteria,Sports_Hall,Fast_WiFi,Disability_Access,District,Flatmates,Other_Info,Outdated
+Yugo,Highfield Park,https://yugo.com/resource/image/176552/landscape_ratio4x3/768/576/b035a601b781258f3cf1adf4466137b0/9E79297B2005B4D0D235AB860FDCFF70/dublin-highfield-park-exterior.jpg,highfieldpark@yugo.com,y,y,y,€255.00,€364.00,2020,35 min,11 min,,Gym,TV Room,,,,,,,,,,,,7,,,
+Yugo,Ardcairn House,https://yugo.com/resource/blob/173842/35f3cee66cf0477e33e46df7e3aa647f/dublin-ardcairn-house-exterior-1-data.jpg,ardcairnhouse@yugo.com,y,y,n,€255.00,€320.00,2018,25 min,11 min,,Gym,TV Room,,,,,,,,,,,,,,,
+Yugo,Broadstone Hall,https://yugo.com/resource/image/174242/landscape_ratio4x3/768/576/fa3451e1a4179a9b9d1b0e9448e77b3b/9AAA669F3A093B76C6ACCD52A5047881/dublin-broadstone-hall-exterior.jpg,broadstonehall@yugo.com,y,n,y,€208.00,€308.00,2016,25 min,10 min,,Gym,TV Room,,,,,,,,,,,,,,,
+Yugo,Dominick Place,https://images.squarespace-cdn.com/content/v1/5d271054631aec0001548f14/1602772573283-45L8IGA479T01ODTUO15/DP4.jpg,dominickplace@yugo.com,y,y,y,€260.00,€283.00,2020,20 min,9 min,,Gym,TV Room,Study Space,Laundry Room,Cinema,Rooftop Garden,Balcony,Dishwasher,Stovetop,,,Fast Wifi,Disabilty Access,,7,,
+Yugo,Kavanagh Court,https://yugo.com/resource/image/174646/landscape_ratio4x3/768/576/656bdce05220e65bbf05b007fba3738/9EDC2F704C25CF21BCCD424B8DBF8FE9/dublin-kavanagh-court-exterior.jpg,kavanaghcourt@yugo.com,y,y,n,€272.00,€282.00,2017,15 min,5 min,,Gym,TV Room,,,,,,,,,,,,,,,
+Yugo,New Mill,https://yugo.com/resource/blob/175426/5dbdfa3874e92822e6d5d0ddf0aad4e9/new-mill-courtyard-data.jpg,newmill@yugo.com,y,y,n,€272.00,€343.00,2017,20 min,8 min,,Gym,TV Room,,,,,Balcony,Dishwasher,,,,Fast Wifi,,,,,
+Yugo,The Tannery,https://yugo.com/resource/image/175576/landscape_ratio4x3/768/576/da04e7ddb26f39ae7e8866b04a73d7cb/6DE3EC61102F706EDA43891DCC91E9EF/dublin-the-tannery-courtyard.jpg,thetannery@yugo.com,y,n,n,€272.00,€308.00,2018,20 min,8 min,,Gym,TV Room,,,,,,,,,,,,,,,
+Yugo,Brewers Close,https://yugo.com/resource/image/393832/landscape_ratio4x3/768/576/32770825ea43d631485eb93e258c6420/D801C1D1D1F869E69707369239A62F85/poddle-point-external-10-.jpg,brewersclose@yugo.com,y,y,n,€275.00,€469.00,2022,20 min,8 min,,Gym,TV Room,,,,,,,,,,,,,,,
+Aparto,Binary Hub,https://ak-d.tripcdn.com/images/220s0g00000082wvm330D_R_800_525.jpg,,y,n,n,€256.00,€287.00,2016,25 min,8 min,,Gym,TV Room,,,,,,,,,,,,,,,
+Aparto,The Loom,https://apartostudent.com/media/l0cjbc40/loom_gallery_property-790x450-1.jpg,,y,n,n,€262.00,€277.00,2021,25 min,7 min,,Gym,TV Room,,,,,,,,,,,,,,,
+Aparto,Montrose Hall,https://s3.amazonaws.com/hines-images/montrose-student-housing/apartomontrose_exterior_hres.gif,,y,n,y,€220.00,€320.00,2022,1 hr,,,Gym,TV Room,,,,,,,,Cafeteria,,Fast Wifi,,4,,,
+Aparto,Beckett House,"https://casita-img.imgix.net/uploads/buildings/1116/building/orig/beckett-house-dublin-199194908520210713121406PM.jpeg?auto=compress,format,enhance&w=1200",,y,n,n,€251.00,€292.00,2018,20 min,,,Gym,TV Room,,,,,,,,,,,Disability Access,,,,
+Aparto,Dorset Point,https://www.dbfl.ie/wp-content/uploads/2017/09/Dorset-St-Student-Accomodation-1-Resized.jpg,,y,n,y,€231.00,€256.00,2017,20 min,,,Gym,TV Room,,,,,,,,,,,,,,,
+Mezzino,Brickworks,https://www.mezzino.com/wp-content/uploads/2022/08/Brickworks-1-1024x768.webp,,y,n,y,€228.00,€290.00,2018,30 min,,,Gym,TV Room,,,,,,,,,,,,,,,
+Fresh,Highlight Thomas Street,https://afs-pbsa-images-prod.s3.eu-west-2.amazonaws.com/lphs_3129_additional13052020113127.jpg,,y,n,,€219.00,€314.00,2018,20 min,,,Gym,TV Room,,,,,,,,,,,,,,,
+Fresh,Cork Street,https://i.ytimg.com/vi/t3yVrdCfpnE/maxresdefault.jpg,,y,y,,€257.00,€392.00,2020,25 min,,,Gym,TV Room,,,,,,,,,,,,,,,
+Fresh,Highlight Parkgate Street,https://cdn.universityliving.com/fit-in/1920x0/filters:no_upscale()/filters:format(webp)/cms/SSyLiiNiFQmQLtj3khyV2ndFKmaS7u.jpg,,y,n,,€230.00,€278.00,2020,30 min,,,Gym,TV Room,,,,,,,,,,,,,,,
+Casita,From Here Blackhall Place,https://herestudents.com/wp-content/uploads/2022/07/Dublin-Blackhall-Place-Courtyard-2-1024x576.jpg,,y,n,,€223.00,€275.00,2018,25 min,,,Gym,TV Room,,,,,,,,,,,,,,,y
+HeyDay,Carmanhall Crosslane,https://d15duu1h3gsd2d.cloudfront.net/Pictures/2000xAny/8/8/4/82884_Carmans-Hall-Dublin.jpg,,y,n,,€268.00,€335.00,2019,15 min,,,Gym,TV Room,,,,,,,,,,,,,,,y
+Scape,Aungier Street,https://cdn-sl-a1.scape.com/sites/default/files/styles/small/public/location_thumbnail/2022-01/Dublin-Scape-Page-Tile-Square.jpg,,y,y,,€279.00,€283.00,2020,10 min,,,Gym,TV Room,,,,,,,,,,,,,,,y
+Liv,LIV Dublin,https://livstudent.com/wp-content/uploads/2023/03/7710495.jpg,,y,n,,€273.00,€279.00,2018,15 min,,,Gym,TV Room,,,,,,,,,,,,,,,
+Nido,Ardee Point,https://www.johnpaul.ie/wp-content/uploads/ardee2.jpg,,y,y,,€265.00,€372.00,2021,20 min,,,Gym,TV Room,,,,,,,,,,,,,,,
+Mezzino,Highfield House,https://www.mezzino.com/wp-content/uploads/2019/09/Highfield-House-Courtyard_1-1024x683.jpg,,y,y,,€232.00,€264.00,2019,40 min,,,Gym,TV Room,,,,,,,,,,,,,,,
+Scape,Scape Dublin,https://cdn-sl-a1.scape.com/sites/default/files/styles/small/public/location_thumbnail/2022-01/Dublin-Scape-Page-Tile-Square.jpg,,y,y,,,,,10,,,,,,,,,,,,,,,,,,,y
