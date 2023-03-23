@@ -16,7 +16,6 @@ import com.fasterxml.jackson.core.util.InternCache;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Main {
-    public static HashMap<String,String> accMap = new HashMap<String,String>();
     String url = "";
     String user = "";
     String password = "";
@@ -60,16 +59,6 @@ public class Main {
                     res.redirect(getURLFromAbbreviation(csvData.accoms, abbreviation));
                 }catch(Exception e){}
            return null;
-        });
-
-        get("/c/*", (req, res)->{
-            String abbreviation = req.splat()[0];
-            String redirect;
-            if(abbreviation!=null)
-                try{
-                    res.redirect(accMap.get(abbreviation));
-                }catch(Exception e){}
-            return null;
         });
 
         get("/fullQuery", (req, res) -> {
