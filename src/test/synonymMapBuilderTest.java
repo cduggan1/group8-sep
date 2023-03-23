@@ -64,7 +64,6 @@ public class synonymMapBuilderTest {
         assert(synonymMapBuilder.amenitiesSynonym.get("Gym").contains("gym"));
         assert(synonymMapBuilder.amenitiesSynonym.get("TV_Room").contains("television"));
         assert(synonymMapBuilder.amenitiesSynonym.get("Study_Space").contains("academic"));
-        //System.out.println(synonymMapBuilder.amenitiesSynonym.get("Laundry_Room").toString());
         assert(synonymMapBuilder.amenitiesSynonym.get("Laundry_Room").contains("laundrette"));
         assert(synonymMapBuilder.amenitiesSynonym.get("Cinema_Room").contains("movie"));
         assert(synonymMapBuilder.amenitiesSynonym.get("Rooftop_Garden").contains("rooftop garden"));
@@ -75,7 +74,7 @@ public class synonymMapBuilderTest {
         assert(synonymMapBuilder.amenitiesSynonym.get("Sports_Hall").contains("sports"));
         assert(synonymMapBuilder.amenitiesSynonym.get("Fast_Wifi").contains("wireless internet"));
         assert(synonymMapBuilder.amenitiesSynonym.get("Ethernet").contains("wired internet"));
-        //System.out.println(synonymMapBuilder.amenitiesSynonym.get("Ethernet").toString());
+
 
     }
 }

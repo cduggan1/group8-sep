@@ -29,8 +29,9 @@ public class synonymMapBuilder {
 
         // create map
         Map<String, ArrayList<String>> buildAmenities = new HashMap<>();
-        //try {
-            // initialize file reader
+
+
+        // initialize file reader
 
         FileReader fileReader = new FileReader(file);// Enter the entire path of the file if needed
         BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -67,11 +68,7 @@ public class synonymMapBuilder {
         }
         System.out.println(Logger.GREEN + "Thesaurus Object built from " + file + " successfully." + Logger.RESET);
         return buildAmenities;
-        //} catch (Exception e) {
-        //    e.printStackTrace();
-        //    Logger.addLog("Thesaurus Builder", "Exception in Thesaurus Initialization: " + e);
-        //    return null;
-        //}
+
     }
 
 }

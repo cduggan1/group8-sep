@@ -191,10 +191,10 @@ public class Main {
                             }
                             System.out.println("Months: " + months);
                             scrapeFilters.put(key + "=", String.valueOf(months));
-                            filterString = filterString + key + "=" + months + "&";
+                            filterString = filterString + key + "=" + months + "&"; // String Concat in Loop
                         }
                         else {
-                            int months = 0;
+                            int months = 0; // redundant initializer
                             try {
                                months = Integer.valueOf(matcher.group());
                             } catch (Exception e){
@@ -348,7 +348,6 @@ public class Main {
         timeMap.put("h", h);
         timeMap.put("m", m);
 
-
         if (minutesOnly) {
             if(h==null || h==0) {
                 timeMap.put("m", m);
@@ -357,7 +356,6 @@ public class Main {
                 timeMap.remove("h");
                 timeMap.put("m", m + (h * 60));
             }
-
         }
         System.out.println("Returning" + timeMap);
 
@@ -489,10 +487,6 @@ public class Main {
             ObjectMapper mapper = new ObjectMapper();
             // Use the ObjectMapper to convert the list to a JSON formatted string
             String json = mapper.writeValueAsString(accoms); // ] [
-
-            // removed because earlier alternative found
-            //StringBuilder json_noFail = new StringBuilder(mapper.writeValueAsString(accoms));
-
             return  packageJsonResidence(json);
         } catch (Exception e) {
             e.printStackTrace();
