@@ -16,6 +16,8 @@ import com.fasterxml.jackson.core.util.InternCache;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Main {
+
+
     String url = "";
     String user = "";
     String password = "";
@@ -30,11 +32,13 @@ public class Main {
     public static void main(String[] args) throws IOException {
 
         System.out.println(Logger.BLUE + "Initialising...." + Logger.RESET);
+        try{Thread.sleep(500);}catch(Exception f){f.printStackTrace();}
         Logger.addLog("",Logger.BLUE + "Sending Init Broadcast." + Logger.RESET);
 
-        try{Thread.sleep(500);}catch(Exception f){}
+        try{Thread.sleep(500);}catch(Exception f){f.printStackTrace();}
 
         csvData.init();
+        synonymMapBuilder.init();
 
 
         DatabaseManager.testConnection();
@@ -77,7 +81,13 @@ public class Main {
                 if (key.equalsIgnoreCase("District")){
                     String receivedDistrict = req.queryParams(key);
                     if(extractNumber(receivedDistrict)!=null)
-                        filters.put(key, extractNumber(receivedDistrict).toString());
+                        try{
+                            filters.put(key, extractNumber(receivedDistrict).toString());
+                        } catch(Exception e) {
+                            e.printStackTrace();
+                            Logger.addLog("District Cleaning", "Null Pointer(?) : " + e);
+                        }
+
                 }
 
                 //Distance Filtering
@@ -181,10 +191,10 @@ public class Main {
                             }
                             System.out.println("Months: " + months);
                             scrapeFilters.put(key + "=", String.valueOf(months));
-                            filterString = filterString + key + "=" + months + "&";
+                            filterString = filterString + key + "=" + months + "&"; // String Concat in Loop
                         }
                         else {
-                            int months = 0;
+                            int months = 0; // redundant initializer
                             try {
                                months = Integer.valueOf(matcher.group());
                             } catch (Exception e){
@@ -338,7 +348,6 @@ public class Main {
         timeMap.put("h", h);
         timeMap.put("m", m);
 
-
         if (minutesOnly) {
             if(h==null || h==0) {
                 timeMap.put("m", m);
@@ -347,7 +356,6 @@ public class Main {
                 timeMap.remove("h");
                 timeMap.put("m", m + (h * 60));
             }
-
         }
         System.out.println("Returning" + timeMap);
 
@@ -362,104 +370,59 @@ public class Main {
 
         boolean noFail = true; // Shifts false on failed query
 
+        // DONE ljdzed make this one function that takes a list<map<string,List<string>>> and sorts intelligently (maybe) ex. of map in this list :  <"TV_Room", {"tv", "television"}> to allow for better filtering
 
+        if (filters.containsKey("Amenities")){
 
-        // TODO ljdzed make this one function that takes a list<map<string,List<string>>> and sorts intelligently (maybe) ex. of map in this list :  <"TV_Room", {"tv", "television"}> to allow for better filtering
-        if (filters.containsKey("Amenities")){ // slow but manually go through and check if the word or related words are in the string inputted
-            // takes a while to iterate through
             Logger.addLog("Amenities Query", filters.get("Amenities"));
             String amenitiesList = "";
             String query = filters.get("Amenities").toLowerCase();
             filters.remove("Amenities");
 
-            if (query.contains("gym") || query.contains("weight room")
-                    || query.contains("exercise room")){
-                amenitiesList += "Gym ";
-                filters.put("Gym", "Gym");
+            for (Map.Entry<String, ArrayList<String>> entry : synonymMapBuilder.amenitiesSynonym.entrySet()){
+                entry.getKey();
+                boolean matchSyn = false;
+                for (String synonym : entry.getValue()){
+                    if (query.contains(synonym)){
+                        matchSyn = true;
+                        break;
+                    }
+                }
+                if (matchSyn){
+                    amenitiesList += entry.getKey() + " ";
+                    filters.put(entry.getKey(), entry.getKey().replace("_", " "));
+                }
             }
-            if (query.contains("tv") || query.contains("television")){
-                amenitiesList += "Television Room ";
-                filters.put("TV_Room", "TV Room");
-            }
-            if (query.contains("study") || query.contains("academic") || query.contains("college work")){
-                amenitiesList += "Study Space ";
-                filters.put("Study_Space", "Study Space");
-            }
-            if (query.contains("laundry") || query.contains("laundrette")
-                    || query.contains("laundromat") || query.contains("bagwash")
-                    || query.contains("bag wash")){
-                amenitiesList += "Laundry Room";
-                filters.put("Laundry_Room", "Laundry Room");
-            }
-            if (query.contains("cinema") || query.contains("movie")){
-                amenitiesList += "Cinema Room ";
-                filters.put("Cinema_Room", "Cinema");
-            }
-            if (query.contains("rooftop garden")){
-                amenitiesList += "Rooftop Garden ";
-                filters.put("Rooftop_Garden", "Rooftop Garden");
-            }
-            if (query.contains("balcony") || query.contains("terrace")
-                    || query.contains("mezzanine") || query.contains("veranda") ){
-                amenitiesList += "Balcony ";
-                filters.put("Balcony", "Balcony");
-            }
-            if (query.contains("dishwasher") || query.contains("dish-washer") || query.contains("dish washer") || query.contains("dishes")){
-                amenitiesList += "Dishwasher ";
-                filters.put("Dishwasher", "Dishwasher");
-            }
-            if (query.contains("stove") || query.contains("hob")
-                    || query.contains("cooker")){
-                amenitiesList += "Stovetop  ";
-                filters.put("Stovetop", "Stovetop");
-            }
-            if (query.contains("cafeteria") || query.contains("mess hall")
-                    || query.contains("canteen") || query.contains("buffet") || query.contains("dining hall") || query.contains("cafe") ){
-                amenitiesList += "Cafeteria ";
-                filters.put("Cafeteria", "Cafeteria");
-            }
-            if (query.contains("sports")){
-                amenitiesList += "Sports Hall ";
-                filters.put("Sports_Hall", "Sports Hall");
-            }
-            if (query.contains("wifi") || query.contains("wireless internet")){
-                amenitiesList += "Wifi ";
-                filters.put("Fast_Wifi", "Fast Wifi");
-            }
-            // Uncomment if this gets added
-            /*
-            if (query.contains()("ethernet") || query.contains()("wired internet")
-                    || query.contains()("wired connection")) {
-                amenitiesList += "Ethernet ";
-            }
-            */
-            if (query.contains("disability") || query.contains("disable")){
-                amenitiesList += "Disability Access ";
-                filters.put("Disability_Access", "Disability Access");
-                //Logger.addLog("filterMap", "Query for Disability_Access: triggered");
-            }
+
             Logger.addLog("Processed Amenities Query", amenitiesList);
         }
         // after to show accurate amount of filters
         ArrayList<ArrayList<Map<?,?>>> filterAccomsStrikeList = new ArrayList<>();
-        for (int i = 0; i <= filters.size(); i++){
+        for (int i = 0; i < filters.size(); i++){
             ArrayList<Map<?,?>> tmpFilter = new ArrayList<Map<?,?>>();
-            filterAccomsStrikeList.add(i, tmpFilter);
+            try{
+               filterAccomsStrikeList.add(i, tmpFilter);
+            } catch (Exception e){
+                e.printStackTrace();
+                Logger.addLog("Strike List","Failed StrikeList Creation");
+            }
         }
 
         int strikes; // reflect number of fails to sort by
 
+        // Define all non negotiables (do not care about strike system)
+        ArrayList<String> nonNegotiable = new ArrayList<String>();
+        nonNegotiable.add("Brand");
+        nonNegotiable.add("Site");
+        nonNegotiable.add("HasEnsuite");
+        nonNegotiable.add("HasStudio");
+        nonNegotiable.add("HasTwin");
+        nonNegotiable.add("Disability_Access");
         for (Map<?,?> building : accoms){       // iterate through every student residence as a Map<>
             strikes = 0;
             for (String column : filters.keySet()){     // iterate through every filter key as a String
 
-                ArrayList<String> nonNegotiable = new ArrayList<String>();
-                nonNegotiable.add("Brand");
-                nonNegotiable.add("Site");
-                nonNegotiable.add("HasEnsuite");
-                nonNegotiable.add("HasStudio");
-                nonNegotiable.add("HasTwin");
-                nonNegotiable.add("Disability_Access");
+
                 if (building.containsKey(column) && !filters.get(column).equals("")){   // If the filter is not "" and the building map contains the key of hte filler, continue
                     if (building.get(column).toString().equalsIgnoreCase(filters.get(column).toString())){      // If the values of both the filter and building map are equal, continue
                         System.out.println("Query for " + column +": " + building.get(column)+ " Passed");      // Output for monitoring API calls
@@ -472,7 +435,7 @@ public class Main {
                             noFail = false;    // Fail this residence
                             break; // Exit for loop upon failure
                         } else {
-                            strikes++;
+                            strikes++; // increment the strikes against this site
                         }
 
                     }
@@ -488,7 +451,7 @@ public class Main {
                 if (strikes == 0){
                     filteredAccoms.add(building);   // Add successful building to return List<Map<?,?>>
                 } else {
-                    filterAccomsStrikeList.get(strikes).add(building);
+                    filterAccomsStrikeList.get(strikes-1).add(building);
                 }
 
                 System.out.println("Residence "+ building.get("Site") +" Matched\n\n");         // Output for monitoring API calls
@@ -524,10 +487,6 @@ public class Main {
             ObjectMapper mapper = new ObjectMapper();
             // Use the ObjectMapper to convert the list to a JSON formatted string
             String json = mapper.writeValueAsString(accoms); // ] [
-
-            // removed because earlier alternative found
-            //StringBuilder json_noFail = new StringBuilder(mapper.writeValueAsString(accoms));
-
             return  packageJsonResidence(json);
         } catch (Exception e) {
             e.printStackTrace();
@@ -576,8 +535,9 @@ public class Main {
     public static boolean hasEnsuites(List<Map<?, ?>> list, int id){
         System.out.println("Checking if ID " + id + " has Ensuite");
         System.out.println(list.get(id).toString());
-        if(getValue(list, id, "Has Ensuite").equalsIgnoreCase("y"))
+        if(getValue(list, id, "Has Ensuite").equalsIgnoreCase("y")) {
             return true;
+        }
         return false;
     }
     //Explained in API call.
