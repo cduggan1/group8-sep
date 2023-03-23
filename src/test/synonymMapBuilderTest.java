@@ -4,6 +4,7 @@ import main.synonymMapBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -13,18 +14,18 @@ import static org.junit.jupiter.api.Assertions.*;
 public class synonymMapBuilderTest {
 
     @BeforeEach
-    void init(){
+    void init() throws IOException {
         synonymMapBuilder.init();
     }
 
 
     @Test
-    void voidTest(){
+    void voidTest() {
         assert(synonymMapBuilder.amenitiesSynonym != null);
     }
 
     @Test
-    void initializeTest(){
+    void initializeTest()  throws IOException{
         Map<String,ArrayList<String>> test = synonymMapBuilder.buildMap("src/main/Amenities.synonym");
 
         // TODO Find why this is throwing a warning
