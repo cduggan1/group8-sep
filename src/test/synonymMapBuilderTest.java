@@ -4,7 +4,6 @@ import main.synonymMapBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -14,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class synonymMapBuilderTest {
 
     @BeforeEach
-    void init() throws IOException {
+    void init(){
         synonymMapBuilder.init();
     }
 
@@ -24,6 +23,21 @@ public class synonymMapBuilderTest {
         assert(synonymMapBuilder.amenitiesSynonym != null);
     }
 
+    @Test
+    void initializeTest(){
+        Map<String,ArrayList<String>> test = synonymMapBuilder.buildMap("src/main/Amenities.synonym");
+
+        // TODO Find why this is throwing a warning
+        try {
+            if (test.keySet() != null){
+                assertEquals(test.size(), 14);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        assertEquals(test.get("Rooftop_Garden").size(), 1);
+        assertEquals(test.get("Ethernet").size(), 2);
+    }
     @Test
     void ContainKeyTest(){
         assert(synonymMapBuilder.amenitiesSynonym.containsKey("Disability_Access"));
@@ -60,7 +74,7 @@ public class synonymMapBuilderTest {
         assert(synonymMapBuilder.amenitiesSynonym.get("Sports_Hall").contains("sports"));
         assert(synonymMapBuilder.amenitiesSynonym.get("Fast_Wifi").contains("wireless internet"));
         assert(synonymMapBuilder.amenitiesSynonym.get("Ethernet").contains("wired internet"));
-        System.out.println(synonymMapBuilder.amenitiesSynonym.get("Ethernet").toString());
+        //System.out.println(synonymMapBuilder.amenitiesSynonym.get("Ethernet").toString());
 
     }
 }

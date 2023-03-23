@@ -51,7 +51,9 @@ public class synonymMapBuilder {
                     String[] initialSplit= entry.split("=",2); // maximize the amount of strings this can break down into to a maximum of 2
                     String[] synonyms = initialSplit[1].split(","); // no maximum
                     ArrayList<String> synonymOutput = new ArrayList<>(List.of(synonyms));
-                    while (synonymOutput.remove("")){} // remove all "" entries;
+
+                    // TODO Dirty implementation of this, find a cleaner syntax
+                    while (synonymOutput.remove("")){} // remove all "" entries, prevents total matches and possible null-issues
                     // Corrected warning for doing array to list conversion manually
                     /*
                     for (String syn: synonyms){
