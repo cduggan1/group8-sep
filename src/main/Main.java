@@ -372,10 +372,7 @@ public class Main {
 
         boolean noFail = true; // Shifts false on failed query
 
-
-
         // DONE ljdzed make this one function that takes a list<map<string,List<string>>> and sorts intelligently (maybe) ex. of map in this list :  <"TV_Room", {"tv", "television"}> to allow for better filtering
-
 
         if (filters.containsKey("Amenities")){
 
@@ -399,81 +396,6 @@ public class Main {
                 }
             }
 
-
-            // slow but manually go through and check if the word or related words are in the string inputted
-            // takes a while to iterate through
-            //OLD MANUAL METHOD FOR REF
-            /*
-
-
-            if (query.contains("gym") || query.contains("weight room")
-                    || query.contains("exercise room")){
-                amenitiesList += "Gym ";
-                filters.put("Gym", "Gym");
-            }
-            if (query.contains("tv") || query.contains("television")){
-                amenitiesList += "Television Room ";
-                filters.put("TV_Room", "TV Room");
-            }
-            if (query.contains("study") || query.contains("academic") || query.contains("college work")){
-                amenitiesList += "Study Space ";
-                filters.put("Study_Space", "Study Space");
-            }
-            if (query.contains("laundry") || query.contains("laundrette")
-                    || query.contains("laundromat") || query.contains("bagwash")
-                    || query.contains("bag wash")){
-                amenitiesList += "Laundry Room";
-                filters.put("Laundry_Room", "Laundry Room");
-            }
-            if (query.contains("cinema") || query.contains("movie")){
-                amenitiesList += "Cinema Room ";
-                filters.put("Cinema_Room", "Cinema");
-            }
-            if (query.contains("rooftop garden")){
-                amenitiesList += "Rooftop Garden ";
-                filters.put("Rooftop_Garden", "Rooftop Garden");
-            }
-            if (query.contains("balcony") || query.contains("terrace")
-                    || query.contains("mezzanine") || query.contains("veranda") ){
-                amenitiesList += "Balcony ";
-                filters.put("Balcony", "Balcony");
-            }
-            if (query.contains("dishwasher") || query.contains("dish-washer") || query.contains("dish washer") || query.contains("dishes")){
-                amenitiesList += "Dishwasher ";
-                filters.put("Dishwasher", "Dishwasher");
-            }
-            if (query.contains("stove") || query.contains("hob")
-                    || query.contains("cooker")){
-                amenitiesList += "Stovetop  ";
-                filters.put("Stovetop", "Stovetop");
-            }
-            if (query.contains("cafeteria") || query.contains("mess hall")
-                    || query.contains("canteen") || query.contains("buffet") || query.contains("dining hall") || query.contains("cafe") ){
-                amenitiesList += "Cafeteria ";
-                filters.put("Cafeteria", "Cafeteria");
-            }
-            if (query.contains("sports")){
-                amenitiesList += "Sports Hall ";
-                filters.put("Sports_Hall", "Sports Hall");
-            }
-            if (query.contains("wifi") || query.contains("wireless internet")){
-                amenitiesList += "Wifi ";
-                filters.put("Fast_Wifi", "Fast Wifi");
-            }
-            // Uncomment if this gets added
-            //
-            //if (query.contains()("ethernet") || query.contains()("wired internet")
-            //        || query.contains()("wired connection")) {
-            //   amenitiesList += "Ethernet ";
-            //}
-            //
-            if (query.contains("disability") || query.contains("disable")){
-                amenitiesList += "Disability Access ";
-                filters.put("Disability_Access", "Disability Access");
-                //Logger.addLog("filterMap", "Query for Disability_Access: triggered");
-            }
-
-            */
             Logger.addLog("Processed Amenities Query", amenitiesList);
         }
         // after to show accurate amount of filters
@@ -490,18 +412,17 @@ public class Main {
 
         int strikes; // reflect number of fails to sort by
 
+        // Define all non negotiables (do not care about strike system)
+        ArrayList<String> nonNegotiable = new ArrayList<String>();
+        nonNegotiable.add("Brand");
+        nonNegotiable.add("Site");
+        nonNegotiable.add("HasEnsuite");
+        nonNegotiable.add("HasStudio");
+        nonNegotiable.add("HasTwin");
+        nonNegotiable.add("Disability_Access");
         for (Map<?,?> building : accoms){       // iterate through every student residence as a Map<>
             strikes = 0;
             for (String column : filters.keySet()){     // iterate through every filter key as a String
-
-                // Define all non negotiables (do not care about strike system)
-                ArrayList<String> nonNegotiable = new ArrayList<String>();
-                nonNegotiable.add("Brand");
-                nonNegotiable.add("Site");
-                nonNegotiable.add("HasEnsuite");
-                nonNegotiable.add("HasStudio");
-                nonNegotiable.add("HasTwin");
-                nonNegotiable.add("Disability_Access");
 
 
                 if (building.containsKey(column) && !filters.get(column).equals("")){   // If the filter is not "" and the building map contains the key of hte filler, continue

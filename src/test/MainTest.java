@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Filter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -34,10 +33,10 @@ class MainTest {
         assert(!filterMap.contains("Dominick Place"));
 
         FILTERS.clear();
-        FILTERS.put("Amenities", "disable");
+        FILTERS.put("Amenities", "disable gymnasium television room");
         filterMap = Main.filterAccoms(accoms, FILTERS).toString();
         assert(filterMap.contains("Dominick Place") && filterMap.contains("Beckett House"));
-        System.out.println(FILTERS.keySet().toString());
+        //System.out.println(FILTERS.keySet().toString());
         assert(FILTERS.containsKey("Disability_Access"));
     }
 
