@@ -30,6 +30,8 @@ public class Main {
     public static void main(String[] args) throws IOException {
 
         System.out.println(Logger.BLUE + "Initialising...." + Logger.RESET);
+        Logger.addLog("",Logger.BLUE + "Sending Init Broadcast." + Logger.RESET);
+
         try{Thread.sleep(500);}catch(Exception f){}
 
         csvData.init();
@@ -53,9 +55,9 @@ public class Main {
 
         get("/s/*", (req, res)->{
             String abbreviation = req.splat()[0];
-            String redirect;
             if(abbreviation!=null)
                 try{
+                    Logger.addLog("Redirect", "Call for " + abbreviation);
                     res.redirect(getURLFromAbbreviation(csvData.accoms, abbreviation));
                 }catch(Exception e){}
            return null;
@@ -122,7 +124,7 @@ public class Main {
             }
 
             System.out.println("RESPONSE" + response);
-            Logger.addLog("RESPONSE" , response);
+            Logger.addLog("RESPONSE:" , response);
             return response;
 
         });
@@ -263,7 +265,8 @@ public class Main {
 
         get("/admin/log",(req, res)->{
             if(enableLogging) {
-                return Logger.logFile.toString();
+                res.body(Logger.logFile.toString());
+                return Logger.logFile;
             }else{
                 return "Logging Disabled.";
             }
