@@ -1,6 +1,7 @@
 package main;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,6 +33,9 @@ public class Main {
 
         System.out.println(Logger.BLUE + "Initialising...." + Logger.RESET);
         try{Thread.sleep(500);}catch(Exception f){f.printStackTrace();}
+        Logger.addLog("",Logger.BLUE + "Sending Init Broadcast." + Logger.RESET);
+
+        try{Thread.sleep(500);}catch(Exception f){f.printStackTrace();}
 
         csvData.init();
         synonymMapBuilder.init();
@@ -51,6 +55,16 @@ public class Main {
             System.out.println(Logger.RED + "Request to quit API" + Logger.RESET);
             System.exit(0);
             return "done."; //Ignore
+        });
+
+        get("/s/*", (req, res)->{
+            String abbreviation = req.splat()[0];
+            if(abbreviation!=null)
+                try{
+                    Logger.addLog("Redirect", "Call for " + abbreviation);
+                    res.redirect(getURLFromAbbreviation(csvData.accoms, abbreviation));
+                }catch(Exception e){}
+           return null;
         });
 
         get("/fullQuery", (req, res) -> {
@@ -88,7 +102,7 @@ public class Main {
                     try {
                         maxMinutes = maxDuration.get("m");
 
-                    }catch(Exception e){e.printStackTrace();} //Ignore
+                    }catch(Exception e){} //Ignore
                     if (maxMinutes!=0){
                         filters.put(key, Integer.toString(maxMinutes));
                     }
@@ -120,7 +134,7 @@ public class Main {
             }
 
             System.out.println("RESPONSE" + response);
-            Logger.addLog("RESPONSE" , response);
+            Logger.addLog("RESPONSE:" , response);
             return response;
 
         });
@@ -131,6 +145,7 @@ public class Main {
         //Gets a JSON formatted string containing the properties matching the query parameters from the webCrawler class
         get("/scrape", (req, res) -> {
             res.type("application/json");
+
             System.out.println("Filtering Query...");
             Logger.addLog("scrape", "API Called");
 
@@ -155,21 +170,59 @@ public class Main {
                 if (!req.queryParams(key).equals("Def") && !req.queryParams(key).equals(null)) {
                     if (key.equals("BER")) {
                         BER_Query = req.queryParams(key);
-                    } else {
+                    }
+                    else if (key.equals("leaseLength_from")) {
+                        System.out.println(req.queryParams(key));
+                        Matcher matcher = Pattern.compile("(\\d+)?.*?(?<!\\d)(\\d+)").matcher(req.queryParams(key));
+                        matcher.find();
+
+                        if (req.queryParams(key).contains("y") || req.queryParams(key).contains("Y")) {
+                            int months = 0;
+                                if (matcher.group(1) != null) {
+                                    months = Integer.valueOf(matcher.group(1)) * 12;
+
+                                if (matcher.group(2) != null) {
+                                    System.out.println(matcher.group(2));
+                                    months = Integer.valueOf(matcher.group(2)) + months;
+                                }
+                            }
+                            else {
+                                    months = Integer.valueOf(matcher.group(2)) * 12;
+                            }
+                            System.out.println("Months: " + months);
+                            scrapeFilters.put(key + "=", String.valueOf(months));
+                            filterString = filterString + key + "=" + months + "&";
+                        }
+                        else {
+                            int months = 0;
+                            try {
+                               months = Integer.valueOf(matcher.group());
+                            } catch (Exception e){
+                               months = Integer.valueOf(matcher.group(1));
+                            }
+                            System.out.println("Months: " + months);
+                            scrapeFilters.put(key + "=", String.valueOf(months));
+                            filterString = filterString + key + "=" + months + "&";
+                        }
+                    }
+                    else {
                         filterString = filterString + key + "=" + req.queryParams(key) + "&";
-                        scrapeFilters.put(key, req.queryParams(key));
+                        scrapeFilters.put(key + "=", req.queryParams(key));
                     }
                 }
             }
 
+            Logger.addLog("scrape","Map of filters fo post request: " + scrapeFilters.toString());
+
             //Putting all the pieces of the url together
             parentURL = parentURL + filterString + appendIndex;
-            System.out.println(parentURL);
+            Logger.addLog("scrape","Assembled parent Url for backup crawling method: " + parentURL);
 
             //Getting Json response from webCrawler
             String response = webCrawler.Daft(parentURL, BER_Query, scrapeFilters);
 
             //Returning Json
+            Logger.addLog("RESPONSE",response);
             return response;
 
         });
@@ -222,7 +275,8 @@ public class Main {
 
         get("/admin/log",(req, res)->{
             if(enableLogging) {
-                return Logger.logFile.toString();
+                res.body(Logger.logFile.toString());
+                return Logger.logFile;
             }else{
                 return "Logging Disabled.";
             }
@@ -553,6 +607,13 @@ public class Main {
 
     public static String getValue(List<Map<?,?>> list, int index, String col){
         return(list.get(index).get(col)).toString();
+    }
+    public static String getURLFromAbbreviation(List<Map<?,?>> list, String ab){
+        for(Map<?,?> residence : list){
+            if (residence.get("Abbreviation").toString().equalsIgnoreCase(ab))
+                    return residence.get("Site_URL").toString();
+        }
+        return null;
     }
 
     //Explained in API call.

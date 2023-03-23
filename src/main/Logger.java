@@ -1,6 +1,8 @@
 package main;
 
 import java.io.*;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class Logger {
@@ -23,16 +25,18 @@ public class Logger {
 
     public static void addLog(String tag, String msg) {
         File file = new File("src/logs/","new_log_"+epoch+".txt");
-
+        LocalTime time = LocalTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        String formattedTime = time.format(formatter);
         try(FileWriter fw = new FileWriter(file, true);
             BufferedWriter bw = new BufferedWriter(fw);
             PrintWriter out = new PrintWriter(bw))
         {
-            out.println(tag+":"+msg);
+            out.println("["+time.format(formatter)+"]" + tag +":"+msg+"\n");
         } catch (IOException e) {
             //exception handling left as an exercise for the reader
         }
-        logFile.add(tag + "," + msg + ".\n");
+        logFile.add("\n["+time.format(formatter)+"]" +tag + "," + msg + ".\n");
     }
 
     public static void clearLog(){
