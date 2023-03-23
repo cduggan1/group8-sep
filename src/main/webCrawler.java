@@ -194,7 +194,7 @@ public class webCrawler implements Callable {
 
         int count = 0;
 
-        String BER_Ratings[] = {"G","F","E2","E1","D2","D1","C3","C2","C1","B3","B2","B1","A3","A2","A1"}; //Fixed array of BER ratings, to be read only
+        String BER_Ratings[] = {"Exempt","G","F","E2","E1","D2","D1","C3","C2","C1","B3","B2","B1","A3","A2","A1"}; //Fixed array of BER ratings, to be read only
 
         String json = ""; //Empty string to contain the json object
         StringBuilder json_sb= new StringBuilder(json); //Convert string to StringBuilder so that we can edit it
@@ -214,13 +214,27 @@ public class webCrawler implements Callable {
 
                 Element type = document.selectFirst("p[data-testid$=property-type]"); //Select the first paragraph with a data-testid property that equals "property-type"
 
-                Element lease = document.selectFirst("li:contains(Minimum)"); //Select the first ordered list element containing "Minimum"
+                Elements details = document.select("ul[class$=styles__InfoSection-sc-15fxapi-7 ikMOXo]");
 
-                Element beds = document.selectFirst("li:contains(Bedroom)"); //Select the first ordered list element containing "Bedroom"
+                //Element lease = document.selectFirst("li:contains(Minimum)"); //Select the first ordered list element containing "Minimum"
 
-                Element baths = document.selectFirst("li:contains(Bath)"); //Select the first ordered list element containing "Bath"
+                //Element beds = document.selectFirst("li:contains(Bedroom)"); //Select the first ordered list element containing "Bedroom"
+
+                Element baths = null;
+                Element beds = null;
+                Element lease = null;
+
+                for (Element li : details) {
+                    if (li.select("li").text().contains("Bath")) baths = li.selectFirst("li:contains(Bath)");
+                    if (li.select("li").text().contains("Minimum")) lease = li.selectFirst("li:contains(Minimum)");
+                    if (li.select("li").text().contains("Bedroom")) beds = li.selectFirst("li:contains(Bedroom)");
+                }
+
+                //Element baths = document.selectFirst("li:contains(Bath)"); //Select the first ordered list element containing "Bath"
 
                 Element img = document.selectFirst("img[data-testid$=main-header-image]");
+
+                Element floorPlan = document.selectFirst("[href*=https://s3-eu-west-1.amazonaws.com/mediamaster-s3eu]");
 
                 //If the type element is not null
                 // and the index of the BER_Query passed in is less than or equal to the index of the BER rating of the property in question, or equals "All"...
@@ -234,44 +248,85 @@ public class webCrawler implements Callable {
                     if (title != null && price != null) {
                         json_sb.append("{\"title\":\"" + title.text() + "\",\"price\":\"" + price.text() + "\",");
                     }
+
                     if (BER != null) {
-                        json_sb.append("\"BER\":\"" + BER.attr("alt") + "\",");
-                        //System.out.println(BER.attr("alt"));
+                        if (BER.attr("alt").equalsIgnoreCase("SI_666")) {
+                            json_sb.append("\"BER\":\"Exempt\",");
+                        }
+                        else {
+                            json_sb.append("\"BER\":\"" + BER.attr("alt") + "\",");
+                            //System.out.println(BER.attr("alt"));
+                        }
                     }
+
+
                     if (type != null) {
                         json_sb.append("\"type\":\"" + type.text() + "\",");
                         //System.out.println(type.text());
                     }
+                    else {
+                        json_sb.append("\"type\":\"\",");
+                    }
+
                     if (lease != null) {
                         json_sb.append("\"lease\":\"" + lease.text() + "\",");
                         //System.out.println(lease.text());
                     }
+                    else {
+                        json_sb.append("\"lease\":\"\",");
+                    }
+
                     if (beds != null) {
                         json_sb.append("\"beds\":\"" + beds.text() + "\",");
                         //System.out.println(beds.text());
                     }
+                    else {
+                        json_sb.append("\"beds\":\"\",");
+                    }
+
+
                     if (baths != null) {
                         json_sb.append("\"baths\":\"" + baths.text() + "\",");
-
                     }
+                    else {
+                        json_sb.append("\"baths\":\"\",");
+                    }
+
+
                     if (img.attr("src") != null) {
                         json_sb.append("\"img\":\"" + img.attr("src") + "\",");
-
                     }
+                    else {
+                        json_sb.append("\"img\":\"\",");
+                    }
+
+
                     if (urlMap.get(Thread.currentThread().getName()) != null) {
                         json_sb.append("\"url\":\"" + urlMap.get(Thread.currentThread().getName()) + "\",");
+                    } //No need for else {} here, as if there is no url, we won't reach here anyway.
 
+
+                    if (floorPlan != null) {
+                        json_sb.append("\"floorPlan\":\"" + floorPlan.attr("abs:href") + "\",");
+                    }
+                    else {
+                        json_sb.append("\"floorPlan\":\"noPlan\",");
                     }
 
                     Elements facilities = document.select("ul [class*=PropertyDetails]"); //Select the unordered list with class containing "PropertyDetails"
                         for (Element li : facilities) { //For each element in the unordered list we just extracted...
                             json_sb.append("\"amenity" + count + "\":\"" + li.select("li").text() //append them to the json StringBuilder twice: once for key, once for value
-                                    + "\",");
+                                    + ",\",");
 
                             count++;
                             //System.out.println(li.select("li").text());
                         }
-                        while (count <= 10) {
+
+                        if (count != 0) {
+                            json_sb.deleteCharAt((json_sb.length() - 3)); //Remove stray comma >:^(
+                        }
+
+                        while (count <= 10) { //If we didn't reach amenity 10, fill the remaining amenities with an empty string
                             json_sb.append("\"amenity" + count + "\":\"\",");
                             count++;
                         }
