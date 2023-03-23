@@ -19,25 +19,19 @@ import org.jsoup.select.Elements;
 
 import static main.JSONParser.countProperties;
 import static main.JSONParser.findValuesOf;
-import static main.Main.accMap;
 
 public class webCrawler implements Callable {
 //Callabe is the multithreading interface we will be using
     public static String BER_Query;
     static HashMap<String, String> urlMap = new HashMap<String, String>();
 
-    static HashMap<String, String> shortUrlMap =  new HashMap<String, String>();
     public webCrawler (String Url, String BER_Query, int index){ //Constructor, which also updates shared resources for threads.
 
         this.BER_Query = BER_Query;
         if (Url.contains("daft.ie")) {
             urlMap.put(Integer.toString(index), Url); //Adding the url associated with this crawler, along with an index corresponding to its thread number
-            accMap.put(Integer.toHexString(index), Url);
-            shortUrlMap.put(Integer.toString(index),"https://trinitystudentaccommodation.com/c/" + Integer.toHexString(index));
         } else {
             urlMap.put(Integer.toString(index), "https://www.daft.ie" + Url); // to a hashmap for the threads to access concurrently.
-            accMap.put(Integer.toHexString(index), "https://www.daft.ie" + Url);
-            shortUrlMap.put(Integer.toString(index),"https://trinitystudentaccommodation.com/c/" + Integer.toHexString(index));
         }
     }
 
@@ -265,18 +259,22 @@ public class webCrawler implements Callable {
 
                     }
                     if (urlMap.get(Thread.currentThread().getName()) != null) {
-                        json_sb.append("\"url\":\"" + shortUrlMap.get(Thread.currentThread().getName()) + "\",");
+                        json_sb.append("\"url\":\"" + urlMap.get(Thread.currentThread().getName()) + "\",");
 
                     }
 
                     Elements facilities = document.select("ul [class*=PropertyDetails]"); //Select the unordered list with class containing "PropertyDetails"
-                    for (Element li : facilities) { //For each element in the unordered list we just extracted...
-                        json_sb.append("\"amenity" + count + "\":\"" + li.select("li").text() //append them to the json StringBuilder twice: once for key, once for value
-                                + "\",");
+                        for (Element li : facilities) { //For each element in the unordered list we just extracted...
+                            json_sb.append("\"amenity" + count + "\":\"" + li.select("li").text() //append them to the json StringBuilder twice: once for key, once for value
+                                    + "\",");
 
-                        count++;
-                    //System.out.println(li.select("li").text());
-                    }
+                            count++;
+                            //System.out.println(li.select("li").text());
+                        }
+                        while (count <= 10) {
+                            json_sb.append("\"amenity" + count + "\":\"\",");
+                            count++;
+                        }
 
                     json_sb.deleteCharAt(json_sb.length()-1); //Delete the stray comma at the end  >:^(
                     json_sb.append("},"); //Append the closing bracket and comma to the json StringBuilder
