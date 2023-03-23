@@ -1,6 +1,7 @@
-package main;
+package test;
 
-import org.junit.jupiter.api.Assertions;
+import main.cacheObject;
+//import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Random;
@@ -24,7 +25,7 @@ class cacheObjectTest {
         cacheObject.put("TestSeq", "12345");
         assertEquals("12345", cacheObject.get("TestSeq"));
 
-        try{Thread.sleep(milliToWait);}catch(Exception e){assertTrue(false);}
+        try{Thread.sleep(milliToWait);}catch(Exception e){fail();}
         assertNull(cacheObject.get("TestSeq"));
     }
 }
