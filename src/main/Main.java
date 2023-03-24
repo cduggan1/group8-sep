@@ -1,7 +1,7 @@
 package main;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
+//import java.lang.reflect.Array;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,6 +27,20 @@ public class Main {
     public static boolean enableLogging = true;
     public static boolean addCount = true;
 
+
+
+    private static final ArrayList<String> nonNegotiable = new ArrayList<String>();
+
+   // Initiate All Non-Negotiables
+    public static void initNonNegotiables(){
+        nonNegotiable.add("Brand");
+        nonNegotiable.add("Site");
+        nonNegotiable.add("HasEnsuite");
+        nonNegotiable.add("HasStudio");
+        nonNegotiable.add("HasTwin");
+        nonNegotiable.add("Disability_Access");
+    }
+
     //Provided we built the initial object correctly, start
     //program and initialise API responses.
     public static void main(String[] args) throws IOException {
@@ -39,7 +53,7 @@ public class Main {
 
         csvData.init();
         synonymMapBuilder.init();
-
+        initNonNegotiables();
 
         DatabaseManager.testConnection();
         port(443);
@@ -63,7 +77,7 @@ public class Main {
                 try{
                     Logger.addLog("Redirect", "Call for " + abbreviation);
                     res.redirect(getURLFromAbbreviation(csvData.accoms, abbreviation));
-                }catch(Exception e){}
+                }catch(Exception e){Logger.addLog("Redirect Failed", "Error: " + e);}
            return null;
         });
 
@@ -102,7 +116,7 @@ public class Main {
                     try {
                         maxMinutes = maxDuration.get("m");
 
-                    }catch(Exception e){} //Ignore
+                    }catch(Exception e){e.printStackTrace();} //Ignore
                     if (maxMinutes!=0){
                         filters.put(key, Integer.toString(maxMinutes));
                     }
@@ -269,7 +283,6 @@ public class Main {
                 Logger.addLog("ERROR","json.toString() produced Null Pointer Exception");
             }
 
-
             return json;
         });
 
@@ -380,7 +393,7 @@ public class Main {
             filters.remove("Amenities");
 
             for (Map.Entry<String, ArrayList<String>> entry : synonymMapBuilder.amenitiesSynonym.entrySet()){
-                entry.getKey();
+                //entry.getKey();
                 boolean matchSyn = false;
                 for (String synonym : entry.getValue()){
                     if (query.contains(synonym)){
@@ -409,19 +422,18 @@ public class Main {
         }
 
         int strikes; // reflect number of fails to sort by
+        int maxStrikes = filters.size(); //
 
         // Define all non negotiables (do not care about strike system)
-        ArrayList<String> nonNegotiable = new ArrayList<String>();
-        nonNegotiable.add("Brand");
-        nonNegotiable.add("Site");
-        nonNegotiable.add("HasEnsuite");
-        nonNegotiable.add("HasStudio");
-        nonNegotiable.add("HasTwin");
-        nonNegotiable.add("Disability_Access");
+
         for (Map<?,?> building : accoms){       // iterate through every student residence as a Map<>
             strikes = 0;
             for (String column : filters.keySet()){     // iterate through every filter key as a String
-
+                if (column.equals("HighestPrice")){
+                    String priceHigh = building.get(column).toString();
+                    priceHigh.replace("€", "");
+                    System.out.println(priceHigh);
+                }
 
                 if (building.containsKey(column) && !filters.get(column).equals("")){   // If the filter is not "" and the building map contains the key of hte filler, continue
                     if (building.get(column).toString().equalsIgnoreCase(filters.get(column).toString())){      // If the values of both the filter and building map are equal, continue
@@ -435,7 +447,9 @@ public class Main {
                             noFail = false;    // Fail this residence
                             break; // Exit for loop upon failure
                         } else {
-                            strikes++; // increment the strikes against this site
+                            if (strikes < maxStrikes){
+                                strikes++; // increment the strikes against this site
+                            }
                         }
 
                     }
@@ -445,7 +459,7 @@ public class Main {
             }
             if (!noFail){       // if noFail is false
                 noFail = true;      // Reset to true after a fail
-                System.out.println("Residence "+ building.get("Site") +" Not Matched\n\n");     // Output for monitoring API calls
+                System.out.println("Residence "+ building.get("Site") +" Not Matched\n");     // Output for monitoring API calls
                 //Logger.addLog("filterMap", "Residence "+ building.get("Site") +" Not Matched");             // adds to logger
             } else {
                 if (strikes == 0){
@@ -453,30 +467,30 @@ public class Main {
                 } else {
                     filterAccomsStrikeList.get(strikes-1).add(building);
                 }
-
-                System.out.println("Residence "+ building.get("Site") +" Matched\n\n");         // Output for monitoring API calls
+                System.out.println("Residence "+ building.get("Site") +" Matched\n");         // Output for monitoring API calls
                 //Logger.addLog("filterMap", "Residence "+ building.get("Site") +" Matched");             // adds to logger
             }
         }
 
-        for (int i = 0; i <filterAccomsStrikeList.size(); i++){
-            filteredAccoms.addAll(filterAccomsStrikeList.get(i));
+        //for (int i = 0; i <filterAccomsStrikeList.size(); i++){
+        for (ArrayList<Map<?,?>> StrikeList : filterAccomsStrikeList){
+            filteredAccoms.addAll(StrikeList);
         }
 
         return filteredAccoms;  // return the shortened list of accoms that match the queries.
     }
 
     public static String packageJsonResidence(String json){
-        String packaged = "{\"Residences\":"+json+"}";
-        return packaged;
+        //String packaged = "{\"Residences\":"+json+"}";
+        return "{\"Residences\":"+json+"}";
     }
 
     public static String addCount(String jsonresponse){
         int siteCount = JSONParser.countProperties(jsonresponse);
         StringBuilder sb = new StringBuilder(jsonresponse);
         sb.insert(sb.length() - 1, ",\n\"Count\":"+siteCount);
-        String result = sb.toString();
-        return result;
+        //String result = sb.toString();
+        return sb.toString();
     }
 
 
