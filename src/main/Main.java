@@ -12,7 +12,6 @@ import static spark.Spark.*;
 //import com.github.alexdlaird.ngrok.protocol.CreateTunnel;
 //import com.github.alexdlaird.ngrok.protocol.Proto;
 //import com.github.alexdlaird.ngrok.protocol.Tunnel;
-import com.fasterxml.jackson.core.util.InternCache;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Main {
@@ -522,26 +521,26 @@ public class Main {
     }
 
 
-    public static float averageFirstValue (ArrayList<Map<?,?>> list, String key1, String key2, ArrayList<String> removeChars){
+    public static float averageIndexValue(ArrayList<Map<?,?>> list, int index, String key1, String key2, ArrayList<String> removeChars){
         float average;
-        if (!list.get(0).get(key1).toString().isBlank() && !list.get(0).get(key2).toString().isBlank()){
-            String key1String = list.get(0).get(key1).toString();
+        if (!list.get(index).get(key1).toString().isBlank() && !list.get(0).get(key2).toString().isBlank()){
+            String key1String = list.get(index).get(key1).toString();
             for (String remove : removeChars){
                 key1String = key1String.replace(remove, "");
             }
-            String key2String = list.get(0).get(key2).toString();
+            String key2String = list.get(index).get(key2).toString();
             for (String remove : removeChars){
                 key2String = key2String.replace(remove, "");
             }
             average = (Float.parseFloat(key1String) + Float.parseFloat(key2String))/2;
-        } else if(!list.get(0).get(key1).toString().isBlank()) {
-            String key1String = list.get(0).get(key1).toString();
+        } else if(!list.get(index).get(key1).toString().isBlank()) {
+            String key1String = list.get(index).get(key1).toString();
             for (String remove : removeChars){
                 key1String = key1String.replace(remove, "");
             }
             average = Float.parseFloat(key1String);
-        } else if(!list.get(0).get(key2).toString().isBlank()) {
-            String key2String = list.get(0).get(key1).toString();
+        } else if(!list.get(index).get(key2).toString().isBlank()) {
+            String key2String = list.get(index).get(key1).toString();
             for (String remove : removeChars){
                 key2String = key2String.replace(remove, "");
             }
@@ -556,6 +555,10 @@ public class Main {
     // Use Merge Sort on Accomodation lists ("Highest Price" implementation currently)
     public static ArrayList<Map<?,?>> orderAccommodations(ArrayList<Map<?,?>> accommodationList, String key){
         if (key.equals("HighestPrice")){
+            ArrayList<String> removeChars = new ArrayList<>();
+            removeChars.add("€");
+            String key1 = "HighestPrice";
+            String key2 = "LowestPrice";
             if (accommodationList.size()>=3){
 
                 // split size 3 and up lists
@@ -576,49 +579,43 @@ public class Main {
 
                 ArrayList<Map<?,?>> returnList = new ArrayList<>();
 
+
                 while (!leftList.isEmpty() || !rightList.isEmpty()){
                     // get left and right values
                     if (!leftList.isEmpty() & !rightList.isEmpty()){
                         float averageFirstLeft;
-                        // TODO turn this into unique function to avoid duplicate code
-                        if (!leftList.get(0).get("HighestPrice").toString().isBlank() && !leftList.get(0).get("HighestPrice").toString().isBlank()){
-                            averageFirstLeft = (Float.parseFloat(leftList.get(0).get("HighestPrice").toString().replace("€", "")) + Float.parseFloat(leftList.get(0).get("LowestPrice").toString().replace("€", "")))/2;
-                        } else if(!leftList.get(0).get("HighestPrice").toString().isBlank()) {
-                            averageFirstLeft = Float.parseFloat(leftList.get(0).get("HighestPrice").toString().replace("€", ""));
-                        } else if(!leftList.get(0).get("LowestPrice").toString().isBlank()) {
-                            averageFirstLeft = Float.parseFloat(leftList.get(0).get("LowestPrice").toString().replace("€", ""));
-                        } else {
-                            averageFirstLeft = 9999; // Puts Last w/ unrealistic price weight
-                        }
-                        float averageFirstRight;
-                        if (!rightList.get(0).get("HighestPrice").toString().isBlank() && !rightList.get(0).get("HighestPrice").toString().isBlank()){
-                            averageFirstRight = (Float.parseFloat(rightList.get(0).get("HighestPrice").toString().replace("€", "")) + Float.parseFloat(rightList.get(0).get("LowestPrice").toString().replace("€", "")))/2;
+                        // DONE turn this into unique function to avoid duplicate code
+                        averageFirstLeft =  averageIndexValue(leftList,0, key1, key2, removeChars);
 
-                        } else if(!rightList.get(0).get("HighestPrice").toString().isBlank()) {
-                            averageFirstRight = Float.parseFloat(rightList.get(0).get("HighestPrice").toString().replace("€", ""));
-                        } else if(!rightList.get(0).get("LowestPrice").toString().isBlank()) {
-                            averageFirstRight = Float.parseFloat(rightList.get(0).get("LowestPrice").toString().replace("€", ""));
-                        } else {
-                            averageFirstRight = 9999; // Puts Last w/ unrealistic price weight
-                        }
+                        float averageFirstRight;
+                        averageFirstRight = averageIndexValue(rightList,0, key1, key2, removeChars);
+                        //if (!rightList.get(0).get("HighestPrice").toString().isBlank() && !rightList.get(0).get("HighestPrice").toString().isBlank()){
+                        //    averageFirstRight = (Float.parseFloat(rightList.get(0).get("HighestPrice").toString().replace("€", "")) + Float.parseFloat(rightList.get(0).get("LowestPrice").toString().replace("€", "")))/2;
+                        //} else if(!rightList.get(0).get("HighestPrice").toString().isBlank()) {
+                        //    averageFirstRight = Float.parseFloat(rightList.get(0).get("HighestPrice").toString().replace("€", ""));
+                        //} else if(!rightList.get(0).get("LowestPrice").toString().isBlank()) {
+                        //    averageFirstRight = Float.parseFloat(rightList.get(0).get("LowestPrice").toString().replace("€", ""));
+                        //} else {
+                        //    averageFirstRight = 9999; // Puts Last w/ unrealistic price weight
+                        //}
 
                         if(averageFirstLeft < averageFirstRight){
-                            System.out.println("ADD Left PRICE " + averageFirstLeft);
+                            //System.out.println("ADD Left PRICE " + averageFirstLeft);
                             returnList.add(leftList.get(0));
                             leftList.remove(0);
                         } else {
-                            System.out.println("ADD Right PRICE " + averageFirstRight);
+                            //System.out.println("ADD Right PRICE " + averageFirstRight);
                             returnList.add(rightList.get(0));
                             rightList.remove(0);
 
                         }
                     } else if(!leftList.isEmpty()){
-                        System.out.println("ADD Left PRICE" + "");
+                        //System.out.println("ADD Left PRICE" + "");
                         returnList.add(leftList.get(0));
                         leftList.remove(0);
                     } else {
                         returnList.add(rightList.get(0));
-                        System.out.println("ADD Right PRICE" +rightList.get(0).get("LowestPrice"));
+                        //System.out.println("ADD Right PRICE" +rightList.get(0).get("LowestPrice"));
                         rightList.remove(0);
                     }
 
@@ -630,50 +627,33 @@ public class Main {
                 // Order list of size 2
 
                 float average0;
-                if (!accommodationList.get(0).get("HighestPrice").toString().isBlank() && !accommodationList.get(0).get("HighestPrice").toString().isBlank()){
-                    average0 = (Float.parseFloat(accommodationList.get(0).get("HighestPrice").toString().replace("€", "")) + Float.parseFloat(accommodationList.get(0).get("LowestPrice").toString().replace("€", "")))/2;
-                } else if(!accommodationList.get(0).get("HighestPrice").toString().isBlank()) {
-                    average0 = Float.parseFloat(accommodationList.get(0).get("HighestPrice").toString().replace("€", ""));
-                } else if(!accommodationList.get(0).get("LowestPrice").toString().isBlank()) {
-                    average0 = Float.parseFloat(accommodationList.get(0).get("LowestPrice").toString().replace("€", ""));
-                } else {
-                    average0 = 9999; // Puts Last w/ unrealistic price weight
-                }
+                average0 = averageIndexValue(accommodationList,0, key1, key2, removeChars);
+
                 float average1;
-                if (!accommodationList.get(1).get("HighestPrice").toString().isBlank() && !accommodationList.get(0).get("HighestPrice").toString().isBlank()){
-                    average1 = (Float.parseFloat(accommodationList.get(1).get("HighestPrice").toString().replace("€", "")) + Float.parseFloat(accommodationList.get(1).get("LowestPrice").toString().replace("€", "")))/2;
-                } else if(!accommodationList.get(1).get("HighestPrice").toString().isBlank()) {
-                    average1 = Float.parseFloat(accommodationList.get(1).get("HighestPrice").toString().replace("€", ""));
-                } else if(!accommodationList.get(1).get("LowestPrice").toString().isBlank()) {
-                    average1 = Float.parseFloat(accommodationList.get(1).get("LowestPrice").toString().replace("€", ""));
-                } else {
-                    average1 = 9999; // Puts Last w/ unrealistic price weight
-                }
+                average1 = averageIndexValue(accommodationList,0, key1, key2, removeChars);
+
 
                 System.out.println(average1 + " > "  + average0);
                 if (average1 > average0){
-                    System.out.println("fixed big: " + average1 + " > "  + average0);
-                    System.out.println("0: LOW PRICE" + accommodationList.get(0).get("LowestPrice"));
-                    System.out.println("1: LOW PRICE" + accommodationList.get(1).get("LowestPrice"));
-                    System.out.println("");
+                    //System.out.println("fixed big: " + average1 + " > "  + average0);
+                    //System.out.println("0: LOW PRICE" + accommodationList.get(0).get("LowestPrice"));
+                    //System.out.println("1: LOW PRICE" + accommodationList.get(1).get("LowestPrice"));
+                    //System.out.println("");
                     return accommodationList;
                 } else {
                     ArrayList<Map<?,?>> returnList = new ArrayList<>();
                     returnList.add(0,accommodationList.get(1));
                     returnList.add(1,accommodationList.get(0));
-                    System.out.println("fixed small: " + average0 + " > "  + average1);
-                    System.out.println("0: LOW PRICE" + returnList.get(0).get("LowestPrice"));
-                    System.out.println("1: LOW PRICE" + returnList.get(1).get("LowestPrice"));
-                    System.out.println("");
+                    //System.out.println("fixed small: " + average0 + " > "  + average1);
+                    //System.out.println("0: LOW PRICE" + returnList.get(0).get("LowestPrice"));
+                    //System.out.println("1: LOW PRICE" + returnList.get(1).get("LowestPrice"));
+                    //System.out.println("");
                     return returnList;
-
                 }
-
-
             } else {
                 // return list of size 1
-                System.out.println("0: LOW PRICE" + accommodationList.get(0).get("LowestPrice"));
-                System.out.println("");
+                //System.out.println("0: LOW PRICE" + accommodationList.get(0).get("LowestPrice"));
+                //System.out.println("");
                 return accommodationList;
             }
         }
