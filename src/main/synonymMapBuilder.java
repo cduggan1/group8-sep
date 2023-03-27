@@ -26,6 +26,7 @@ public class synonymMapBuilder {
 
     public static Map<String, ArrayList<String>> buildMap (String file) throws IOException{
 
+        System.out.println("Building Map from " + file);
 
         // create map
         Map<String, ArrayList<String>> buildAmenities = new HashMap<>();

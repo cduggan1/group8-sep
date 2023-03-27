@@ -1,11 +1,14 @@
-package main;
+package test;
 
+import main.JSONParser;
+import main.Main;
+import main.csvData;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+//import java.nio.charset.StandardCharsets;
+//import java.nio.file.Files;
+//import java.nio.file.Paths;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -75,15 +78,6 @@ class parserTest {
 
         assertEquals(8, parser.countProperties(response));
     }
-
-//    @Test
-//    void findValuesOf() throws IOException {
-//        byte[] encodedBytes = Files.readAllBytes(Paths.get("src/main/testjson.txt"));
-//        String json = new String(encodedBytes, StandardCharsets.UTF_8);
-//        ArrayList<String> list = JSONParser.findValuesOf(json, "seoFriendlyPath");
-//        System.out.println(list.toString());
-//        assertEquals(3204, list.toString().length());
-//    }
 
     @Test
     void extractNumberTest(){

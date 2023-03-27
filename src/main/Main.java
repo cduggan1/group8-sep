@@ -1,18 +1,11 @@
 package main;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static spark.Spark.*;
-
-//import com.github.alexdlaird.ngrok.NgrokClient;
-//import com.github.alexdlaird.ngrok.protocol.CreateTunnel;
-//import com.github.alexdlaird.ngrok.protocol.Proto;
-//import com.github.alexdlaird.ngrok.protocol.Tunnel;
-import com.fasterxml.jackson.core.util.InternCache;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Main {
@@ -23,9 +16,23 @@ public class Main {
     String password = "";
     String query = "SELECT * FROM mytable";
 
-    public static boolean tunnelNgrok = false;
+
     public static boolean enableLogging = true;
     public static boolean addCount = true;
+
+
+
+    private static final ArrayList<String> nonNegotiable = new ArrayList<String>();
+
+   // Initiate All Non-Negotiables
+    public static void initNonNegotiables(){
+        nonNegotiable.add("Brand");
+        nonNegotiable.add("Site");
+        nonNegotiable.add("HasEnsuite");
+        nonNegotiable.add("HasStudio");
+        nonNegotiable.add("HasTwin");
+        nonNegotiable.add("Disability_Access");
+    }
 
     //Provided we built the initial object correctly, start
     //program and initialise API responses.
@@ -39,7 +46,7 @@ public class Main {
 
         csvData.init();
         synonymMapBuilder.init();
-
+        initNonNegotiables();
 
         DatabaseManager.testConnection();
         port(443);
@@ -63,7 +70,7 @@ public class Main {
                 try{
                     Logger.addLog("Redirect", "Call for " + abbreviation);
                     res.redirect(getURLFromAbbreviation(csvData.accoms, abbreviation));
-                }catch(Exception e){}
+                }catch(Exception e){Logger.addLog("Redirect Failed", "Error: " + e);}
            return null;
         });
 
@@ -102,7 +109,7 @@ public class Main {
                     try {
                         maxMinutes = maxDuration.get("m");
 
-                    }catch(Exception e){} //Ignore
+                    }catch(Exception e){e.printStackTrace();} //Ignore
                     if (maxMinutes!=0){
                         filters.put(key, Integer.toString(maxMinutes));
                     }
@@ -212,7 +219,7 @@ public class Main {
                 }
             }
 
-            Logger.addLog("scrape","Map of filters fo post request: " + scrapeFilters.toString());
+            Logger.addLog("scrape","Map of filters of post request: " + scrapeFilters.toString());
 
             //Putting all the pieces of the url together
             parentURL = parentURL + filterString + appendIndex;
@@ -269,7 +276,6 @@ public class Main {
                 Logger.addLog("ERROR","json.toString() produced Null Pointer Exception");
             }
 
-
             return json;
         });
 
@@ -286,12 +292,16 @@ public class Main {
             String request = req.queryParams("time");
             return parseTime(request, true);
         });
+
+        get("/admin/csvUpdate",(req, res)->{
+            if (csvData.updateObject()){
+                return "csv Updated";
+            };
+            return "csv Update Failed";
+        });
+
         //End of API calls.
 
-        //Assign temp URL using ngrok
-        if(tunnelNgrok) {
-            ngrokTunnel.startNgrok("");
-        }
     }
 
     public static Integer extractNumber(String str) {
@@ -380,7 +390,7 @@ public class Main {
             filters.remove("Amenities");
 
             for (Map.Entry<String, ArrayList<String>> entry : synonymMapBuilder.amenitiesSynonym.entrySet()){
-                entry.getKey();
+                //entry.getKey();
                 boolean matchSyn = false;
                 for (String synonym : entry.getValue()){
                     if (query.contains(synonym)){
@@ -398,7 +408,11 @@ public class Main {
         }
         // after to show accurate amount of filters
         ArrayList<ArrayList<Map<?,?>>> filterAccomsStrikeList = new ArrayList<>();
-        for (int i = 0; i < filters.size(); i++){
+        int limitStrikeListSize = filters.size();
+        if (filters.keySet().contains("HighestPrice")){
+            limitStrikeListSize++;
+        }
+        for (int i = 0; i < limitStrikeListSize; i++){
             ArrayList<Map<?,?>> tmpFilter = new ArrayList<Map<?,?>>();
             try{
                filterAccomsStrikeList.add(i, tmpFilter);
@@ -409,21 +423,43 @@ public class Main {
         }
 
         int strikes; // reflect number of fails to sort by
+        int maxStrikes = filters.size(); //
 
         // Define all non negotiables (do not care about strike system)
-        ArrayList<String> nonNegotiable = new ArrayList<String>();
-        nonNegotiable.add("Brand");
-        nonNegotiable.add("Site");
-        nonNegotiable.add("HasEnsuite");
-        nonNegotiable.add("HasStudio");
-        nonNegotiable.add("HasTwin");
-        nonNegotiable.add("Disability_Access");
+
         for (Map<?,?> building : accoms){       // iterate through every student residence as a Map<>
             strikes = 0;
             for (String column : filters.keySet()){     // iterate through every filter key as a String
 
 
-                if (building.containsKey(column) && !filters.get(column).equals("")){   // If the filter is not "" and the building map contains the key of hte filler, continue
+                if (column.equals("HighestPrice")){
+                    String priceHigh = building.get(column).toString();
+                    if (!priceHigh.equals("")){
+                        priceHigh = priceHigh.replace("€", "");
+                        float costHigh = Float.parseFloat(priceHigh);
+                        if (Float.parseFloat(filters.get(column)) < costHigh ){
+                            strikes++;
+                            System.out.println("priceHigh:" + priceHigh);
+                        }
+                    } else {
+                        strikes++;
+                    }
+                    String priceLow = building.get("LowestPrice").toString();
+
+                    if (!priceLow.equals("")){
+                        priceLow = priceLow.replace("€", "");
+
+                        float costLow = Float.parseFloat(priceLow);
+                        if (Float.parseFloat(filters.get(column)) < costLow ){
+                            strikes++;
+                            System.out.println("priceLow:" + priceLow);
+                        }
+                    } else {
+                        strikes++;
+                    }
+
+
+                } else if (building.containsKey(column) && !filters.get(column).equals("")){   // If the filter is not "" and the building map contains the key of hte filler, continue
                     if (building.get(column).toString().equalsIgnoreCase(filters.get(column).toString())){      // If the values of both the filter and building map are equal, continue
                         System.out.println("Query for " + column +": " + building.get(column)+ " Passed");      // Output for monitoring API calls
                         //Logger.addLog("filterMap", "Query for " + column +": " + building.get(column)+ " Passed");             // adds to logger
@@ -435,7 +471,9 @@ public class Main {
                             noFail = false;    // Fail this residence
                             break; // Exit for loop upon failure
                         } else {
-                            strikes++; // increment the strikes against this site
+                            if (strikes < maxStrikes){
+                                strikes++; // increment the strikes against this site
+                            }
                         }
 
                     }
@@ -445,38 +483,193 @@ public class Main {
             }
             if (!noFail){       // if noFail is false
                 noFail = true;      // Reset to true after a fail
-                System.out.println("Residence "+ building.get("Site") +" Not Matched\n\n");     // Output for monitoring API calls
+                System.out.println("Residence "+ building.get("Site") +" Not Matched\n");     // Output for monitoring API calls
                 //Logger.addLog("filterMap", "Residence "+ building.get("Site") +" Not Matched");             // adds to logger
             } else {
                 if (strikes == 0){
                     filteredAccoms.add(building);   // Add successful building to return List<Map<?,?>>
                 } else {
-                    filterAccomsStrikeList.get(strikes-1).add(building);
-                }
+                    try {
+                        filterAccomsStrikeList.get(strikes-1).add(building);
+                    } catch (IndexOutOfBoundsException i) {
+                        i.printStackTrace();
+                        strikes--;
+                        for ( int iter = strikes; iter >=0; iter--){
+                            try {
+                                filterAccomsStrikeList.get(iter-1).add(building);
+                            } catch (IndexOutOfBoundsException e){e.printStackTrace();}
+                        }
 
-                System.out.println("Residence "+ building.get("Site") +" Matched\n\n");         // Output for monitoring API calls
+                    }
+                }
+                System.out.println("Residence "+ building.get("Site") +" Matched with " + strikes +" strikes\n");         // Output for monitoring API calls
                 //Logger.addLog("filterMap", "Residence "+ building.get("Site") +" Matched");             // adds to logger
             }
         }
 
-        for (int i = 0; i <filterAccomsStrikeList.size(); i++){
-            filteredAccoms.addAll(filterAccomsStrikeList.get(i));
+        //for (int i = 0; i <filterAccomsStrikeList.size(); i++){
+        for (ArrayList<Map<?,?>> StrikeList : filterAccomsStrikeList){
+            if (filters.containsKey("HighestPrice")){
+                StrikeList =orderAccommodations(StrikeList, "HighestPrice");
+            }
+            filteredAccoms.addAll(StrikeList);
         }
 
         return filteredAccoms;  // return the shortened list of accoms that match the queries.
     }
 
+
+    public static float averageIndexValue(ArrayList<Map<?,?>> list, int index, String key1, String key2, ArrayList<String> removeChars){
+        float average;
+        if (!list.get(index).get(key1).toString().isBlank() && !list.get(0).get(key2).toString().isBlank()){
+            String key1String = list.get(index).get(key1).toString();
+            for (String remove : removeChars){
+                key1String = key1String.replace(remove, "");
+            }
+            String key2String = list.get(index).get(key2).toString();
+            for (String remove : removeChars){
+                key2String = key2String.replace(remove, "");
+            }
+            average = (Float.parseFloat(key1String) + Float.parseFloat(key2String))/2;
+        } else if(!list.get(index).get(key1).toString().isBlank()) {
+            String key1String = list.get(index).get(key1).toString();
+            for (String remove : removeChars){
+                key1String = key1String.replace(remove, "");
+            }
+            average = Float.parseFloat(key1String);
+        } else if(!list.get(index).get(key2).toString().isBlank()) {
+            String key2String = list.get(index).get(key1).toString();
+            for (String remove : removeChars){
+                key2String = key2String.replace(remove, "");
+            }
+            average = Float.parseFloat(key2String);
+        } else {
+            average = 999999; // Puts Last w/ unrealistic price weight
+        }
+        return average;
+    }
+
+
+    // Use Merge Sort on Accomodation lists ("Highest Price" implementation currently)
+    public static ArrayList<Map<?,?>> orderAccommodations(ArrayList<Map<?,?>> accommodationList, String key){
+        if (key.equals("HighestPrice")){
+            ArrayList<String> removeChars = new ArrayList<>();
+            removeChars.add("€");
+            String key1 = "HighestPrice";
+            String key2 = "LowestPrice";
+            if (accommodationList.size()>=3){
+
+                // split size 3 and up lists
+
+                ArrayList<Map<?,?>> rightList = new ArrayList<>();
+                ArrayList<Map<?,?>> leftList = new ArrayList<>();
+                // Construct left/right lists
+                for (int i = 0; i < accommodationList.size(); i++ ){
+                    if (i < accommodationList.size()/2){
+                        leftList.add(accommodationList.get(i));
+                    } else {
+                        rightList.add(accommodationList.get(i));
+                    }
+                }
+
+                leftList = orderAccommodations(leftList, key);
+                rightList = orderAccommodations(rightList, key);
+
+                ArrayList<Map<?,?>> returnList = new ArrayList<>();
+
+
+                while (!leftList.isEmpty() || !rightList.isEmpty()){
+                    // get left and right values
+                    if (!leftList.isEmpty() & !rightList.isEmpty()){
+                        float averageFirstLeft;
+                        // DONE turn this into unique function to avoid duplicate code
+                        averageFirstLeft =  averageIndexValue(leftList,0, key1, key2, removeChars);
+
+                        float averageFirstRight;
+                        averageFirstRight = averageIndexValue(rightList,0, key1, key2, removeChars);
+                        //if (!rightList.get(0).get("HighestPrice").toString().isBlank() && !rightList.get(0).get("HighestPrice").toString().isBlank()){
+                        //    averageFirstRight = (Float.parseFloat(rightList.get(0).get("HighestPrice").toString().replace("€", "")) + Float.parseFloat(rightList.get(0).get("LowestPrice").toString().replace("€", "")))/2;
+                        //} else if(!rightList.get(0).get("HighestPrice").toString().isBlank()) {
+                        //    averageFirstRight = Float.parseFloat(rightList.get(0).get("HighestPrice").toString().replace("€", ""));
+                        //} else if(!rightList.get(0).get("LowestPrice").toString().isBlank()) {
+                        //    averageFirstRight = Float.parseFloat(rightList.get(0).get("LowestPrice").toString().replace("€", ""));
+                        //} else {
+                        //    averageFirstRight = 9999; // Puts Last w/ unrealistic price weight
+                        //}
+
+                        if(averageFirstLeft < averageFirstRight){
+                            //System.out.println("ADD Left PRICE " + averageFirstLeft);
+                            returnList.add(leftList.get(0));
+                            leftList.remove(0);
+                        } else {
+                            //System.out.println("ADD Right PRICE " + averageFirstRight);
+                            returnList.add(rightList.get(0));
+                            rightList.remove(0);
+
+                        }
+                    } else if(!leftList.isEmpty()){
+                        //System.out.println("ADD Left PRICE" + "");
+                        returnList.add(leftList.get(0));
+                        leftList.remove(0);
+                    } else {
+                        returnList.add(rightList.get(0));
+                        //System.out.println("ADD Right PRICE" +rightList.get(0).get("LowestPrice"));
+                        rightList.remove(0);
+                    }
+
+                }
+                System.out.println("");
+                return returnList;
+
+            } else if (accommodationList.size() == 2){
+                // Order list of size 2
+
+                float average0;
+                average0 = averageIndexValue(accommodationList,0, key1, key2, removeChars);
+
+                float average1;
+                average1 = averageIndexValue(accommodationList,0, key1, key2, removeChars);
+
+
+                System.out.println(average1 + " > "  + average0);
+                if (average1 > average0){
+                    //System.out.println("fixed big: " + average1 + " > "  + average0);
+                    //System.out.println("0: LOW PRICE" + accommodationList.get(0).get("LowestPrice"));
+                    //System.out.println("1: LOW PRICE" + accommodationList.get(1).get("LowestPrice"));
+                    //System.out.println("");
+                    return accommodationList;
+                } else {
+                    ArrayList<Map<?,?>> returnList = new ArrayList<>();
+                    returnList.add(0,accommodationList.get(1));
+                    returnList.add(1,accommodationList.get(0));
+                    //System.out.println("fixed small: " + average0 + " > "  + average1);
+                    //System.out.println("0: LOW PRICE" + returnList.get(0).get("LowestPrice"));
+                    //System.out.println("1: LOW PRICE" + returnList.get(1).get("LowestPrice"));
+                    //System.out.println("");
+                    return returnList;
+                }
+            } else {
+                // return list of size 1
+                //System.out.println("0: LOW PRICE" + accommodationList.get(0).get("LowestPrice"));
+                //System.out.println("");
+                return accommodationList;
+            }
+        }
+
+        return accommodationList;
+    }
+
     public static String packageJsonResidence(String json){
-        String packaged = "{\"Residences\":"+json+"}";
-        return packaged;
+        //String packaged = "{\"Residences\":"+json+"}";
+        return "{\"Residences\":"+json+"}";
     }
 
     public static String addCount(String jsonresponse){
         int siteCount = JSONParser.countProperties(jsonresponse);
         StringBuilder sb = new StringBuilder(jsonresponse);
         sb.insert(sb.length() - 1, ",\n\"Count\":"+siteCount);
-        String result = sb.toString();
-        return result;
+        //String result = sb.toString();
+        return sb.toString();
     }
 
 
