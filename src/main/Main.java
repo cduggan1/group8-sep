@@ -1,17 +1,11 @@
 package main;
 
 import java.io.IOException;
-//import java.lang.reflect.Array;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static spark.Spark.*;
-
-//import com.github.alexdlaird.ngrok.NgrokClient;
-//import com.github.alexdlaird.ngrok.protocol.CreateTunnel;
-//import com.github.alexdlaird.ngrok.protocol.Proto;
-//import com.github.alexdlaird.ngrok.protocol.Tunnel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Main {
@@ -22,7 +16,7 @@ public class Main {
     String password = "";
     String query = "SELECT * FROM mytable";
 
-    public static boolean tunnelNgrok = false;
+
     public static boolean enableLogging = true;
     public static boolean addCount = true;
 
@@ -298,12 +292,16 @@ public class Main {
             String request = req.queryParams("time");
             return parseTime(request, true);
         });
+
+        get("/admin/csvUpdate",(req, res)->{
+            if (csvData.updateObject()){
+                return "csv Updated";
+            };
+            return "csv Update Failed";
+        });
+
         //End of API calls.
 
-        //Assign temp URL using ngrok
-        if(tunnelNgrok) {
-            ngrokTunnel.startNgrok("");
-        }
     }
 
     public static Integer extractNumber(String str) {

@@ -3,7 +3,7 @@ package test;
 import main.JSONParser;
 import main.Main;
 import main.csvData;
-import org.eclipse.jetty.util.ajax.JSON;
+//import org.eclipse.jetty.util.ajax.JSON;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -85,7 +85,7 @@ class JSONParserTest {
 
     @Test
     void findValuesOf() throws IOException {
-        byte[] encodedBytes = Files.readAllBytes(Paths.get("src/main/testjson.txt"));
+        byte[] encodedBytes = Files.readAllBytes(Paths.get("src/test/testjson.txt"));
         String json = new String(encodedBytes, StandardCharsets.UTF_8);
         ArrayList<String> list = JSONParser.findValuesOf(json, "seoFriendlyPath");
         System.out.println(list.toString());
