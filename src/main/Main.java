@@ -545,24 +545,26 @@ public class Main {
                     // get left and right values
                     if (!leftList.isEmpty() & !rightList.isEmpty()){
                         float averageFirstLeft;
+                        // TODO turn this into unique function to avoid duplicate code
                         if (!leftList.get(0).get("HighestPrice").toString().isBlank() && !leftList.get(0).get("HighestPrice").toString().isBlank()){
-                            averageFirstLeft = 9999; // Puts Last w/ unrealistic price weight
+                            averageFirstLeft = (Float.parseFloat(leftList.get(0).get("HighestPrice").toString().replace("€", "")) + Float.parseFloat(leftList.get(0).get("LowestPrice").toString().replace("€", "")))/2;
                         } else if(!leftList.get(0).get("HighestPrice").toString().isBlank()) {
                             averageFirstLeft = Float.parseFloat(leftList.get(0).get("HighestPrice").toString().replace("€", ""));
                         } else if(!leftList.get(0).get("LowestPrice").toString().isBlank()) {
                             averageFirstLeft = Float.parseFloat(leftList.get(0).get("LowestPrice").toString().replace("€", ""));
                         } else {
-                            averageFirstLeft = (Float.parseFloat(leftList.get(0).get("HighestPrice").toString().replace("€", "")) + Float.parseFloat(leftList.get(0).get("LowestPrice").toString().replace("€", "")))/2;
+                            averageFirstLeft = 9999; // Puts Last w/ unrealistic price weight
                         }
                         float averageFirstRight;
                         if (!rightList.get(0).get("HighestPrice").toString().isBlank() && !rightList.get(0).get("HighestPrice").toString().isBlank()){
-                            averageFirstRight = 9999; // Puts Last w/ unrealistic price weight
+                            averageFirstRight = (Float.parseFloat(rightList.get(0).get("HighestPrice").toString().replace("€", "")) + Float.parseFloat(rightList.get(0).get("LowestPrice").toString().replace("€", "")))/2;
+
                         } else if(!rightList.get(0).get("HighestPrice").toString().isBlank()) {
                             averageFirstRight = Float.parseFloat(rightList.get(0).get("HighestPrice").toString().replace("€", ""));
                         } else if(!rightList.get(0).get("LowestPrice").toString().isBlank()) {
                             averageFirstRight = Float.parseFloat(rightList.get(0).get("LowestPrice").toString().replace("€", ""));
                         } else {
-                            averageFirstRight = (Float.parseFloat(rightList.get(0).get("HighestPrice").toString().replace("€", "")) + Float.parseFloat(rightList.get(0).get("LowestPrice").toString().replace("€", "")))/2;
+                            averageFirstRight = 9999; // Puts Last w/ unrealistic price weight
                         }
 
                         if(averageFirstLeft < averageFirstRight){
