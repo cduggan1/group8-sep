@@ -513,7 +513,7 @@ public class Main {
         //for (int i = 0; i <filterAccomsStrikeList.size(); i++){
         for (ArrayList<Map<?,?>> StrikeList : filterAccomsStrikeList){
             if (filters.containsKey("HighestPrice")){
-                orderAccommodations(StrikeList, "HighestPrice");
+                StrikeList =orderAccommodations(StrikeList, "HighestPrice");
             }
             filteredAccoms.addAll(StrikeList);
         }
@@ -521,11 +521,43 @@ public class Main {
         return filteredAccoms;  // return the shortened list of accoms that match the queries.
     }
 
+
+    public static float averageFirstValue (ArrayList<Map<?,?>> list, String key1, String key2, ArrayList<String> removeChars){
+        float average;
+        if (!list.get(0).get(key1).toString().isBlank() && !list.get(0).get(key2).toString().isBlank()){
+            String key1String = list.get(0).get(key1).toString();
+            for (String remove : removeChars){
+                key1String = key1String.replace(remove, "");
+            }
+            String key2String = list.get(0).get(key2).toString();
+            for (String remove : removeChars){
+                key2String = key2String.replace(remove, "");
+            }
+            average = (Float.parseFloat(key1String) + Float.parseFloat(key2String))/2;
+        } else if(!list.get(0).get(key1).toString().isBlank()) {
+            String key1String = list.get(0).get(key1).toString();
+            for (String remove : removeChars){
+                key1String = key1String.replace(remove, "");
+            }
+            average = Float.parseFloat(key1String);
+        } else if(!list.get(0).get(key2).toString().isBlank()) {
+            String key2String = list.get(0).get(key1).toString();
+            for (String remove : removeChars){
+                key2String = key2String.replace(remove, "");
+            }
+            average = Float.parseFloat(key2String);
+        } else {
+            average = 999999; // Puts Last w/ unrealistic price weight
+        }
+        return average;
+    }
+
+
     // Use Merge Sort on Accomodation lists ("Highest Price" implementation currently)
     public static ArrayList<Map<?,?>> orderAccommodations(ArrayList<Map<?,?>> accommodationList, String key){
         if (key.equals("HighestPrice")){
             if (accommodationList.size()>=3){
-                System.out.println("Ordering");
+
                 // split size 3 and up lists
 
                 ArrayList<Map<?,?>> rightList = new ArrayList<>();
@@ -538,9 +570,12 @@ public class Main {
                         rightList.add(accommodationList.get(i));
                     }
                 }
-                orderAccommodations(leftList, key);
-                orderAccommodations(rightList, key);
+
+                leftList = orderAccommodations(leftList, key);
+                rightList = orderAccommodations(rightList, key);
+
                 ArrayList<Map<?,?>> returnList = new ArrayList<>();
+
                 while (!leftList.isEmpty() || !rightList.isEmpty()){
                     // get left and right values
                     if (!leftList.isEmpty() & !rightList.isEmpty()){
@@ -568,20 +603,27 @@ public class Main {
                         }
 
                         if(averageFirstLeft < averageFirstRight){
+                            System.out.println("ADD Left PRICE " + averageFirstLeft);
                             returnList.add(leftList.get(0));
                             leftList.remove(0);
                         } else {
+                            System.out.println("ADD Right PRICE " + averageFirstRight);
                             returnList.add(rightList.get(0));
                             rightList.remove(0);
+
                         }
                     } else if(!leftList.isEmpty()){
+                        System.out.println("ADD Left PRICE" + "");
                         returnList.add(leftList.get(0));
                         leftList.remove(0);
                     } else {
                         returnList.add(rightList.get(0));
+                        System.out.println("ADD Right PRICE" +rightList.get(0).get("LowestPrice"));
                         rightList.remove(0);
                     }
+
                 }
+                System.out.println("");
                 return returnList;
 
             } else if (accommodationList.size() == 2){
@@ -608,22 +650,32 @@ public class Main {
                     average1 = 9999; // Puts Last w/ unrealistic price weight
                 }
 
-
+                System.out.println(average1 + " > "  + average0);
                 if (average1 > average0){
+                    System.out.println("fixed big: " + average1 + " > "  + average0);
+                    System.out.println("0: LOW PRICE" + accommodationList.get(0).get("LowestPrice"));
+                    System.out.println("1: LOW PRICE" + accommodationList.get(1).get("LowestPrice"));
+                    System.out.println("");
                     return accommodationList;
                 } else {
                     ArrayList<Map<?,?>> returnList = new ArrayList<>();
-                    returnList.add(accommodationList.get(1));
-                    returnList.add(accommodationList.get(0));
+                    returnList.add(0,accommodationList.get(1));
+                    returnList.add(1,accommodationList.get(0));
+                    System.out.println("fixed small: " + average0 + " > "  + average1);
+                    System.out.println("0: LOW PRICE" + returnList.get(0).get("LowestPrice"));
+                    System.out.println("1: LOW PRICE" + returnList.get(1).get("LowestPrice"));
+                    System.out.println("");
                     return returnList;
+
                 }
 
 
             } else {
                 // return list of size 1
+                System.out.println("0: LOW PRICE" + accommodationList.get(0).get("LowestPrice"));
+                System.out.println("");
                 return accommodationList;
             }
-
         }
 
         return accommodationList;
