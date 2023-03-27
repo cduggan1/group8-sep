@@ -44,14 +44,15 @@ public class Main {
 
         try{Thread.sleep(500);}catch(Exception f){f.printStackTrace();}
 
-        csvData.init();
+        csvData accomsData = new csvData();
+        accomsData.init();
         synonymMapBuilder.init();
         initNonNegotiables();
 
         DatabaseManager.testConnection();
         port(443);
 
-        if(csvData.accoms==null) {
+        if(accomsData.accoms==null) {
             System.out.println("Error Parsing CSV");
             Logger.addLog("Init", "CSV Error");
             //Something didn't work
@@ -69,7 +70,7 @@ public class Main {
             if(abbreviation!=null)
                 try{
                     Logger.addLog("Redirect", "Call for " + abbreviation);
-                    res.redirect(getURLFromAbbreviation(csvData.accoms, abbreviation));
+                    res.redirect(getURLFromAbbreviation(accomsData.accoms, abbreviation));
                 }catch(Exception e){Logger.addLog("Redirect Failed", "Error: " + e);}
            return null;
         });
@@ -128,7 +129,7 @@ public class Main {
 
             // Filter the accoms list based on the query parameters
             // Convert the filtered list to a JSON formatted string
-            List<Map<?,?>> filteredAccoms = filterAccoms(csvData.accoms, filters);
+            List<Map<?,?>> filteredAccoms = filterAccoms(accomsData.accoms, filters);
 
             // Set the content type of the response to JSON
             res.type("application/json");
@@ -241,9 +242,9 @@ public class Main {
             Logger.addLog("ID", "API Called");
             try {
                 int index = Integer.parseInt(req.params(":index"));
-                if(index<csvData.accoms.size()) {
+                if(index<accomsData.accoms.size()) {
                     System.out.println("Index requested: " + index);
-                    String json = convertToJson(csvData.accoms.get(index));
+                    String json = convertToJson(accomsData.accoms.get(index));
                     res.type("application/json");
                     Logger.addLog("RESPONSE" , json);
                     return json;
@@ -265,7 +266,7 @@ public class Main {
             //Filter object
             //---NO FILTER REQUIRED AS RETURNING ALL----
             //Pass object into method to new string (json).
-            String json = convertToJsonList(csvData.accoms);
+            String json = convertToJsonList(accomsData.accoms);
             res.type("application/json");
             //Return json
             if (json != null){
@@ -294,7 +295,7 @@ public class Main {
         });
 
         get("/admin/csvUpdate",(req, res)->{
-            if (csvData.updateObject()){
+            if (accomsData.updateObject()){
                 return "csv Updated";
             };
             return "csv Update Failed";

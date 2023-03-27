@@ -18,7 +18,8 @@ class parserTest {
     @Test
     void parseJSON() throws IOException {
         //Initialize CSVData Class
-        csvData.init();
+        csvData testData = new csvData();
+        testData.init();
 
         //Prevent main from adding count to the response as this will defeat the purpose of testing.
         Main.addCount = false;
@@ -29,7 +30,7 @@ class parserTest {
         }};
 
         //Build List of properties with filter applied
-        List<Map<?,?>> testAccomsList = Main.filterAccoms(csvData.accoms,testFilters);
+        List<Map<?,?>> testAccomsList = Main.filterAccoms(testData.accoms,testFilters);
 
         //New Parser
         JSONParser parser = new JSONParser();
@@ -47,7 +48,7 @@ class parserTest {
 
         //Apply another filter and rebuild list
         testFilters.put("Site", "Dominick Place");
-        testAccomsList = Main.filterAccoms(csvData.accoms, testFilters);
+        testAccomsList = Main.filterAccoms(testData.accoms, testFilters);
         response = Main.convertToJsonList(testAccomsList);
 
         result = JSONParser.parseJSON(response, "Residences");
@@ -60,7 +61,8 @@ class parserTest {
     void countProperties() throws IOException {
 
         //Initialize CSVData Class
-        csvData.init();
+        csvData testData = new csvData();
+        testData.init();
 
         //Build fiters for property count = 8
         Map<String, String> testFilters = new HashMap<>(){{
@@ -68,7 +70,7 @@ class parserTest {
         }};
 
         //Build List of properties with filter applied
-        List<Map<?,?>> testAccomsList = Main.filterAccoms(csvData.accoms,testFilters);
+        List<Map<?,?>> testAccomsList = Main.filterAccoms(testData.accoms,testFilters);
 
         //New Parser
         JSONParser parser = new JSONParser();

@@ -17,7 +17,8 @@ class MainTest {
 
     @BeforeEach
     void main() throws IOException {
-        csvData.init();
+        csvData testData = new csvData();
+        testData.init();
         synonymMapBuilder.init();
     }
 
@@ -27,7 +28,9 @@ class MainTest {
         FILTERS = new HashMap<>();
         FILTERS.put("Brand", "Yugo");
         FILTERS.put("Site", "Highfield Park");
-        List<Map<?,?>> accoms = csvData.buildObject("src/main/info.csv");
+        csvData testData = new csvData();
+        testData.init();
+        List<Map<?,?>> accoms = testData.buildObject("src/main/info.csv");
         String filterMap = Main.filterAccoms(accoms, FILTERS).toString();
         assert(filterMap.contains("Highfield Park"));
         assert(!filterMap.contains("Dominick Place"));

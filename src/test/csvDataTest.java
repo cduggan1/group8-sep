@@ -14,12 +14,15 @@ class csvDataTest {
 
     @BeforeEach
     void init() throws IOException {
-        csvData.init();
+        csvData testData = new csvData();
+        testData.init();
     }
 
     @Test
     void buildObject() throws IOException {
-        List<Map<?, ?>> buildObject = csvData.buildObject("src/test/test-data.csv");
+        csvData testData = new csvData();
+        testData.init();
+        List<Map<?, ?>> buildObject = testData.buildObject("src/test/test-data.csv");
         assert buildObject != null;
         assertEquals(3, buildObject.size());
         assertEquals(1, buildObject.get(0).size());
