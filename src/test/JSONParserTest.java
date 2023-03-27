@@ -1,5 +1,8 @@
-package main;
+package test;
 
+import main.JSONParser;
+import main.Main;
+import main.csvData;
 import org.eclipse.jetty.util.ajax.JSON;
 import org.junit.jupiter.api.Test;
 

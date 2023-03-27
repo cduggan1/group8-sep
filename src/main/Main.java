@@ -225,7 +225,7 @@ public class Main {
                 }
             }
 
-            Logger.addLog("scrape","Map of filters fo post request: " + scrapeFilters.toString());
+            Logger.addLog("scrape","Map of filters of post request: " + scrapeFilters.toString());
 
             //Putting all the pieces of the url together
             parentURL = parentURL + filterString + appendIndex;
