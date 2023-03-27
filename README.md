@@ -117,6 +117,9 @@ A list of all valid queries and query parameters for the API, and an explanation
 */admin/log*
   - Will Return logs if it is enabled
 
+*/admin/csvUpdate*
+  - Updates internal data structure representation of info.csv
+
 
 
 ## License
