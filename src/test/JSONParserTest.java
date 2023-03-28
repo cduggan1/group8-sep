@@ -22,7 +22,8 @@ class JSONParserTest {
     @Test
     void parseJSON() throws IOException {
         //Initialize CSVData Class
-        csvData.init();
+        csvData testData = new csvData();
+        testData.init();
 
         //Prevent main from adding count to the response as this will defeat the purpose of testing.
         Main.addCount = false;
@@ -51,7 +52,7 @@ class JSONParserTest {
 
         //Apply another filter and rebuild list
         testFilters.put("Site", "Dominick Place");
-        testAccomsList = Main.filterAccoms(csvData.accoms, testFilters);
+        testAccomsList = Main.filterAccoms(testData.accoms, testFilters);
         response = Main.convertToJsonList(testAccomsList);
 
         result = JSONParser.parseJSON(response, "Residences");
@@ -64,7 +65,8 @@ class JSONParserTest {
     void countProperties() throws IOException {
 
         //Initialize CSVData Class
-        csvData.init();
+        csvData testData = new csvData();
+        testData.init();
 
         //Build fiters for property count = 8
         Map<String, String> testFilters = new HashMap<>(){{

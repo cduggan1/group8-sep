@@ -10,14 +10,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MainTest {
     private static Map<String, String> FILTERS = new HashMap<>();
 
     @BeforeEach
     void main() throws IOException {
-        csvData.init();
+        csvData testData = new csvData();
+        testData.init();
         synonymMapBuilder.init();
     }
 
@@ -27,7 +28,9 @@ class MainTest {
         FILTERS = new HashMap<>();
         FILTERS.put("Brand", "Yugo");
         FILTERS.put("Site", "Highfield Park");
-        List<Map<String,String>> accoms = csvData.buildObject("src/main/info.csv");
+        csvData testData = new csvData();
+        testData.init();
+        List<Map<String,String>> accoms = testData.buildObject("src/main/info.csv");
         String filterMap = Main.filterAccoms(accoms, FILTERS).toString();
         assert(filterMap.contains("Highfield Park"));
         assert(!filterMap.contains("Dominick Place"));

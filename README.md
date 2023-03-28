@@ -92,8 +92,13 @@ A list of all valid queries and query parameters for the API, and an explanation
 
 *propertyType=*
 - ?Filter=Value where filter can be any of the following:
-Brand	Site  Email	HasEnsuite  HasStudio HasTwin LowestPrice HighestPrice  YearOpened  Distance_TCD(Walk)  Distance_TCD(Bike)  Distance_TCD(Public_Transport)  Gym TV_Room Study_Space Laundry_Room  Cinema_Room Rooftop_Garden  Balcony Dishwasher  Stovetop  Cafeteria Sports_Hall Fast_WiFi Disability_Access District  Flatmates Other_Info
-
+- Non Negotiables Filters
+    - Brand	Site, Email, HasEnsuite, HasStudio, HasTwin, Disabilty_Access 
+- Regular Filters
+    - LowestPrice, YearOpened, Distance_TCD(Walk), Distance_TCD(Bike), Distance_TCD(Public_Transport), Gym TV_Room, Study_Space, Laundry_Room, Cinema_Room, Rooftop_Garden, Balcony, Dishwasher, Stovetop, Cafeteria, Sports_Hall, Fast_WiFi, District, Flatmates, Other_Info
+- Unique Filter
+    -  HighestPrice is a unique filter that acts as a budget filter. It checks if an accommodation's prices are below the value and then strikes accordingly. 
+    -  1 strike if only the highest price is over, two if both the lowest and highest price are over.
 
   
 #### ID  
@@ -112,6 +117,9 @@ Brand	Site  Email	HasEnsuite  HasStudio HasTwin LowestPrice HighestPrice  YearOp
 */admin/log*
   - Will Return logs if it is enabled
 
+*/admin/csvUpdate*
+  - Updates internal data structure representation of info.csv
+
 
 
 ## License
@@ -120,7 +128,7 @@ Brand	Site  Email	HasEnsuite  HasStudio HasTwin LowestPrice HighestPrice  YearOp
 
 MIT License
 
-Copyright (c) [year] [fullname]
+Copyright (c) 2023 group8-sep
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

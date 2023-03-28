@@ -12,7 +12,7 @@ import java.util.Map;
 public class csvData {
     public static List<Map<String,String>> accoms = null;
 
-    public static void init() throws IOException {
+    public void init() throws IOException {
         try{
             accoms = buildObject("info.csv");
         }catch(Exception e)
@@ -26,8 +26,8 @@ public class csvData {
     //When called, will update the Object
     //in the current scope, with a provided filename.
     //It defaults to a hard-coded filename if not provided one.
-    public static boolean updateObject(){try {updateObject("info.csv");return true;}catch(Exception e){return false;}}//Ignore Errors.
-    public static boolean updateObject(String filename){
+    public boolean updateObject(){try {updateObject("info.csv");return true;}catch(Exception e){return false;}}//Ignore Errors.
+    public boolean updateObject(String filename){
         try {
             accoms = buildObject(filename);
             return true;
