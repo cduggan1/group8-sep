@@ -120,7 +120,7 @@ Brand	Site  Email	HasEnsuite  HasStudio HasTwin LowestPrice HighestPrice  YearOp
 
 MIT License
 
-Copyright (c) [year] [fullname]
+Copyright (c) 2023 group8-sep
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
