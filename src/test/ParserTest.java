@@ -3,6 +3,7 @@ package test;
 import main.JsonParser;
 import main.Main;
 import main.CsvData;
+import main.UtilitiesFunction;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -30,13 +31,13 @@ class ParserTest {
         }};
 
         //Build List of properties with filter applied
-        List<Map<String,String>> testAccomsList = Main.filterAccoms(testData.accoms,testFilters);
+        List<Map<String,String>> testAccomsList = UtilitiesFunction.filterAccoms(testData.accoms,testFilters);
 
         //New Parser
         JsonParser parser = new JsonParser();
 
         //Convert to JSON our Map of Properties
-        String response = Main.convertToJsonList(testAccomsList);
+        String response = UtilitiesFunction.convertToJsonList(testAccomsList);
 
         //Build a summary map from our parser
         Map<String, Integer> result = JsonParser.parseJSON(response, "Residences");
@@ -48,8 +49,8 @@ class ParserTest {
 
         //Apply another filter and rebuild list
         testFilters.put("Site", "Dominick Place");
-        testAccomsList = Main.filterAccoms(testData.accoms, testFilters);
-        response = Main.convertToJsonList(testAccomsList);
+        testAccomsList = UtilitiesFunction.filterAccoms(testData.accoms, testFilters);
+        response = UtilitiesFunction.convertToJsonList(testAccomsList);
 
         result = JsonParser.parseJSON(response, "Residences");
         count = result.get("TOTAL_OBJECTS");
@@ -70,13 +71,13 @@ class ParserTest {
         }};
 
         //Build List of properties with filter applied
-        List<Map<String,String>> testAccomsList = Main.filterAccoms(testData.accoms,testFilters);
+        List<Map<String,String>> testAccomsList = UtilitiesFunction.filterAccoms(testData.accoms,testFilters);
 
         //New Parser
         JsonParser parser = new JsonParser();
 
         //Convert to JSON our Map of Properties
-        String response = Main.convertToJsonList(testAccomsList);
+        String response = UtilitiesFunction.convertToJsonList(testAccomsList);
 
         assertEquals(8, parser.countProperties(response));
     }
@@ -91,21 +92,21 @@ class ParserTest {
         String s1 = "Dub" + randInt;
         String s2 = "abcdef" + randInt;
 
-        assertEquals(randInt, Main.extractNumber(s));
-        assertEquals(randInt, Main.extractNumber(s1));
-        assertEquals(randInt, Main.extractNumber(s2));
+        assertEquals(randInt, UtilitiesFunction.extractNumber(s));
+        assertEquals(randInt, UtilitiesFunction.extractNumber(s1));
+        assertEquals(randInt, UtilitiesFunction.extractNumber(s2));
     }
 
     @Test
     void parseTimeTest(){
 
         String s = "10 hours and 51 minutes";
-        Map<String, Integer> sMap = Main.parseTime(s,false);
+        Map<String, Integer> sMap = UtilitiesFunction.parseTime(s,false);
 
         assertEquals(10, sMap.get("h"));
         assertEquals(51, sMap.get("m"));
 
-        sMap = Main.parseTime(s,true);
+        sMap = UtilitiesFunction.parseTime(s,true);
 
         assertEquals(651, sMap.get("m"));
 

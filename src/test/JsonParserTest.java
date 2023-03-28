@@ -4,6 +4,7 @@ import main.JsonParser;
 import main.Main;
 import main.CsvData;
 //import org.eclipse.jetty.util.ajax.JSON;
+import main.UtilitiesFunction;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -34,13 +35,13 @@ class JsonParserTest {
         }};
 
         //Build List of properties with filter applied
-        List<Map<String,String>> testAccomsList = Main.filterAccoms(testData.accoms,testFilters);
+        List<Map<String,String>> testAccomsList = UtilitiesFunction.filterAccoms(testData.accoms,testFilters);
 
         //New Parser
         JsonParser parser = new JsonParser();
 
         //Convert to JSON our Map of Properties
-        String response = Main.convertToJsonList(testAccomsList);
+        String response = UtilitiesFunction.convertToJsonList(testAccomsList);
 
         //Build a summary map from our parser
         Map<String, Integer> result = JsonParser.parseJSON(response, "Residences");
@@ -52,8 +53,8 @@ class JsonParserTest {
 
         //Apply another filter and rebuild list
         testFilters.put("Site", "Dominick Place");
-        testAccomsList = Main.filterAccoms(testData.accoms, testFilters);
-        response = Main.convertToJsonList(testAccomsList);
+        testAccomsList = UtilitiesFunction.filterAccoms(testData.accoms, testFilters);
+        response = UtilitiesFunction.convertToJsonList(testAccomsList);
 
         result = JsonParser.parseJSON(response, "Residences");
         count = result.get("TOTAL_OBJECTS");
@@ -74,13 +75,13 @@ class JsonParserTest {
         }};
 
         //Build List of properties with filter applied
-        List<Map<String,String>> testAccomsList = Main.filterAccoms(testData.accoms,testFilters);
+        List<Map<String,String>> testAccomsList = UtilitiesFunction.filterAccoms(testData.accoms,testFilters);
 
         //New Parser
         JsonParser parser = new JsonParser();
 
         //Convert to JSON our Map of Properties
-        String response = Main.convertToJsonList(testAccomsList);
+        String response = UtilitiesFunction.convertToJsonList(testAccomsList);
 
         assertEquals(8, parser.countProperties(response));
     }
