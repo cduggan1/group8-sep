@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 public class csvData {
-    public List<Map<?,?>> accoms = null;
+    public List<Map<String,String>> accoms = null;
 
     public void init() throws IOException {
         try{
@@ -18,7 +18,7 @@ public class csvData {
         }catch(Exception e)
         {
             System.out.println("Directory Failed. Trying again...");
-            try{Thread.sleep(200);}catch(Exception f){}
+            try{Thread.sleep(200);}catch(Exception f){f.printStackTrace();}
             accoms= buildObject("src/main/info.csv");
         }
     }
@@ -35,7 +35,7 @@ public class csvData {
     }
 
     //Object builder from CSV file
-    public List<Map<?, ?>> buildObject(String filename) throws IOException {
+    public static List<Map<String, String>> buildObject(String filename) throws IOException {
         System.out.println("Building Object from " + filename);
         //Read file
         File input = new File(filename);
@@ -44,7 +44,7 @@ public class csvData {
         //initialise a mapper
         CsvMapper csvMapper = new CsvMapper();
         //Iterate through CSV file and Map.
-        MappingIterator<Map<?, ?>> mappingIterator = csvMapper.reader().forType(Map.class).with(csv).readValues(input);
+        MappingIterator<Map<String, String>> mappingIterator = csvMapper.reader().forType(Map.class).with(csv).readValues(input);
         System.out.println(Logger.GREEN + "Object built from " + filename + " successfully." + Logger.RESET);
         //Returns a map list.
         return mappingIterator.readAll();

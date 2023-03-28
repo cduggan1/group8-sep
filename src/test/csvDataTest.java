@@ -22,7 +22,7 @@ class csvDataTest {
     void buildObject() throws IOException {
         csvData testData = new csvData();
         testData.init();
-        List<Map<?, ?>> buildObject = testData.buildObject("src/test/test-data.csv");
+        List<Map<String, String>> buildObject = testData.buildObject("src/test/test-data.csv");
         assert buildObject != null;
         assertEquals(3, buildObject.size());
         assertEquals(1, buildObject.get(0).size());

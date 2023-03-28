@@ -30,7 +30,7 @@ class parserTest {
         }};
 
         //Build List of properties with filter applied
-        List<Map<?,?>> testAccomsList = Main.filterAccoms(testData.accoms,testFilters);
+        List<Map<String,String>> testAccomsList = Main.filterAccoms(testData.accoms,testFilters);
 
         //New Parser
         JSONParser parser = new JSONParser();
@@ -70,7 +70,7 @@ class parserTest {
         }};
 
         //Build List of properties with filter applied
-        List<Map<?,?>> testAccomsList = Main.filterAccoms(testData.accoms,testFilters);
+        List<Map<String,String>> testAccomsList = Main.filterAccoms(testData.accoms,testFilters);
 
         //New Parser
         JSONParser parser = new JSONParser();

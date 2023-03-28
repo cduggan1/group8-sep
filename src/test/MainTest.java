@@ -30,7 +30,7 @@ class MainTest {
         FILTERS.put("Site", "Highfield Park");
         csvData testData = new csvData();
         testData.init();
-        List<Map<?,?>> accoms = testData.buildObject("src/main/info.csv");
+        List<Map<String,String>> accoms = testData.buildObject("src/main/info.csv");
         String filterMap = Main.filterAccoms(accoms, FILTERS).toString();
         assert(filterMap.contains("Highfield Park"));
         assert(!filterMap.contains("Dominick Place"));
