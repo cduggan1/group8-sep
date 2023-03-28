@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class synonymMapBuilder {
+public class SynonymMapBuilder {
     public static Map<String, ArrayList<String>> amenitiesSynonym = new HashMap<>();
 
     //private static String file = "Amenities.synonym";

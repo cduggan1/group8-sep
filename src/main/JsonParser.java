@@ -10,7 +10,7 @@ import org.json.JSONObject;
 
 import com.fasterxml.jackson.core.*;
 
-public class JSONParser {
+public class JsonParser {
 
     public static Map<String, Integer> parseJSON(String jsonStr, String object) throws JSONException {
         try {

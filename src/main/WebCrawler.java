@@ -7,25 +7,21 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
-import com.fasterxml.jackson.annotation.JsonKey;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONPropertyName;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import static main.JSONParser.countProperties;
-import static main.JSONParser.findValuesOf;
+import static main.JsonParser.countProperties;
+import static main.JsonParser.findValuesOf;
 
-public class webCrawler implements Callable {
+public class WebCrawler implements Callable {
 //Callabe is the multithreading interface we will be using
     public static String BER_Query;
     static HashMap<String, String> urlMap = new HashMap<String, String>();
 
-    public webCrawler (String Url, String BER_Query, int index){ //Constructor, which also updates shared resources for threads.
+    public WebCrawler(String Url, String BER_Query, int index){ //Constructor, which also updates shared resources for threads.
 
         this.BER_Query = BER_Query;
         if (Url.contains("daft.ie")) {
@@ -42,7 +38,7 @@ public class webCrawler implements Callable {
         int crawlerIndex = 0;
 
         ArrayList<String> Pages = daftGetUrlList(parentUrl, filterMap); //Calling daftGetUrlList() with a parentUrl to get an arraylist of the urls for all properties.
-        ArrayList<webCrawler> Crawlers = new ArrayList<>(); //Empty arraylist for instances of webCrawler class
+        ArrayList<WebCrawler> Crawlers = new ArrayList<>(); //Empty arraylist for instances of WebCrawler class
         ArrayList<Thread> Threads = new ArrayList<>(); //Empty arraylist for threads
 
         String json = "{\"Residences\":["; //Start of output Json
@@ -50,10 +46,10 @@ public class webCrawler implements Callable {
         ArrayList<FutureTask> pageTasks = new ArrayList<>(); //Empty arraylist of type "FutureTask", which is an object specific to the Callable interface
 
         for (String page : Pages) {  //For each url in our returned list of property urls...
-            Crawlers.add(new webCrawler(page, BER_Query, crawlerIndex)); //Create a new webCrawler instance, passing the current property and index
+            Crawlers.add(new WebCrawler(page, BER_Query, crawlerIndex)); //Create a new WebCrawler instance, passing the current property and index
             crawlerIndex++;
 
-            pageTasks.add(new FutureTask(Crawlers.get(Crawlers.size()-1))); //Add the new webCrawler as a new FutureTask to our arraylist
+            pageTasks.add(new FutureTask(Crawlers.get(Crawlers.size()-1))); //Add the new WebCrawler as a new FutureTask to our arraylist
 
             Threads.add(new Thread(pageTasks.get(pageTasks.size()-1), Integer.toString(index))); //Pass the new FutureTask to a new Thread, and name the thread with index
             Threads.get(Threads.size()-1).start(); //Start the new thread

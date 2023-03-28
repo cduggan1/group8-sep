@@ -1,8 +1,8 @@
 package test;
 
-import main.JSONParser;
+import main.JsonParser;
 import main.Main;
-import main.csvData;
+import main.CsvData;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -13,12 +13,12 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class parserTest {
+class ParserTest {
 
     @Test
     void parseJSON() throws IOException {
         //Initialize CSVData Class
-        csvData testData = new csvData();
+        CsvData testData = new CsvData();
         testData.init();
 
         //Prevent main from adding count to the response as this will defeat the purpose of testing.
@@ -33,13 +33,13 @@ class parserTest {
         List<Map<String,String>> testAccomsList = Main.filterAccoms(testData.accoms,testFilters);
 
         //New Parser
-        JSONParser parser = new JSONParser();
+        JsonParser parser = new JsonParser();
 
         //Convert to JSON our Map of Properties
         String response = Main.convertToJsonList(testAccomsList);
 
         //Build a summary map from our parser
-        Map<String, Integer> result = JSONParser.parseJSON(response, "Residences");
+        Map<String, Integer> result = JsonParser.parseJSON(response, "Residences");
         //Get the count of objects
         int count = result.get("TOTAL_OBJECTS");
 
@@ -51,7 +51,7 @@ class parserTest {
         testAccomsList = Main.filterAccoms(testData.accoms, testFilters);
         response = Main.convertToJsonList(testAccomsList);
 
-        result = JSONParser.parseJSON(response, "Residences");
+        result = JsonParser.parseJSON(response, "Residences");
         count = result.get("TOTAL_OBJECTS");
 
         assertEquals(1, count);
@@ -61,7 +61,7 @@ class parserTest {
     void countProperties() throws IOException {
 
         //Initialize CSVData Class
-        csvData testData = new csvData();
+        CsvData testData = new CsvData();
         testData.init();
 
         //Build fiters for property count = 8
@@ -73,7 +73,7 @@ class parserTest {
         List<Map<String,String>> testAccomsList = Main.filterAccoms(testData.accoms,testFilters);
 
         //New Parser
-        JSONParser parser = new JSONParser();
+        JsonParser parser = new JsonParser();
 
         //Convert to JSON our Map of Properties
         String response = Main.convertToJsonList(testAccomsList);

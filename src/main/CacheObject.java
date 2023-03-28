@@ -3,7 +3,7 @@ package main;
 import java.util.HashMap;
 import java.util.Map;
 
-public class cacheObject {
+public class CacheObject {
 
 
     //private static long expiryTimeMillis = 3600000; // 1 hour

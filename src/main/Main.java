@@ -44,9 +44,9 @@ public class Main {
 
         try{Thread.sleep(500);}catch(Exception f){f.printStackTrace();}
 
-        csvData accomsData = new csvData();
+        CsvData accomsData = new CsvData();
         accomsData.init();
-        synonymMapBuilder.init();
+        SynonymMapBuilder.init();
         initNonNegotiables();
 
         DatabaseManager.testConnection();
@@ -150,7 +150,7 @@ public class Main {
 
 
         // Builds the URL to be processed by the webscraper, as well as the requested BER rating
-        //Gets a JSON formatted string containing the properties matching the query parameters from the webCrawler class
+        //Gets a JSON formatted string containing the properties matching the query parameters from the WebCrawler class
         get("/scrape", (req, res) -> {
             res.type("application/json");
 
@@ -173,7 +173,7 @@ public class Main {
                scrapeFilters.put(filter, "");
            }
 
-            //Building query parameters for webCrawler urls using API call query parameters
+            //Building query parameters for WebCrawler urls using API call query parameters
             for (String key : req.queryParams()) {
                 if (!req.queryParams(key).equals("Def") && !req.queryParams(key).equals(null)) {
                     if (key.equals("BER")) {
@@ -226,8 +226,8 @@ public class Main {
             parentURL = parentURL + filterString + appendIndex;
             Logger.addLog("scrape","Assembled parent Url for backup crawling method: " + parentURL);
 
-            //Getting Json response from webCrawler
-            String response = webCrawler.Daft(parentURL, BER_Query, scrapeFilters);
+            //Getting Json response from WebCrawler
+            String response = WebCrawler.Daft(parentURL, BER_Query, scrapeFilters);
 
             //Returning Json
             Logger.addLog("RESPONSE",response);
@@ -390,7 +390,7 @@ public class Main {
             String query = filters.get("Amenities").toLowerCase();
             filters.remove("Amenities");
 
-            for (Map.Entry<String, ArrayList<String>> entry : synonymMapBuilder.amenitiesSynonym.entrySet()){
+            for (Map.Entry<String, ArrayList<String>> entry : SynonymMapBuilder.amenitiesSynonym.entrySet()){
                 //entry.getKey();
                 boolean matchSyn = false;
                 for (String synonym : entry.getValue()){
@@ -662,7 +662,7 @@ public class Main {
     }
 
     public static String addCount(String jsonresponse){
-        int siteCount = JSONParser.countProperties(jsonresponse);
+        int siteCount = JsonParser.countProperties(jsonresponse);
         StringBuilder sb = new StringBuilder(jsonresponse);
         sb.insert(sb.length() - 1, ",\n\"Count\":"+siteCount);
         //String result = sb.toString();
