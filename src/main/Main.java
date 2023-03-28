@@ -120,16 +120,16 @@ public class Main {
             }
 
 
-            System.out.println(filters.toString());
+            System.out.println(filters);
             if(filters.size()>0) {
-                Logger.addLog("fullQuery", "FILTERS ADDED:" + filters.toString());
+                Logger.addLog("fullQuery", "FILTERS ADDED:" + filters);
             } else {
                 Logger.addLog("fullQuery", "No filters specified.");
             }
 
             // Filter the accoms list based on the query parameters
             // Convert the filtered list to a JSON formatted string
-            List<Map<String,String>> filteredAccoms = filterAccoms(csvData.accoms, filters);
+             List<Map<String,String>> filteredAccoms = filterAccoms(accomsData.accoms, filters);
 
             // Set the content type of the response to JSON
             res.type("application/json");
@@ -220,7 +220,7 @@ public class Main {
                 }
             }
 
-            Logger.addLog("scrape","Map of filters of post request: " + scrapeFilters.toString());
+            Logger.addLog("scrape","Map of filters of post request: " + scrapeFilters);
 
             //Putting all the pieces of the url together
             parentURL = parentURL + filterString + appendIndex;
@@ -725,7 +725,7 @@ public class Main {
     public static boolean hasEnsuites(List<Map<String, String>> list, int id){
         System.out.println("Checking if ID " + id + " has Ensuite");
         System.out.println(list.get(id).toString());
-        if(getValue(list, id, "Has Ensuite").equalsIgnoreCase("y")) {
+        if(getValue(list, id, "HasEnsuite").equalsIgnoreCase("y")) {
             return true;
         }
         return false;
@@ -734,10 +734,11 @@ public class Main {
     public static boolean hasStudios(List<Map<String, String>> list, int id){
         System.out.println("Checking if ID " + id + " has Studio");
         System.out.println(list.get(id).toString());
-        if (getValue(list, id, "Has Studio").equalsIgnoreCase("y")) {
+        if (getValue(list, id, "HasStudio").equalsIgnoreCase("y")) {
             return true;
+        } else {
+            return false;
         }
-        return false;
     }
 
     //NOTE - Configured to return the first site it sees with provided name. Multiple sites

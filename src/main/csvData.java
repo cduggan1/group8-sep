@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 public class csvData {
-    public static List<Map<String,String>> accoms = null;
+    public List<Map<String,String>> accoms = null;
 
     public void init() throws IOException {
         try{
@@ -18,7 +18,7 @@ public class csvData {
         }catch(Exception e)
         {
             System.out.println("Directory Failed. Trying again...");
-            try{Thread.sleep(200);}catch(Exception f){}
+            try{Thread.sleep(200);}catch(Exception f){f.printStackTrace();}
             accoms= buildObject("src/main/info.csv");
         }
     }
