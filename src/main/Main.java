@@ -128,7 +128,7 @@ public class Main {
 
             // Filter the accoms list based on the query parameters
             // Convert the filtered list to a JSON formatted string
-            List<Map<?,?>> filteredAccoms = filterAccoms(csvData.accoms, filters);
+            List<Map<String,String>> filteredAccoms = filterAccoms(csvData.accoms, filters);
 
             // Set the content type of the response to JSON
             res.type("application/json");
@@ -269,7 +269,7 @@ public class Main {
             res.type("application/json");
             //Return json
             if (json != null){
-                System.out.println(json.toString());
+                System.out.println(json);
                 Logger.addLog("RESPONSE", json);
             } else {
                 System.out.println("json.toString() produced Null Pointer Exception");
@@ -296,7 +296,7 @@ public class Main {
         get("/admin/csvUpdate",(req, res)->{
             if (csvData.updateObject()){
                 return "csv Updated";
-            };
+            }
             return "csv Update Failed";
         });
 
@@ -375,8 +375,8 @@ public class Main {
 
 
     //Create Filter Map
-    public static List<Map<?,?>> filterAccoms(List<Map<?,?>> accoms, Map<String,String> filters){
-        ArrayList<Map<?,?>> filteredAccoms = new ArrayList<>();
+    public static List<Map<String,String>> filterAccoms(List<Map<String,String>> accoms, Map<String,String> filters){
+        ArrayList<Map<String,String>> filteredAccoms = new ArrayList<>();
 
         boolean noFail = true; // Shifts false on failed query
 
@@ -407,13 +407,13 @@ public class Main {
             Logger.addLog("Processed Amenities Query", amenitiesList);
         }
         // after to show accurate amount of filters
-        ArrayList<ArrayList<Map<?,?>>> filterAccomsStrikeList = new ArrayList<>();
+        ArrayList<ArrayList<Map<String,String>>> filterAccomsStrikeList = new ArrayList<>();
         int limitStrikeListSize = filters.size();
-        if (filters.keySet().contains("HighestPrice")){
+        if (filters.containsKey("HighestPrice")){
             limitStrikeListSize++;
         }
         for (int i = 0; i < limitStrikeListSize; i++){
-            ArrayList<Map<?,?>> tmpFilter = new ArrayList<Map<?,?>>();
+            ArrayList<Map<String,String>> tmpFilter = new ArrayList<Map<String,String>>();
             try{
                filterAccomsStrikeList.add(i, tmpFilter);
             } catch (Exception e){
@@ -427,13 +427,13 @@ public class Main {
 
         // Define all non negotiables (do not care about strike system)
 
-        for (Map<?,?> building : accoms){       // iterate through every student residence as a Map<>
+        for (Map<String,String> building : accoms){       // iterate through every student residence as a Map<>
             strikes = 0;
             for (String column : filters.keySet()){     // iterate through every filter key as a String
 
 
                 if (column.equals("HighestPrice")){
-                    String priceHigh = building.get(column).toString();
+                    String priceHigh = building.get(column);
                     if (!priceHigh.equals("")){
                         priceHigh = priceHigh.replace("€", "");
                         float costHigh = Float.parseFloat(priceHigh);
@@ -444,7 +444,7 @@ public class Main {
                     } else {
                         strikes++;
                     }
-                    String priceLow = building.get("LowestPrice").toString();
+                    String priceLow = building.get("LowestPrice");
 
                     if (!priceLow.equals("")){
                         priceLow = priceLow.replace("€", "");
@@ -460,7 +460,7 @@ public class Main {
 
 
                 } else if (building.containsKey(column) && !filters.get(column).equals("")){   // If the filter is not "" and the building map contains the key of hte filler, continue
-                    if (building.get(column).toString().equalsIgnoreCase(filters.get(column).toString())){      // If the values of both the filter and building map are equal, continue
+                    if (building.get(column).equalsIgnoreCase(filters.get(column))){      // If the values of both the filter and building map are equal, continue
                         System.out.println("Query for " + column +": " + building.get(column)+ " Passed");      // Output for monitoring API calls
                         //Logger.addLog("filterMap", "Query for " + column +": " + building.get(column)+ " Passed");             // adds to logger
                     } else {
@@ -487,7 +487,7 @@ public class Main {
                 //Logger.addLog("filterMap", "Residence "+ building.get("Site") +" Not Matched");             // adds to logger
             } else {
                 if (strikes == 0){
-                    filteredAccoms.add(building);   // Add successful building to return List<Map<?,?>>
+                    filteredAccoms.add(building);   // Add successful building to return List<Map<String,String>>
                 } else {
                     try {
                         filterAccomsStrikeList.get(strikes-1).add(building);
@@ -508,7 +508,7 @@ public class Main {
         }
 
         //for (int i = 0; i <filterAccomsStrikeList.size(); i++){
-        for (ArrayList<Map<?,?>> StrikeList : filterAccomsStrikeList){
+        for (ArrayList<Map<String,String>> StrikeList : filterAccomsStrikeList){
             if (filters.containsKey("HighestPrice")){
                 StrikeList =orderAccommodations(StrikeList, "HighestPrice");
             }
@@ -519,39 +519,53 @@ public class Main {
     }
 
 
-    public static float averageIndexValue(ArrayList<Map<?,?>> list, int index, String key1, String key2, ArrayList<String> removeChars){
+    public static float averageIndexValue(ArrayList<Map<String,String>> list, int index, String key1, String key2, ArrayList<String> removeChars){
         float average;
-        if (!list.get(index).get(key1).toString().isBlank() && !list.get(0).get(key2).toString().isBlank()){
-            String key1String = list.get(index).get(key1).toString();
+
+
+        if (list.get(index).containsKey(key1+"_"+key2+"_AVG")){
+            String tmp = list.get(index).get(key1+"_"+key2+"_AVG");
             for (String remove : removeChars){
-                key1String = key1String.replace(remove, "");
+                tmp = tmp.replace(remove, "");
             }
-            String key2String = list.get(index).get(key2).toString();
-            for (String remove : removeChars){
-                key2String = key2String.replace(remove, "");
-            }
-            average = (Float.parseFloat(key1String) + Float.parseFloat(key2String))/2;
-        } else if(!list.get(index).get(key1).toString().isBlank()) {
-            String key1String = list.get(index).get(key1).toString();
-            for (String remove : removeChars){
-                key1String = key1String.replace(remove, "");
-            }
-            average = Float.parseFloat(key1String);
-        } else if(!list.get(index).get(key2).toString().isBlank()) {
-            String key2String = list.get(index).get(key1).toString();
-            for (String remove : removeChars){
-                key2String = key2String.replace(remove, "");
-            }
-            average = Float.parseFloat(key2String);
+            return Float.parseFloat(tmp);
         } else {
-            average = 999999; // Puts Last w/ unrealistic price weight
+            if (!list.get(index).get(key1).isBlank() && !list.get(0).get(key2).isBlank()){
+                String key1String = list.get(index).get(key1);
+                for (String remove : removeChars){
+                    key1String = key1String.replace(remove, "");
+                }
+                String key2String = list.get(index).get(key2);
+                for (String remove : removeChars){
+                    key2String = key2String.replace(remove, "");
+                }
+                average = (Float.parseFloat(key1String) + Float.parseFloat(key2String))/2;
+            } else if(!list.get(index).get(key1).isBlank()) {
+                String key1String = list.get(index).get(key1);
+                for (String remove : removeChars){
+                    key1String = key1String.replace(remove, "");
+                }
+                average = Float.parseFloat(key1String);
+            } else if(!list.get(index).get(key2).isBlank()) {
+                String key2String = list.get(index).get(key1);
+                for (String remove : removeChars){
+                    key2String = key2String.replace(remove, "");
+                }
+                average = Float.parseFloat(key2String);
+            } else {
+                average = 999999; // Puts Last w/ unrealistic price weight
+            }
+            list.get(index).put(key1+ "_" + key2 + "_AVG","€" + average);
+            return average;
         }
-        return average;
+
+
+
     }
 
 
     // Use Merge Sort on Accomodation lists ("Highest Price" implementation currently)
-    public static ArrayList<Map<?,?>> orderAccommodations(ArrayList<Map<?,?>> accommodationList, String key){
+    public static ArrayList<Map<String,String>> orderAccommodations(ArrayList<Map<String,String>> accommodationList, String key){
         if (key.equals("HighestPrice")){
             ArrayList<String> removeChars = new ArrayList<>();
             removeChars.add("€");
@@ -561,8 +575,8 @@ public class Main {
 
                 // split size 3 and up lists
 
-                ArrayList<Map<?,?>> rightList = new ArrayList<>();
-                ArrayList<Map<?,?>> leftList = new ArrayList<>();
+                ArrayList<Map<String,String>> rightList = new ArrayList<>();
+                ArrayList<Map<String,String>> leftList = new ArrayList<>();
                 // Construct left/right lists
                 for (int i = 0; i < accommodationList.size(); i++ ){
                     if (i < accommodationList.size()/2){
@@ -575,7 +589,7 @@ public class Main {
                 leftList = orderAccommodations(leftList, key);
                 rightList = orderAccommodations(rightList, key);
 
-                ArrayList<Map<?,?>> returnList = new ArrayList<>();
+                ArrayList<Map<String,String>> returnList = new ArrayList<>();
 
 
                 while (!leftList.isEmpty() || !rightList.isEmpty()){
@@ -587,15 +601,7 @@ public class Main {
 
                         float averageFirstRight;
                         averageFirstRight = averageIndexValue(rightList,0, key1, key2, removeChars);
-                        //if (!rightList.get(0).get("HighestPrice").toString().isBlank() && !rightList.get(0).get("HighestPrice").toString().isBlank()){
-                        //    averageFirstRight = (Float.parseFloat(rightList.get(0).get("HighestPrice").toString().replace("€", "")) + Float.parseFloat(rightList.get(0).get("LowestPrice").toString().replace("€", "")))/2;
-                        //} else if(!rightList.get(0).get("HighestPrice").toString().isBlank()) {
-                        //    averageFirstRight = Float.parseFloat(rightList.get(0).get("HighestPrice").toString().replace("€", ""));
-                        //} else if(!rightList.get(0).get("LowestPrice").toString().isBlank()) {
-                        //    averageFirstRight = Float.parseFloat(rightList.get(0).get("LowestPrice").toString().replace("€", ""));
-                        //} else {
-                        //    averageFirstRight = 9999; // Puts Last w/ unrealistic price weight
-                        //}
+
 
                         if(averageFirstLeft < averageFirstRight){
                             //System.out.println("ADD Left PRICE " + averageFirstLeft);
@@ -618,7 +624,7 @@ public class Main {
                     }
 
                 }
-                System.out.println("");
+                //System.out.println("");
                 return returnList;
 
             } else if (accommodationList.size() == 2){
@@ -628,30 +634,20 @@ public class Main {
                 average0 = averageIndexValue(accommodationList,0, key1, key2, removeChars);
 
                 float average1;
-                average1 = averageIndexValue(accommodationList,0, key1, key2, removeChars);
+                average1 = averageIndexValue(accommodationList,1, key1, key2, removeChars);
 
 
-                System.out.println(average1 + " > "  + average0);
+                //System.out.println(average1 + " > "  + average0);
                 if (average1 > average0){
-                    //System.out.println("fixed big: " + average1 + " > "  + average0);
-                    //System.out.println("0: LOW PRICE" + accommodationList.get(0).get("LowestPrice"));
-                    //System.out.println("1: LOW PRICE" + accommodationList.get(1).get("LowestPrice"));
-                    //System.out.println("");
                     return accommodationList;
                 } else {
-                    ArrayList<Map<?,?>> returnList = new ArrayList<>();
+                    ArrayList<Map<String,String>> returnList = new ArrayList<>();
                     returnList.add(0,accommodationList.get(1));
                     returnList.add(1,accommodationList.get(0));
-                    //System.out.println("fixed small: " + average0 + " > "  + average1);
-                    //System.out.println("0: LOW PRICE" + returnList.get(0).get("LowestPrice"));
-                    //System.out.println("1: LOW PRICE" + returnList.get(1).get("LowestPrice"));
-                    //System.out.println("");
+
                     return returnList;
                 }
             } else {
-                // return list of size 1
-                //System.out.println("0: LOW PRICE" + accommodationList.get(0).get("LowestPrice"));
-                //System.out.println("");
                 return accommodationList;
             }
         }
@@ -674,7 +670,7 @@ public class Main {
 
 
     //Convert our queries to JSON
-    public static String convertToJsonList(List<Map<?, ?>> accoms) {
+    public static String convertToJsonList(List<Map<String, String>> accoms) {
         try {
             // Create an ObjectMapper object
             ObjectMapper mapper = new ObjectMapper();
@@ -690,7 +686,7 @@ public class Main {
 
     //Overload
     //Convert our queries to JSON
-    public static String convertToJson(Map<?, ?> accoms) {
+    public static String convertToJson(Map<String, String> accoms) {
         try {
             // Create an ObjectMapper object
             ObjectMapper mapper = new ObjectMapper();
@@ -704,28 +700,28 @@ public class Main {
     }
 
     //Find results from a given column name.
-    public static ArrayList<String> getFromCol(List<Map<?,?>> list, String col){
+    public static ArrayList<String> getFromCol(List<Map<String,String>> list, String col){
         System.out.println("Attempting to grab column: " + col);
         ArrayList<String> vals = new ArrayList<>();
-        for (Map<?,?> residence: list){
-            vals.add(residence.get(col).toString());
+        for (Map<String,String> residence: list){
+            vals.add(residence.get(col));
         }
         return vals;
     }
 
-    public static String getValue(List<Map<?,?>> list, int index, String col){
-        return(list.get(index).get(col)).toString();
+    public static String getValue(List<Map<String,String>> list, int index, String col){
+        return(list.get(index).get(col));
     }
-    public static String getURLFromAbbreviation(List<Map<?,?>> list, String ab){
-        for(Map<?,?> residence : list){
-            if (residence.get("Abbreviation").toString().equalsIgnoreCase(ab))
-                    return residence.get("Site_URL").toString();
+    public static String getURLFromAbbreviation(List<Map<String,String>> list, String ab){
+        for(Map<String,String> residence : list){
+            if (residence.get("Abbreviation").equalsIgnoreCase(ab))
+                    return residence.get("Site_URL");
         }
         return null;
     }
 
     //Explained in API call.
-    public static boolean hasEnsuites(List<Map<?, ?>> list, int id){
+    public static boolean hasEnsuites(List<Map<String, String>> list, int id){
         System.out.println("Checking if ID " + id + " has Ensuite");
         System.out.println(list.get(id).toString());
         if(getValue(list, id, "Has Ensuite").equalsIgnoreCase("y")) {
@@ -734,7 +730,7 @@ public class Main {
         return false;
     }
     //Explained in API call.
-    public static boolean hasStudios(List<Map<?, ?>> list, int id){
+    public static boolean hasStudios(List<Map<String, String>> list, int id){
         System.out.println("Checking if ID " + id + " has Studio");
         System.out.println(list.get(id).toString());
         if (getValue(list, id, "Has Studio").equalsIgnoreCase("y")) {
@@ -745,11 +741,11 @@ public class Main {
 
     //NOTE - Configured to return the first site it sees with provided name. Multiple sites
     // search is not supported to not make chatbot convoluted.
-    public static String getSiteInfo(List<Map<?, ?>> list, String site){
+    public static String getSiteInfo(List<Map<String, String>> list, String site){
         System.out.println("Getting Site info for: " + site);
-        for (Map<?,?> residence : list){
+        for (Map<String,String> residence : list){
             //Only pretty way of searching for site string appropriately:
-            if(residence.get("Site").toString().toLowerCase().contains(site.toLowerCase())){
+            if(residence.get("Site").toLowerCase().contains(site.toLowerCase())){
                 return residence.toString();
             }
         }
@@ -759,11 +755,11 @@ public class Main {
     //PseudoOverload
     //NOTE - Configured to return the first site it sees with provided name. Multiple sites
     // search is not supported to not make chatbot convoluted.
-    public static Map<?,?> getSiteInfoMap(List<Map<?, ?>> list, String site){
+    public static Map<String,String> getSiteInfoMap(List<Map<String, String>> list, String site){
         System.out.println("Getting Site info for: " + site);
-        for (Map<?,?> residence : list){
+        for (Map<String,String> residence : list){
             //Only pretty way of searching for site string appropriately:
-            if(residence.get("Site").toString().toLowerCase().contains(site.toLowerCase())) {
+            if(residence.get("Site").toLowerCase().contains(site.toLowerCase())) {
                 return residence;
             }
         }
@@ -772,10 +768,10 @@ public class Main {
 
     //NOTE - Unlike getSiteInfo, this returns multiple results as brands
     //own multiple sites. This should not be returned directly in an API response.
-    public static String getCompanyInfo(List<Map<?, ?>> list, String company){
+    public static String getCompanyInfo(List<Map<String, String>> list, String company){
         System.out.println("Getting Company info for: " + company);
         ArrayList<String> listOfCompany = new ArrayList<String>();
-        for (Map<?,?> site : list){
+        for (Map<String, String> site : list){
             if (site.toString().toLowerCase().contains(company.toLowerCase())) {
                 listOfCompany.add(site.toString());
             }

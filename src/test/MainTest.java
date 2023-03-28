@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+//import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MainTest {
     private static Map<String, String> FILTERS = new HashMap<>();
@@ -27,7 +27,7 @@ class MainTest {
         FILTERS = new HashMap<>();
         FILTERS.put("Brand", "Yugo");
         FILTERS.put("Site", "Highfield Park");
-        List<Map<?,?>> accoms = csvData.buildObject("src/main/info.csv");
+        List<Map<String,String>> accoms = csvData.buildObject("src/main/info.csv");
         String filterMap = Main.filterAccoms(accoms, FILTERS).toString();
         assert(filterMap.contains("Highfield Park"));
         assert(!filterMap.contains("Dominick Place"));

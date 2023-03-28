@@ -29,7 +29,7 @@ class parserTest {
         }};
 
         //Build List of properties with filter applied
-        List<Map<?,?>> testAccomsList = Main.filterAccoms(csvData.accoms,testFilters);
+        List<Map<String,String>> testAccomsList = Main.filterAccoms(csvData.accoms,testFilters);
 
         //New Parser
         JSONParser parser = new JSONParser();
@@ -68,7 +68,7 @@ class parserTest {
         }};
 
         //Build List of properties with filter applied
-        List<Map<?,?>> testAccomsList = Main.filterAccoms(csvData.accoms,testFilters);
+        List<Map<String,String>> testAccomsList = Main.filterAccoms(csvData.accoms,testFilters);
 
         //New Parser
         JSONParser parser = new JSONParser();
