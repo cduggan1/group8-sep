@@ -1,6 +1,5 @@
 package main;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -9,19 +8,10 @@ import static spark.Spark.*;
 
 public class ApiCalls {
 
-    public boolean init(CsvData accomsData) throws IOException {
+    public void init(CsvData accomsData) {
 
-        //SynonymMapBuilder.init();
-        //UtilitiesFunction.initNonNegotiables();
 
-        if(accomsData.accoms==null) {
-            System.out.println("Error Parsing CSV");
-            Logger.addLog("Init", "CSV Error");
-            //Something didn't work
-            System.exit(1);
-        }
-
-        port(443);
+        port(443); // Open port for Spark
 
         get("/killapi", (req, res)->{
             System.out.println(Logger.RED + "Request to quit API" + Logger.RESET);
@@ -138,14 +128,14 @@ public class ApiCalls {
 
             //Building query parameters for WebCrawler urls using API call query parameters
             for (String key : req.queryParams()) {
-                if (!req.queryParams(key).equals("Def") && !req.queryParams(key).equals(null)) {
+                if (!req.queryParams(key).equals("Def")/* && !req.queryParams(key).equals(null)*/) {
                     if (key.equals("BER")) {
                         BER_Query = req.queryParams(key);
                     }
                     else if (key.equals("leaseLength_from")) {
                         System.out.println(req.queryParams(key));
                         Matcher matcher = Pattern.compile("(\\d+)?.*?(?<!\\d)(\\d+)").matcher(req.queryParams(key));
-                        matcher.find();
+                        matcher.find(); // TODO figure out what this is doing
 
                         if (req.queryParams(key).toLowerCase().contains("y")/*|| req.queryParams(key).contains("Y")*/) { // change to shorten code -Liam
                             int months = 0;
@@ -266,6 +256,6 @@ public class ApiCalls {
         //End of API calls.
 
 
-        return true;
+
     }
 }
