@@ -1,9 +1,10 @@
 package test;
 
-import main.JSONParser;
+import main.JsonParser;
 import main.Main;
-import main.csvData;
+import main.CsvData;
 //import org.eclipse.jetty.util.ajax.JSON;
+import main.UtilitiesFunction;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -17,12 +18,12 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class JSONParserTest {
+class JsonParserTest {
 
     @Test
     void parseJSON() throws IOException {
         //Initialize CSVData Class
-        csvData testData = new csvData();
+        CsvData testData = new CsvData();
         testData.init();
 
         //Prevent main from adding count to the response as this will defeat the purpose of testing.
@@ -34,16 +35,16 @@ class JSONParserTest {
         }};
 
         //Build List of properties with filter applied
-        List<Map<String,String>> testAccomsList = Main.filterAccoms(testData.accoms,testFilters);
+        List<Map<String,String>> testAccomsList = UtilitiesFunction.filterAccoms(testData.accoms,testFilters);
 
         //New Parser
-        JSONParser parser = new JSONParser();
+        JsonParser parser = new JsonParser();
 
         //Convert to JSON our Map of Properties
-        String response = Main.convertToJsonList(testAccomsList);
+        String response = UtilitiesFunction.convertToJsonList(testAccomsList);
 
         //Build a summary map from our parser
-        Map<String, Integer> result = JSONParser.parseJSON(response, "Residences");
+        Map<String, Integer> result = JsonParser.parseJSON(response, "Residences");
         //Get the count of objects
         int count = result.get("TOTAL_OBJECTS");
 
@@ -52,10 +53,10 @@ class JSONParserTest {
 
         //Apply another filter and rebuild list
         testFilters.put("Site", "Dominick Place");
-        testAccomsList = Main.filterAccoms(testData.accoms, testFilters);
-        response = Main.convertToJsonList(testAccomsList);
+        testAccomsList = UtilitiesFunction.filterAccoms(testData.accoms, testFilters);
+        response = UtilitiesFunction.convertToJsonList(testAccomsList);
 
-        result = JSONParser.parseJSON(response, "Residences");
+        result = JsonParser.parseJSON(response, "Residences");
         count = result.get("TOTAL_OBJECTS");
 
         assertEquals(1, count);
@@ -65,7 +66,7 @@ class JSONParserTest {
     void countProperties() throws IOException {
 
         //Initialize CSVData Class
-        csvData testData = new csvData();
+        CsvData testData = new CsvData();
         testData.init();
 
         //Build fiters for property count = 8
@@ -74,13 +75,13 @@ class JSONParserTest {
         }};
 
         //Build List of properties with filter applied
-        List<Map<String,String>> testAccomsList = Main.filterAccoms(testData.accoms,testFilters);
+        List<Map<String,String>> testAccomsList = UtilitiesFunction.filterAccoms(testData.accoms,testFilters);
 
         //New Parser
-        JSONParser parser = new JSONParser();
+        JsonParser parser = new JsonParser();
 
         //Convert to JSON our Map of Properties
-        String response = Main.convertToJsonList(testAccomsList);
+        String response = UtilitiesFunction.convertToJsonList(testAccomsList);
 
         assertEquals(8, parser.countProperties(response));
     }
@@ -89,7 +90,7 @@ class JSONParserTest {
     void findValuesOf() throws IOException {
         byte[] encodedBytes = Files.readAllBytes(Paths.get("src/test/testjson.txt"));
         String json = new String(encodedBytes, StandardCharsets.UTF_8);
-        ArrayList<String> list = JSONParser.findValuesOf(json, "seoFriendlyPath");
+        ArrayList<String> list = JsonParser.findValuesOf(json, "seoFriendlyPath");
         System.out.println(list.toString());
         assertEquals(3204, list.toString().length());
     }

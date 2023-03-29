@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class synonymMapBuilder {
+public class SynonymMapBuilder {
     public static Map<String, ArrayList<String>> amenitiesSynonym = new HashMap<>();
 
     //private static String file = "Amenities.synonym";
@@ -57,7 +57,7 @@ public class synonymMapBuilder {
                 String[] synonyms = initialSplit[1].split(","); // no maximum
                 ArrayList<String> synonymOutput = new ArrayList<>(List.of(synonyms));
 
-                // TODO Dirty implementation of this, find a cleaner syntax
+                // Weird implementation but due to returning boolean, it works
                 while (synonymOutput.remove("")){} // remove all "" entries, prevents total matches and possible null-issues
 
                 buildAmenities.put(initialSplit[0], synonymOutput);

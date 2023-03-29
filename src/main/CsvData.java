@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class csvData {
+public class CsvData {
     public List<Map<String,String>> accoms = null;
 
     public void init() throws IOException {

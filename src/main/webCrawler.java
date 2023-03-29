@@ -7,25 +7,21 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
-import com.fasterxml.jackson.annotation.JsonKey;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONPropertyName;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import static main.JSONParser.countProperties;
-import static main.JSONParser.findValuesOf;
+import static main.JsonParser.countProperties;
+import static main.JsonParser.findValuesOf;
 
 public class webCrawler implements Callable {
 //Callabe is the multithreading interface we will be using
     public static String BER_Query;
     static HashMap<String, String> urlMap = new HashMap<String, String>();
 
-    public webCrawler (String Url, String BER_Query, int index){ //Constructor, which also updates shared resources for threads.
+    public webCrawler(String Url, String BER_Query, int index){ //Constructor, which also updates shared resources for threads.
 
         this.BER_Query = BER_Query;
         if (Url.contains("daft.ie")) {

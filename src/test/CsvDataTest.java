@@ -1,6 +1,6 @@
 package test;
 
-import main.csvData;
+import main.CsvData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -10,17 +10,17 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class csvDataTest {
+class CsvDataTest {
 
     @BeforeEach
     void init() throws IOException {
-        csvData testData = new csvData();
+        CsvData testData = new CsvData();
         testData.init();
     }
 
     @Test
     void buildObject() throws IOException {
-        csvData testData = new csvData();
+        CsvData testData = new CsvData();
         testData.init();
         List<Map<String, String>> buildObject = testData.buildObject("src/test/test-data.csv");
         assert buildObject != null;
