@@ -6,55 +6,22 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static spark.Spark.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class Main {
+public class ApiCalls {
 
+    public boolean init(CsvData accomsData) throws IOException {
 
-    String url = "";
-    String user = "";
-    String password = "";
-    String query = "SELECT * FROM mytable";
+        //SynonymMapBuilder.init();
+        //UtilitiesFunction.initNonNegotiables();
 
-
-    public static boolean enableLogging = true;
-    public static boolean addCount = true;
-
-
-
-    //Provided we built the initial object correctly, start
-    //program and initialise API responses.
-    public static void main(String[] args) throws IOException {
-
-        System.out.println(Logger.BLUE + "Initialising...." + Logger.RESET);
-
-        try{
-            Thread.sleep(500);
-        } catch (Exception f){
-            f.printStackTrace();
-        }
-        Logger.addLog("",Logger.BLUE + "Sending Init Broadcast." + Logger.RESET);
-
-        try{
-            Thread.sleep(500);
-        } catch (Exception f){
-            f.printStackTrace();
+        if(accomsData.accoms==null) {
+            System.out.println("Error Parsing CSV");
+            Logger.addLog("Init", "CSV Error");
+            //Something didn't work
+            System.exit(1);
         }
 
-        CsvData accomsData = new CsvData();
-        accomsData.init();
-        SynonymMapBuilder.init();
-        UtilitiesFunction.initNonNegotiables();
-
-        ApiCalls api = new ApiCalls();
-        api.init(accomsData);
-
-        DatabaseManager.testConnection();
-
-
-
-
-        /*
+        port(443);
 
         get("/killapi", (req, res)->{
             System.out.println(Logger.RED + "Request to quit API" + Logger.RESET);
@@ -69,7 +36,7 @@ public class Main {
                     Logger.addLog("Redirect", "Call for " + abbreviation);
                     res.redirect(UtilitiesFunction.getURLFromAbbreviation(accomsData.accoms, abbreviation));
                 }catch(Exception e){Logger.addLog("Redirect Failed", "Error: " + e);}
-           return null;
+            return null;
         });
 
         get("/fullQuery", (req, res) -> {
@@ -125,7 +92,7 @@ public class Main {
 
             // Filter the accoms list based on the query parameters
             // Convert the filtered list to a JSON formatted string
-             List<Map<String,String>> filteredAccoms = UtilitiesFunction.filterAccoms(accomsData.accoms, filters);
+            List<Map<String,String>> filteredAccoms = UtilitiesFunction.filterAccoms(accomsData.accoms, filters);
 
             // Set the content type of the response to JSON
             res.type("application/json");
@@ -133,7 +100,7 @@ public class Main {
             //response = "{\"Residences\":"+response+"}";
             String response = UtilitiesFunction.convertToJsonList(filteredAccoms);
 
-            if(addCount){
+            if(Main.addCount){
                 response = UtilitiesFunction.addCount(response);
             }
 
@@ -165,9 +132,9 @@ public class Main {
 
             String[] filters = {"facilities=", "leaseLength_from=", "numBeds_from=", "numBaths_from=", "propertyType=","rentalPrice_to="};
 
-           for (String filter : filters) {
-               scrapeFilters.put(filter, "");
-           }
+            for (String filter : filters) {
+                scrapeFilters.put(filter, "");
+            }
 
             //Building query parameters for WebCrawler urls using API call query parameters
             for (String key : req.queryParams()) {
@@ -180,29 +147,28 @@ public class Main {
                         Matcher matcher = Pattern.compile("(\\d+)?.*?(?<!\\d)(\\d+)").matcher(req.queryParams(key));
                         matcher.find();
 
-                        if (req.queryParams(key).contains("y") || req.queryParams(key).contains("Y")) {
+                        if (req.queryParams(key).toLowerCase().contains("y")/*|| req.queryParams(key).contains("Y")*/) { // change to shorten code -Liam
                             int months = 0;
-                                if (matcher.group(1) != null) {
-                                    months = Integer.valueOf(matcher.group(1)) * 12;
-
+                            if (matcher.group(1) != null) {
+                                months = Integer.valueOf(matcher.group(1)) * 12;
                                 if (matcher.group(2) != null) {
                                     System.out.println(matcher.group(2));
                                     months = Integer.valueOf(matcher.group(2)) + months;
                                 }
                             }
                             else {
-                                    months = Integer.valueOf(matcher.group(2)) * 12;
+                                months = Integer.valueOf(matcher.group(2)) * 12;
                             }
                             System.out.println("Months: " + months);
                             scrapeFilters.put(key + "=", String.valueOf(months));
-                            filterString = filterString + key + "=" + months + "&"; // String Concat in Loop
+                            filterString = filterString + key + "=" + months + "&"; // String Concat in Loop -Liam
                         }
                         else {
                             int months = 0; // redundant initializer
                             try {
-                               months = Integer.valueOf(matcher.group());
+                                months = Integer.valueOf(matcher.group());
                             } catch (Exception e){
-                               months = Integer.valueOf(matcher.group(1));
+                                months = Integer.valueOf(matcher.group(1));
                             }
                             System.out.println("Months: " + months);
                             scrapeFilters.put(key + "=", String.valueOf(months));
@@ -277,13 +243,13 @@ public class Main {
         });
 
         get("/admin/log",(req, res)->{
-            if(enableLogging) {
+            if(Main.enableLogging) {
                 res.body(Logger.logFile.toString());
                 return Logger.logFile;
             }else{
                 return "Logging Disabled.";
             }
-                });
+        });
 
         get("/admin/testTimeParser",(req, res)->{
             String request = req.queryParams("time");
@@ -296,11 +262,10 @@ public class Main {
             }
             return "csv Update Failed";
         });
-        */
+
         //End of API calls.
 
+
+        return true;
     }
-
-
-
 }
