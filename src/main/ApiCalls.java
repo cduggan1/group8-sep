@@ -196,7 +196,9 @@ public class ApiCalls {
                 int index = Integer.parseInt(req.params(":index"));
                 if(index<accomsData.accoms.size()) {
                     System.out.println("Index requested: " + index);
-                    String json = UtilitiesFunction.convertToJson(accomsData.accoms.get(index));
+                    ArrayList<Map<String,String>> holder = new ArrayList<>();
+                    holder.add(accomsData.accoms.get(index));
+                    String json = UtilitiesFunction.convertToJsonList(holder);
                     res.type("application/json");
                     Logger.addLog("RESPONSE" , json);
                     return json;

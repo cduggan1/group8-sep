@@ -96,7 +96,7 @@ public class UtilitiesFunction {
     }
 
 
-
+    // TODO Shorten - Liam
     //Create Filter Map
     public static List<Map<String,String>> filterAccoms(List<Map<String,String>> accoms, Map<String,String> filters){
         ArrayList<Map<String,String>> filteredAccoms = new ArrayList<>();
@@ -152,10 +152,12 @@ public class UtilitiesFunction {
 
         for (Map<String,String> building : accoms){       // iterate through every student residence as a Map<>
             strikes = 0;
+
             for (String column : filters.keySet()){     // iterate through every filter key as a String
 
 
                 if (column.equals("HighestPrice")){
+
                     String priceHigh = building.get(column);
                     if (!priceHigh.equals("")){
                         priceHigh = priceHigh.replace("€", "");
@@ -204,6 +206,8 @@ public class UtilitiesFunction {
                     System.out.println("Invalid Query");    // Output for monitoring API calls
                 }
             }
+
+
             if (!noFail){       // if noFail is false
                 noFail = true;      // Reset to true after a fail
                 System.out.println("Residence "+ building.get("Site") +" Not Matched\n");     // Output for monitoring API calls
@@ -226,7 +230,6 @@ public class UtilitiesFunction {
                     }
                 }
                 System.out.println("Residence "+ building.get("Site") +" Matched with " + strikes +" strikes\n");         // Output for monitoring API calls
-                //Logger.addLog("filterMap", "Residence "+ building.get("Site") +" Matched");             // adds to logger
             }
         }
 
@@ -295,9 +298,7 @@ public class UtilitiesFunction {
             String key1 = "HighestPrice";
             String key2 = "LowestPrice";
             if (accommodationList.size()>=3){
-
                 // split size 3 and up lists
-
                 ArrayList<Map<String,String>> rightList = new ArrayList<>();
                 ArrayList<Map<String,String>> leftList = new ArrayList<>();
                 // Construct left/right lists
@@ -308,73 +309,50 @@ public class UtilitiesFunction {
                         rightList.add(accommodationList.get(i));
                     }
                 }
-
                 leftList = orderAccommodations(leftList, key);
                 rightList = orderAccommodations(rightList, key);
 
                 ArrayList<Map<String,String>> returnList = new ArrayList<>();
 
-
                 while (!leftList.isEmpty() || !rightList.isEmpty()){
                     // get left and right values
                     if (!leftList.isEmpty() & !rightList.isEmpty()){
-                        float averageFirstLeft;
-                        // DONE turn this into unique function to avoid duplicate code
-                        averageFirstLeft =  averageIndexValue(leftList,0, key1, key2, removeChars);
-
-                        float averageFirstRight;
-                        averageFirstRight = averageIndexValue(rightList,0, key1, key2, removeChars);
-
+                        float averageFirstLeft = averageIndexValue(leftList,0, key1, key2, removeChars);
+                        float averageFirstRight = averageIndexValue(rightList,0, key1, key2, removeChars);
 
                         if(averageFirstLeft < averageFirstRight){
-                            //System.out.println("ADD Left PRICE " + averageFirstLeft);
                             returnList.add(leftList.get(0));
                             leftList.remove(0);
                         } else {
-                            //System.out.println("ADD Right PRICE " + averageFirstRight);
                             returnList.add(rightList.get(0));
                             rightList.remove(0);
-
                         }
                     } else if(!leftList.isEmpty()){
-                        //System.out.println("ADD Left PRICE" + "");
                         returnList.add(leftList.get(0));
                         leftList.remove(0);
                     } else {
                         returnList.add(rightList.get(0));
-                        //System.out.println("ADD Right PRICE" +rightList.get(0).get("LowestPrice"));
                         rightList.remove(0);
                     }
-
                 }
-                //System.out.println("");
                 return returnList;
 
             } else if (accommodationList.size() == 2){
                 // Order list of size 2
-
-                float average0;
-                average0 = averageIndexValue(accommodationList,0, key1, key2, removeChars);
-
-                float average1;
-                average1 = averageIndexValue(accommodationList,1, key1, key2, removeChars);
-
-
-                //System.out.println(average1 + " > "  + average0);
+                float average0 = averageIndexValue(accommodationList,0, key1, key2, removeChars);
+                float average1 = averageIndexValue(accommodationList,1, key1, key2, removeChars);
                 if (average1 > average0){
                     return accommodationList;
                 } else {
                     ArrayList<Map<String,String>> returnList = new ArrayList<>();
                     returnList.add(0,accommodationList.get(1));
                     returnList.add(1,accommodationList.get(0));
-
                     return returnList;
                 }
             } else {
                 return accommodationList;
             }
         }
-
         return accommodationList;
     }
 
@@ -406,22 +384,6 @@ public class UtilitiesFunction {
         }
     }
 
-
-    //Overload
-    //Convert our queries to JSON
-    public static String convertToJson(Map<String, String> accoms) {
-        try {
-            // Create an ObjectMapper object
-            ObjectMapper mapper = new ObjectMapper();
-            // Use the ObjectMapper to convert the list to a JSON formatted string
-            String json = mapper.writeValueAsString(accoms);
-            return  packageJsonResidence(json);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     //Find results from a given column name.
     public static ArrayList<String> getFromCol(List<Map<String,String>> list, String col){
         System.out.println("Attempting to grab column: " + col);
@@ -443,7 +405,7 @@ public class UtilitiesFunction {
         return null;
     }
 
-    //Explained in API call.
+    //Explained in API call.  (Checks for EnSuites)
     public static boolean hasEnsuites(List<Map<String, String>> list, int id){
         System.out.println("Checking if ID " + id + " has Ensuite");
         System.out.println(list.get(id).toString());
@@ -452,7 +414,7 @@ public class UtilitiesFunction {
         }
         return false;
     }
-    //Explained in API call.
+    //Explained in API call. (Checks for Studios)
     public static boolean hasStudios(List<Map<String, String>> list, int id){
         System.out.println("Checking if ID " + id + " has Studio");
         System.out.println(list.get(id).toString());
