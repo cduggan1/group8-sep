@@ -103,7 +103,7 @@ public class ApiCalls {
 
 
         // Builds the URL to be processed by the webscraper, as well as the requested BER rating
-        //Gets a JSON formatted string containing the properties matching the query parameters from the WebCrawler class
+        //Gets a JSON formatted string containing the properties matching the query parameters from the webCrawler class
         get("/scrape", (req, res) -> {
             res.type("application/json");
 
@@ -126,7 +126,7 @@ public class ApiCalls {
                 scrapeFilters.put(filter, "");
             }
 
-            //Building query parameters for WebCrawler urls using API call query parameters
+            //Building query parameters for webCrawler urls using API call query parameters
             for (String key : req.queryParams()) {
                 if (!req.queryParams(key).equals("Def")/* && !req.queryParams(key).equals(null)*/) {
                     if (key.equals("BER")) {
@@ -178,8 +178,8 @@ public class ApiCalls {
             parentURL = parentURL + filterString + appendIndex;
             Logger.addLog("scrape","Assembled parent Url for backup crawling method: " + parentURL);
 
-            //Getting Json response from WebCrawler
-            String response = WebCrawler.Daft(parentURL, BER_Query, scrapeFilters);
+            //Getting Json response from webCrawler
+            String response = webCrawler.Daft(parentURL, BER_Query, scrapeFilters);
 
             //Returning Json
             Logger.addLog("RESPONSE",response);
