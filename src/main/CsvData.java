@@ -49,6 +49,12 @@ public class CsvData {
         //Returns a map list.
         return mappingIterator.readAll();
     }
-
-
+    String value(String row, String column, String value){
+        for(Map<?,?> m : this.accoms){
+            if(m.get(column).equals(row)){
+                return (String) m.get(value.toString());
+            }
+        }
+        return null;
+    }
 }
