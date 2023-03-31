@@ -38,6 +38,9 @@ public class Main {
 
         CsvData accomsData = new CsvData();
         accomsData.init();
+        CsvData cityData = new CsvData();
+        cityData.updateObject("src/main/cityData.csv");
+
         if(accomsData.accoms==null) {
             System.out.println("Error Parsing CSV");
             Logger.addLog("Init", "CSV Error");
@@ -49,7 +52,7 @@ public class Main {
         SynonymMapBuilder.init();
         UtilitiesFunction.initNonNegotiables();
         ApiCalls api = new ApiCalls();
-        api.init(accomsData);
+        api.init(accomsData, cityData);
         DatabaseManager.testConnection();
 
 
