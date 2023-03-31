@@ -8,7 +8,7 @@ import static spark.Spark.*;
 
 public class ApiCalls {
 
-    public void init(CsvData accomsData) {
+    public void init(CsvData accomsData, CsvData cityData) {
 
 
         port(443); // Open port for Spark
@@ -104,89 +104,106 @@ public class ApiCalls {
 
         // Builds the URL to be processed by the webscraper, as well as the requested BER rating
         //Gets a JSON formatted string containing the properties matching the query parameters from the webCrawler class
-        get("/scrape", (req, res) -> {
+        get("/scrape/*/", (req, res) -> {
             res.type("application/json");
 
             System.out.println("Filtering Query...");
             Logger.addLog("scrape", "API Called");
 
-            HashMap<String,String>scrapeFilters = new HashMap<>();
+            String country = req.splat()[0];
+            String parentURL = "";
+            String appendIndex = "";
+            String filterString = "";
+            HashMap<String, String> scrapeFilters = new HashMap<>();
 
-            //Base url used to built parentUrl
-            String parentURL = "https://www.daft.ie/property-for-rent/dublin-city-centre-dublin?furnishing=furnished";
-            //Page parameters to be appended to the end of the url string, for the purposes of iterating through multiple pages
-            String appendIndex = "pageSize=20&from=";
-            //BER_Query default set to All, so that if no BER_Query is passed, all properties are returned
-            String BER_Query = "All";
-            String filterString = "&";
+            if (req.splat()[0].equals("Ireland")) {
 
-            String[] filters = {"facilities=", "leaseLength_from=", "numBeds_from=", "numBaths_from=", "propertyType=","rentalPrice_to="};
+                //Base url used to built parentUrl
+                parentURL = "https://www.daft.ie/property-for-rent/dublin-city-centre-dublin?furnishing=furnished";
+                //Page parameters to be appended to the end of the url string, for the purposes of iterating through multiple pages
+                appendIndex = "pageSize=20&from=";
+                //BER_Query default set to All, so that if no BER_Query is passed, all properties are returned
+                String BER_Query = "All";
+                filterString = "&";
 
-            for (String filter : filters) {
-                scrapeFilters.put(filter, "");
-            }
+                String[] filters = {"facilities=", "leaseLength_from=", "numBeds_from=", "numBaths_from=", "propertyType=", "rentalPrice_to="};
 
-            //Building query parameters for webCrawler urls using API call query parameters
-            for (String key : req.queryParams()) {
-                if (!req.queryParams(key).equals("Def")/* && !req.queryParams(key).equals(null)*/) {
-                    if (key.equals("BER")) {
-                        BER_Query = req.queryParams(key);
-                    }
-                    else if (key.equals("leaseLength_from")) {
-                        System.out.println(req.queryParams(key));
-                        Matcher matcher = Pattern.compile("(\\d+)?.*?(?<!\\d)(\\d+)").matcher(req.queryParams(key));
-                        matcher.find(); // TODO figure out what this is doing
+                for (String filter : filters) {
+                    scrapeFilters.put(filter, "");
+                }
 
-                        if (req.queryParams(key).toLowerCase().contains("y")/*|| req.queryParams(key).contains("Y")*/) { // change to shorten code -Liam
-                            int months = 0;
-                            if (matcher.group(1) != null) {
-                                months = Integer.valueOf(matcher.group(1)) * 12;
-                                if (matcher.group(2) != null) {
-                                    System.out.println(matcher.group(2));
-                                    months = Integer.valueOf(matcher.group(2)) + months;
+                //Building query parameters for webCrawler urls using API call query parameters
+                for (String key : req.queryParams()) {
+                    if (!req.queryParams(key).equals("Def") && !req.queryParams(key).equals(null)) {
+                        if (key.equals("BER")) {
+                            BER_Query = req.queryParams(key);
+                        } else if (key.equals("leaseLength_from")) {
+                            System.out.println(req.queryParams(key));
+                            Matcher matcher = Pattern.compile("(\\d+)?.*?(?<!\\d)(\\d+)").matcher(req.queryParams(key));
+                            matcher.find();
+
+                            if (req.queryParams(key).contains("y") || req.queryParams(key).contains("Y")) {
+                                int months = 0;
+                                if (matcher.group(1) != null) {
+                                    months = Integer.valueOf(matcher.group(1)) * 12;
+
+                                    if (matcher.group(2) != null) {
+                                        System.out.println(matcher.group(2));
+                                        months = Integer.valueOf(matcher.group(2)) + months;
+                                    }
+                                } else {
+                                    months = Integer.valueOf(matcher.group(2)) * 12;
                                 }
+                                System.out.println("Months: " + months);
+                                scrapeFilters.put(key + "=", String.valueOf(months));
+                                filterString = filterString + key + "=" + months + "&"; // String Concat in Loop
+                            } else {
+                                int months = 0; // redundant initializer
+                                try {
+                                    months = Integer.valueOf(matcher.group());
+                                } catch (Exception e) {
+                                    months = Integer.valueOf(matcher.group(1));
+                                }
+                                System.out.println("Months: " + months);
+                                scrapeFilters.put(key + "=", String.valueOf(months));
+                                filterString = filterString + key + "=" + months + "&";
                             }
-                            else {
-                                months = Integer.valueOf(matcher.group(2)) * 12;
-                            }
-                            System.out.println("Months: " + months);
-                            scrapeFilters.put(key + "=", String.valueOf(months));
-                            filterString = filterString + key + "=" + months + "&"; // String Concat in Loop -Liam
+                        } else {
+                            filterString = filterString + key + "=" + req.queryParams(key) + "&";
+                            scrapeFilters.put(key + "=", req.queryParams(key));
                         }
-                        else {
-                            int months = 0; // redundant initializer
-                            try {
-                                months = Integer.valueOf(matcher.group());
-                            } catch (Exception e){
-                                months = Integer.valueOf(matcher.group(1));
-                            }
-                            System.out.println("Months: " + months);
-                            scrapeFilters.put(key + "=", String.valueOf(months));
-                            filterString = filterString + key + "=" + months + "&";
-                        }
-                    }
-                    else {
-                        filterString = filterString + key + "=" + req.queryParams(key) + "&";
-                        scrapeFilters.put(key + "=", req.queryParams(key));
                     }
                 }
+
+                Logger.addLog("scrape", "Map of filters fo post request: " + scrapeFilters.toString());
+
+                //Putting all the pieces of the url together
+                parentURL = parentURL + filterString + appendIndex;
+                Logger.addLog("scrape", "Assembled parent Url for backup crawling method: " + parentURL);
+
+                //Getting Json response from webCrawler
+                String response = webCrawler.Daft(parentURL, BER_Query, scrapeFilters, country, null);
+
+                //Returning Json
+                Logger.addLog("RESPONSE", response);
+                return response;
             }
+            //Housing Anywhere
+            else {
+                String search = req.splat()[0];
+                String city = "";
 
-            Logger.addLog("scrape","Map of filters of post request: " + scrapeFilters);
+                for (String key : req.queryParams()) {
+                    if (key.equals("City")) {
+                        city = req.queryParams(key);
+                    }
+                }
+                parentURL = "https://housinganywhere.com/s/" + city + "--" + cityData.value(city,"City","Country") + "?furniture=furnished&";
 
-            //Putting all the pieces of the url together
-            parentURL = parentURL + filterString + appendIndex;
-            Logger.addLog("scrape","Assembled parent Url for backup crawling method: " + parentURL);
-
-            //Getting Json response from webCrawler
-            String response = webCrawler.Daft(parentURL, BER_Query, scrapeFilters);
-
-            //Returning Json
-            Logger.addLog("RESPONSE",response);
-            return response;
-
+                String response = webCrawler.Daft(parentURL + "page=", "All", scrapeFilters, search, city);
+                return response;
+            }
         });
-
 
         //Receives -> ID
         //Returns -> Site at index (ID) in list.
