@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="guicedee.services.commons.text" type="repository">
+    <properties maven-id="com.guicedee.services:commons-text:62" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/guicedee/services/commons-text/62/commons-text-62.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/guicedee/services/commons-lang3/62/commons-lang3-62.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

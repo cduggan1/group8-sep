@@ -1,0 +1,44 @@
+<component name="libraryTable">
+  <library name="edu.stanford.nlp.corenlp" type="repository">
+    <properties maven-id="edu.stanford.nlp:stanford-corenlp:4.5.3" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/edu/stanford/nlp/stanford-corenlp/4.5.3/stanford-corenlp-4.5.3.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/apple/AppleJavaExtensions/1.4/AppleJavaExtensions-1.4.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/de/jollyday/jollyday/0.4.9/jollyday-0.4.9.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/commons/commons-lang3/3.3.1/commons-lang3-3.3.1.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-queryparser/7.5.0/lucene-queryparser-7.5.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-queries/7.5.0/lucene-queries-7.5.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-sandbox/7.5.0/lucene-sandbox-7.5.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-analyzers-common/7.5.0/lucene-analyzers-common-7.5.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-core/7.5.0/lucene-core-7.5.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/javax/servlet/javax.servlet-api/3.0.1/javax.servlet-api-3.0.1.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/xom/xom/1.3.8/xom-1.3.8.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/xerces/xercesImpl/2.8.0/xercesImpl-2.8.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/xml-apis/xml-apis/1.3.03/xml-apis-1.3.03.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/xalan/xalan/2.7.2/xalan-2.7.2.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/xalan/serializer/2.7.2/serializer-2.7.2.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/joda-time/joda-time/2.10.5/joda-time-2.10.5.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/ejml/ejml-core/0.39/ejml-core-0.39.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/ejml/ejml-ddense/0.39/ejml-ddense-0.39.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/ejml/ejml-simple/0.39/ejml-simple-0.39.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/ejml/ejml-fdense/0.39/ejml-fdense-0.39.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/ejml/ejml-cdense/0.39/ejml-cdense-0.39.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/ejml/ejml-zdense/0.39/ejml-zdense-0.39.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/ejml/ejml-dsparse/0.39/ejml-dsparse-0.39.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/ejml/ejml-fsparse/0.39/ejml-fsparse-0.39.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/glassfish/javax.json/1.0.4/javax.json-1.0.4.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/slf4j/slf4j-api/1.7.12/slf4j-api-1.7.12.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/google/protobuf/protobuf-java/3.19.6/protobuf-java-3.19.6.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/javax/activation/javax.activation-api/1.2.0/javax.activation-api-1.2.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/javax/xml/bind/jaxb-api/2.4.0-b180830.0359/jaxb-api-2.4.0-b180830.0359.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/sun/istack/istack-commons-runtime/3.0.7/istack-commons-runtime-3.0.7.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/sun/xml/bind/jaxb-impl/2.4.0-b180830.0438/jaxb-impl-2.4.0-b180830.0438.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/googlecode/json-simple/json-simple/1.1.1/json-simple-1.1.1.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/junit/junit/4.10/junit-4.10.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
