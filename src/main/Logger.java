@@ -9,6 +9,7 @@ public class Logger {
 
     public static ArrayList<String> logFile = new ArrayList<>();
     public static String epoch = String.valueOf(System.currentTimeMillis());
+    public static boolean sendToConsole = false;
 
     // Regular Colors
     public static final String BLACK = "\033[0;30m";   // BLACK
@@ -37,6 +38,10 @@ public class Logger {
             //exception handling left as an exercise for the reader
         }
         logFile.add("\n["+time.format(formatter)+"]" +tag + "," + msg + ".\n");
+        if(sendToConsole)
+            System.out.println(("\n["+time.format(formatter)+"]" +tag + "," + msg + ".\n"));
+
+
     }
 
     public static void clearLog(){
