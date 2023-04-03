@@ -158,7 +158,7 @@ public class ApiCalls {
                                 scrapeFilters.put(key + "=", String.valueOf(months));
                                 filterString = filterString + key + "=" + months + "&"; // String Concat in Loop
                             } else {
-                                int months = 0; // redundant initializer
+                                int months = 0;
                                 try {
                                     months = Integer.valueOf(matcher.group());
                                 } catch (Exception e) {
@@ -168,39 +168,69 @@ public class ApiCalls {
                                 scrapeFilters.put(key + "=", String.valueOf(months));
                                 filterString = filterString + key + "=" + months + "&";
                             }
+                        } else if (key.equals("facilities")) {
+                                ParserML facilities = new ParserML(System.getProperty("user.dir") + "/src/main");
+                                String parsedFacilities = facilities.query(req.queryParams(key), true);
+                                System.out.println("Parsed Facilities: " + parsedFacilities);
+                                scrapeFilters.put(key + "=", parsedFacilities);
                         } else {
-                            filterString = filterString + key + "=" + req.queryParams(key) + "&";
-                            scrapeFilters.put(key + "=", req.queryParams(key));
+                                filterString = filterString + key + "=" + req.queryParams(key) + "&";
+                                scrapeFilters.put(key + "=", req.queryParams(key));
+                            }
                         }
                     }
-                }
 
-                Logger.addLog("scrape", "Map of filters fo post request: " + scrapeFilters.toString());
+                Logger.addLog("scrape", "Map of filters for post request: " + scrapeFilters.toString());
 
                 //Putting all the pieces of the url together
                 parentURL = parentURL + filterString + appendIndex;
                 Logger.addLog("scrape", "Assembled parent Url for backup crawling method: " + parentURL);
 
                 //Getting Json response from webCrawler
-                String response = webCrawler.Daft(parentURL, BER_Query, scrapeFilters, country, null);
+                String response = webCrawler.init(parentURL, BER_Query, scrapeFilters, country, null);
 
                 //Returning Json
                 Logger.addLog("RESPONSE", response);
                 return response;
             }
+
             //Housing Anywhere
             else {
+
+                String[] filters = {"facilities=", "priceMax=", "categories=", "amenities=", "startDate=", "endDate= "};
+                for (String filter : filters) {
+                    scrapeFilters.put(filter, "");
+                }
+
                 String search = req.splat()[0];
                 String city = "";
 
                 for (String key : req.queryParams()) {
                     if (key.equals("City")) {
                         city = req.queryParams(key);
+                    } else if (key.equals("priceMax")) {
+                        filterString = filterString + key + "=" + Integer.valueOf(req.queryParams(key)) * 100;
+                        scrapeFilters.put(key + "=", "%20AND%20minPrice%3C%3D" + req.queryParams(key));
+                    } else if (key.equals("startDate") || key.equals("endDate")) {
+
+                    } else if (key.equals("categories")) {
+                        if (req.queryParams(key).contains("studio")){
+                            scrapeFilters.put(key + "=", "%20AND%20propertyType%3A" + "STUDIO");
+                        } else if (req.queryParams(key).contains("apartment")) {
+                            scrapeFilters.put(key + "=", "%20AND%20propertyType%3A" + "APARTMENT");
+                        } else if (req.queryParams(key).contains("private")) {
+                            scrapeFilters.put(key + "=", "%20AND%20propertyType%3A" + "PRIVATE_ROOM");
+                        } else if (req.queryParams(key).contains("shared")) {
+                            scrapeFilters.put(key + "=", "%20AND%20propertyType%3A" + "SHARED_ROOM");
+                        }
+
+                        filterString = filterString + key + "=" + req.queryParams(key);
+
                     }
                 }
-                parentURL = "https://housinganywhere.com/s/" + city + "--" + cityData.value(city,"City","Country") + "?furniture=furnished&";
+                parentURL = "https://housinganywhere.com/s/" + city + "--" + cityData.value(city,"City","Country") + "?furniture=furnished&suitableFor=student&";
 
-                String response = webCrawler.Daft(parentURL + "page=", "All", scrapeFilters, search, city);
+                String response = webCrawler.init(parentURL + "page=", "All", scrapeFilters, search, city);
                 return response;
             }
         });
