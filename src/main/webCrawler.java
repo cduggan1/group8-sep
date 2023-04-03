@@ -21,7 +21,7 @@ import static main.JsonParser.countProperties;
 import static main.JsonParser.findValuesOf;
 
 public class webCrawler implements Callable {
-    //Callabe is the multithreading interface we will be using
+    //Callable is the multithreading interface we will be using
     public static String BER_Query;
     public static String Country;
     static HashMap<String, String> urlMap = new HashMap<String, String>();
@@ -40,7 +40,7 @@ public class webCrawler implements Callable {
         }
     }
 
-    public static String Daft(String parentUrl, String BER_Query, HashMap<String, String> filterMap, String search, String city) { //Main method. Handles all other methods.
+    public static String init(String parentUrl, String BER_Query, HashMap<String, String> filterMap, String search, String city) { //Main method. Handles all other methods.
 
         config.updateObject("src/main/config.csv");
         cityData.updateObject("src/main/cityData.csv");
@@ -167,11 +167,11 @@ public class webCrawler implements Callable {
 
                 String coords = cityData.value(City, "City", "Coordinates"); //Fetch from CSV
 
-                String filters = ""; //Build in Main and pass through
+                String filters = filterMap.get("priceMax=") + filterMap.get("categories=") + filterMap.get("facilities="); //Build in Main and pass through
 
-                String mid = "%5D%5D&facets=%5B%5D&attributesToHighlight=%5B%5D&attributesToRetrieve=%5B%22path%22%5D&hitsPerPage=100&filters=";
+                String mid = "%5D%5D&facets=%5B%5D&attributesToHighlight=%5B%5D&attributesToRetrieve=%5B%22path%22%5D&hitsPerPage=100&filters=facility_bedroom_furnished%3Ayes";
 
-                String append = "isSearchable%3Atrue&page=0\",\"indexName\":\"production_listings_rank_withOrpheus\"}]}";
+                String append = "%20AND%20isSearchable%3Atrue&page=0\",\"indexName\":\"production_listings_rank_withOrpheus\"}]}";
 
                 Connection.Response postReq = Jsoup.connect("https://y8l112mibf-dsn.algolia.net/1/indexes/*/queries?x-algolia-agent=Algolia%20for%20JavaScript%20(4.10.5)%3B%20Browser")
                         .ignoreContentType(true)
@@ -253,41 +253,40 @@ public class webCrawler implements Callable {
 
         int count = 0;
 
-        String BER_Ratings[] = {"Exempt","G","F","E2","E1","D2","D1","C3","C2","C1","B3","B2","B1","A3","A2","A1"}; //Fixed array of BER ratings, to be read only
+        String BER_Ratings[] = {"Exempt", "G", "F", "E2", "E1", "D2", "D1", "C3", "C2", "C1", "B3", "B2", "B1", "A3", "A2", "A1"}; //Fixed array of BER ratings, to be read only
 
         String json = ""; //Empty string to contain the json object
-        StringBuilder json_sb= new StringBuilder(json); //Convert string to StringBuilder so that we can edit it
+        StringBuilder json_sb = new StringBuilder(json); //Convert string to StringBuilder so that we can edit it
 
         try {
             document = Jsoup.connect(urlMap.get(Thread.currentThread().getName())).get(); //Get the url with an index matching the thread number
 
             //Creating elements containing required info.
-            Element title = document.selectFirst(config.value(Country,"Country","title")); //Select first h1 tag with a class containing "TitleBlock"
+            Element title = document.selectFirst(config.value(Country, "Country", "title")); //Select first h1 tag with a class containing "TitleBlock"
 
             Element price = document.selectFirst(config.value(Country, "Country", "price")); //Select first paragraph containing the euro symbol
 
+            Element BER = document.selectFirst(config.value(Country, "Country", "Energy_Rating")); //Select the first img tag with a class containing "BerDetails"
 
-            Element BER = document.selectFirst(config.value(Country,"Country","Energy_Rating")); //Select the first img tag with a class containing "BerDetails"
+            Element type = document.selectFirst(config.value(Country, "Country", "type")); //Select the first paragraph with a data-testid property that equals "property-type"
 
-            Element type = document.selectFirst(config.value(Country,"Country","type")); //Select the first paragraph with a data-testid property that equals "property-type"
+            Elements details = document.select(config.value(Country, "Country", "details"));
 
-            Elements details = document.select(config.value(Country,"Country","details"));
+            Element baths = document.selectFirst(config.value(Country, "Country", "baths"));
+            Element beds = document.selectFirst(config.value(Country, "Country", "beds"));
+            Element lease = document.selectFirst(config.value(Country, "Country", "lease"));
 
-            Element baths = document.selectFirst(config.value(Country,"Country","baths"));
-            Element beds = document.selectFirst(config.value(Country,"Country","beds"));
-            Element lease = document.selectFirst(config.value(Country,"Country","lease"));
-
-            if (Country.equals("Ireland")) {
+            /*if (Country.equals("Ireland")) {
                 for (Element li : details) {
                     if (li.select("li").text().contains("Bath")) baths = li.selectFirst("li:contains(Bath)");
                     if (li.select("li").text().contains("Minimum")) lease = li.selectFirst("li:contains(Minimum)");
                     if (li.select("li").text().contains("Bedroom")) beds = li.selectFirst("li:contains(Bedroom)");
                 }
-            }
+            }*/
 
-            Element img = document.selectFirst(config.value(Country,"Country","img"));
+            Element img = document.selectFirst(config.value(Country, "Country", "img"));
 
-            Element floorPlan = document.selectFirst(config.value(Country,"Country","floorPlan"));
+            Element floorPlan = document.selectFirst(config.value(Country, "Country", "floorPlan"));
 
             //If the type element is not null
             // and the index of the BER_Query passed in is less than or equal to the index of the BER rating of the property in question, or equals "All"...
@@ -305,8 +304,7 @@ public class webCrawler implements Callable {
                 if (BER != null) {
                     if (BER.attr("alt").equalsIgnoreCase("SI_666")) {
                         json_sb.append("\"BER\":\"Exempt\",");
-                    }
-                    else if (BER.hasText()){
+                    } else if (BER.hasText()) {
                         json_sb.append("\"BER\":\"" + BER.text() + "\",");
                     } else {
                         json_sb.append("\"BER\":\"" + BER.attr("alt") + "\",");
@@ -318,40 +316,35 @@ public class webCrawler implements Callable {
                 if (type != null) {
                     json_sb.append("\"type\":\"" + type.text() + "\",");
                     //System.out.println(type.text());
-                }
-                else {
+                } else {
                     json_sb.append("\"type\":\"\",");
                 }
 
                 if (lease != null) {
                     json_sb.append("\"lease\":\"" + lease.text() + "\",");
                     //System.out.println(lease.text());
-                }
-                else {
+                } else {
                     json_sb.append("\"lease\":\"\",");
                 }
 
                 if (beds != null) {
                     json_sb.append("\"beds\":\"" + beds.text() + "\",");
                     //System.out.println(beds.text());
-                }
-                else {
-                    json_sb.append("\"beds\":\"\",");
+                } else {
+                    json_sb.append("\"beds\":\"Beds: 1\",");
                 }
 
 
                 if (baths != null) {
                     json_sb.append("\"baths\":\"" + baths.text() + "\",");
-                }
-                else {
-                    json_sb.append("\"baths\":\"\",");
+                } else {
+                    json_sb.append("\"baths\":\"Bathrooms: 1\",");
                 }
 
 
                 if (img != null) {
                     json_sb.append("\"img\":\"" + img.attr("src") + "\",");
-                }
-                else {
+                } else {
                     json_sb.append("\"img\":\"\",");
                 }
 
@@ -363,21 +356,28 @@ public class webCrawler implements Callable {
 
                 if (floorPlan != null) {
                     json_sb.append("\"floorPlan\":\"" + floorPlan.attr("abs:href") + "\",");
-                }
-                else {
+                } else {
                     json_sb.append("\"floorPlan\":\"noPlan\",");
                 }
 
-                Elements facilities = document.select(config.value(Country,"Country","facilitiesList")); //Select the unordered list with class containing "PropertyDetails"
+                Elements facilities = document.select(config.value(Country, "Country", "facilitiesList")); //Select the unordered list with class containing "PropertyDetails"
                 for (Element li : facilities) { //For each element in the unordered list we just extracted...
-                    json_sb.append("\"amenity" + count + "\":\"" + li.select(config.value(Country,"Country","facilities")).text() //append them to the json StringBuilder twice: once for key, once for value
-                            + ",\",");
 
-                    count++;
-                    //System.out.println(li.select("li").text());
+                    if (li.select(config.value(Country, "Country", "facilities")).text().contains("No") ||
+                            li.select(config.value(Country, "Country", "facilities")).text().contains("not") ||
+                            li.select(config.value(Country, "Country", "facilities")).text().equals("Bed")) {
+                    } else {
+                        json_sb.append("\"amenity" + count + "\":\"" + li.select(config.value(Country, "Country", "facilities")).text() //append them to the json StringBuilder twice: once for key, once for value
+                                + ",\",");
+
+                        count++;
+                        //System.out.println(li.select("li").text());
+                    }
                 }
 
-                if (count != 0) {
+                String commaCheck = json_sb.charAt(json_sb.length() - 1) + "";
+
+                if (count != 0 && commaCheck.contains(",")) {
                     json_sb.deleteCharAt((json_sb.length() - 3)); //Remove stray comma >:^(
                 }
 
@@ -386,20 +386,25 @@ public class webCrawler implements Callable {
                     count++;
                 }
 
-                json_sb.deleteCharAt(json_sb.length()-1); //Delete the stray comma at the end  >:^(
+                commaCheck = json_sb.charAt(json_sb.length() - 1) + "";
+
+                if (commaCheck.contains(",")) {
+                    json_sb.deleteCharAt(json_sb.length() - 1); //Delete the stray comma at the end  >:^(
+                }
                 json_sb.append("},"); //Append the closing bracket and comma to the json StringBuilder
                 //System.out.println("");
+
+
+                json = json_sb.toString(); //Make the json string to be returned equal to the json StringBuilder
+                System.out.println("Thread Number " + Thread.currentThread().getName() + " Finished"); //Print out what thread number just finished for debug purposes
+                return json; //Return the json string
             }
-
-            json = json_sb.toString(); //Make the json string to be returned equal to the json StringBuilder
-            System.out.println("Thread Number " + Thread.currentThread().getName() + " Finished"); //Print out what thread number just finished for debug purposes
-            return json; //Return the json string
-        }
-
-        catch (Exception e) {
+        } catch (Exception e) {
             return null;
         }
+        return null;
     }
+
 
     @Override
     public Object call() throws Exception { //This method is what is going to be run by each thread, so make sure it is safe for concurrency. It is from the Callable interface.
