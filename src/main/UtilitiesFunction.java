@@ -100,7 +100,6 @@ public class UtilitiesFunction {
     //Create Filter Map
     public static List<Map<String,String>> filterAccoms(List<Map<String,String>> accoms, Map<String,String> filters){
         ArrayList<Map<String,String>> filteredAccoms = new ArrayList<>();
-
         boolean noFail = true; // Shifts false on failed query
 
         // DONE ljdzed make this one function that takes a list<map<string,List<string>>> and sorts intelligently (maybe) ex. of map in this list :  <"TV_Room", {"tv", "television"}> to allow for better filtering
@@ -152,6 +151,10 @@ public class UtilitiesFunction {
 
         for (Map<String,String> building : accoms){       // iterate through every student residence as a Map<>
             strikes = 0;
+
+            // Put a formatted version of the amenities into the buildings object
+            building.put("AmenitiesString", amenitiesString(building));
+
 
             for (String column : filters.keySet()){     // iterate through every filter key as a String
 
@@ -217,7 +220,7 @@ public class UtilitiesFunction {
                     filteredAccoms.add(building);   // Add successful building to return List<Map<String,String>>
                 } else {
                     try {
-                        filterAccomsStrikeList.get(strikes-1).add(building);
+                        filterAccomsStrikeList.get(strikes-1).add(building); // strikes -1 to adjust for 0 indexing
                     } catch (IndexOutOfBoundsException i) {
                         i.printStackTrace();
                         strikes--;
@@ -244,6 +247,114 @@ public class UtilitiesFunction {
         return filteredAccoms;  // return the shortened list of accoms that match the queries.
     }
 
+
+    // Gym TV_Room Study_Space Laundry_Room Cinema_Room Rooftop_Garden Balcony Dishwasher Stovetop Cafeteria Sports_Hall Fast_WiFi Disability_Access
+    public static String amenitiesString (Map<String,String> accommodationList){
+        //String flavorText = "This student accommodation, "+ accommodationList.get("Site")+ ", has ";
+        String flavorText = "This student accommodation has ";
+        String returnAmenity = "";
+        String lastAmenity = "";
+        String secondLastAmenity = "";
+        if (!accommodationList.get("Gym").isBlank()){
+            lastAmenity ="a "+ accommodationList.get("Gym").toLowerCase();
+        }
+        if (!accommodationList.get("TV_Room").isBlank()){
+            if (!secondLastAmenity.isBlank()){
+                returnAmenity += secondLastAmenity + ", ";
+            }
+            secondLastAmenity = lastAmenity;
+            lastAmenity = "a shared television";
+        }
+        if (!accommodationList.get("Study_Space").isBlank()){
+            if (!secondLastAmenity.isBlank()){
+                returnAmenity += secondLastAmenity + ", ";
+            }
+            secondLastAmenity = lastAmenity;
+            lastAmenity = "a "+ accommodationList.get("Study_Space").toLowerCase();
+        }
+        if (!accommodationList.get("Laundry_Room").isBlank()){
+            if (!secondLastAmenity.isBlank()){
+                returnAmenity += secondLastAmenity+ ", ";
+            }
+            secondLastAmenity = lastAmenity;
+            lastAmenity = "a "+ accommodationList.get("Laundry_Room").toLowerCase();
+        }
+        if (!accommodationList.get("Cinema_Room").isBlank()){
+            if (!secondLastAmenity.isBlank()){
+                returnAmenity += secondLastAmenity+ ", ";
+            }
+            secondLastAmenity = lastAmenity;
+            lastAmenity = "a "+ accommodationList.get("Cinema_Room").toLowerCase();
+        }
+        if (!accommodationList.get("Rooftop_Garden").isBlank()){
+            if (!secondLastAmenity.isBlank()){
+                returnAmenity += secondLastAmenity+ ", ";
+            }
+            secondLastAmenity = lastAmenity;
+            lastAmenity = "a "+ accommodationList.get("Rooftop_Garden").toLowerCase();
+        }
+        if (!accommodationList.get("Balcony").isBlank()){
+            if (!secondLastAmenity.isBlank()){
+                returnAmenity += secondLastAmenity+ ", ";
+            }
+            secondLastAmenity = lastAmenity;
+            lastAmenity = "a "+ accommodationList.get("Balcony").toLowerCase();
+        }
+        if (!accommodationList.get("Dishwasher").isBlank()){
+            if (!secondLastAmenity.isBlank()){
+                returnAmenity += secondLastAmenity+ ", ";
+            }
+            secondLastAmenity = lastAmenity;
+            lastAmenity = "a "+ accommodationList.get("Dishwasher").toLowerCase();
+        }
+        if (!accommodationList.get("Stovetop").isBlank()){
+            if (!secondLastAmenity.isBlank()){
+                returnAmenity += secondLastAmenity+ ", ";
+            }
+            secondLastAmenity = lastAmenity;
+            lastAmenity = "a "+ accommodationList.get("Stovetop").toLowerCase();
+        }
+        if (!accommodationList.get("Cafeteria").isBlank()){
+            if (!secondLastAmenity.isBlank()){
+                returnAmenity += secondLastAmenity+ ", ";
+            }
+            secondLastAmenity = lastAmenity;
+            lastAmenity = "a "+ accommodationList.get("Cafeteria").toLowerCase();
+        }
+        if (!accommodationList.get("Sports_Hall").isBlank()){
+            if (!secondLastAmenity.isBlank()){
+                returnAmenity += secondLastAmenity+ ", ";
+            }
+            secondLastAmenity = lastAmenity;
+            lastAmenity = "a "+ accommodationList.get("Sports_Hall").toLowerCase();
+        }
+        if (!accommodationList.get("Fast_WiFi").isBlank()){
+            if (!secondLastAmenity.isBlank()){
+                returnAmenity += secondLastAmenity+ ", ";
+            }
+            secondLastAmenity = lastAmenity;
+            lastAmenity = accommodationList.get("Fast_WiFi").toLowerCase();
+        }
+        if (!accommodationList.get("Disability_Access").isBlank()){
+            if (!secondLastAmenity.isBlank()){
+                returnAmenity += secondLastAmenity+ ", ";
+            }
+            secondLastAmenity = lastAmenity;
+            lastAmenity = accommodationList.get("Disability_Access").toLowerCase();
+        }
+
+
+        if (lastAmenity.isBlank()){
+            return "Apologies, the information on this student accommodation is incomplete.";
+        } else if (secondLastAmenity.isBlank()){
+            return flavorText + lastAmenity + ".";
+        } else if (returnAmenity.isBlank()){
+            return flavorText + secondLastAmenity + " and " + lastAmenity + ".";
+        } else {
+            return flavorText + returnAmenity + secondLastAmenity + ", and " + lastAmenity + ".";
+        }
+
+    }
 
     public static float averageIndexValue(ArrayList<Map<String,String>> list, int index, String key1, String key2, ArrayList<String> removeChars){
         float average;
@@ -409,20 +520,20 @@ public class UtilitiesFunction {
     public static boolean hasEnsuites(List<Map<String, String>> list, int id){
         System.out.println("Checking if ID " + id + " has Ensuite");
         System.out.println(list.get(id).toString());
+        return getValue(list, id, "HasEnsuite").equalsIgnoreCase("y");
+        /*
         if(getValue(list, id, "HasEnsuite").equalsIgnoreCase("y")) {
             return true;
         }
         return false;
+
+         */
     }
     //Explained in API call. (Checks for Studios)
     public static boolean hasStudios(List<Map<String, String>> list, int id){
         System.out.println("Checking if ID " + id + " has Studio");
         System.out.println(list.get(id).toString());
-        if (getValue(list, id, "HasStudio").equalsIgnoreCase("y")) {
-            return true;
-        } else {
-            return false;
-        }
+        return getValue(list, id, "HasStudio").equalsIgnoreCase("y");
     }
 
     //NOTE - Configured to return the first site it sees with provided name. Multiple sites
