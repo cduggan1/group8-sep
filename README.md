@@ -1,6 +1,10 @@
 # SWENG Group 8
 
-Group 8 Project. Details to follow.
+Group 8 Project.
+
+A centralized platform providing seamless access to a vast database of student accommodations and webscraped listings through a REST API, allowing bots to retrieve accurate and up-to-date information for students.
+
+Used in collaboration with Genesys Architect, deployed [here](https://sweng8tcd.com/).
 
 ## Authors
 
@@ -15,13 +19,13 @@ Group 8 Project. Details to follow.
 - Brian Bredican, 3rd Year
 - Zhongyuan Liu, 3rd Year
 
-## API Queries
+## Endpoints
 
 A list of all valid queries and query parameters for the API, and an explanation of their function.
 
 ### Web Crawlers
 
-/scrape - This query calls the webscraper class.
+The /scrape/* route builds a URL to be processed by a web scraper, retrieves the data and returns it to the client.
 
 #### Daft  
 
@@ -90,6 +94,8 @@ A list of all valid queries and query parameters for the API, and an explanation
 
 #### fullQuery  
 
+The /fullQuery route filters a list of accommodations based on query parameters, converts the filtered list to a JSON formatted string and returns the string to the client. 
+
 *propertyType=*
 - ?Filter=Value where filter can be any of the following:
 - Non Negotiables Filters
@@ -100,17 +106,13 @@ A list of all valid queries and query parameters for the API, and an explanation
     -  HighestPrice is a unique filter that acts as a budget filter. It checks if an accommodation's prices are below the value and then strikes accordingly. 
     -  1 strike if only the highest price is over, two if both the lowest and highest price are over.
 
-  
-#### ID  
 
 */:index
 - Returns Property at position :index of database.
   
-
-#### ALL  
-
 */all
 - Returns Full Database Query
+  
   
 ### ADMIN QUERIES
 
@@ -119,8 +121,15 @@ A list of all valid queries and query parameters for the API, and an explanation
 
 */admin/csvUpdate*
   - Updates internal data structure representation of info.csv
+  
+*/s/\**
+Extracts an abbreviation from the path and calls a method that retrieves a URL associated with the abbreviation.
+It will then redirect to that URL.
+URL Shortening method.
 
-
+*/checkCity/\**
+Checks if the extracted string appears in the cityData configuration file.
+Purpose is to allow the bot to check if we are compatible with a city.
 
 ## License
 
