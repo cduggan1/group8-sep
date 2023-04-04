@@ -1,5 +1,7 @@
 package main;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -116,7 +118,7 @@ public class ApiCalls {
             String filterString = "";
             HashMap<String, String> scrapeFilters = new HashMap<>();
 
-            if (req.splat()[0].equals("Ireland")) {
+            if (req.splat()[0].equals("ireland")) {
 
                 //Base url used to built parentUrl
                 parentURL = "https://www.daft.ie/property-for-rent/dublin-city-centre-dublin?furnishing=furnished";
@@ -300,6 +302,29 @@ public class ApiCalls {
                 return "csv Updated";
             }
             return "csv Update Failed";
+        });
+
+
+        get("/checkCity/*",(req,res)->{
+            String csvFile = "src/main/cityData.csv";
+            String searchString = req.splat()[0];
+            Logger.addLog("cityCheck", "Checking value: " + searchString);
+
+
+            try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    String[] columns = line.split(",");
+                    if (columns.length > 0 && columns[0].equalsIgnoreCase(searchString)) {
+                        Logger.addLog("cityCheck", "Value: " + searchString + " found");
+                        return "{\"exists\":\"true\"}";
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            res.status(404);
+            return null;
         });
 
         //End of API calls.
