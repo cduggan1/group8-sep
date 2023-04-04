@@ -306,10 +306,10 @@ public class ApiCalls {
 
 
         get("/checkCity/*",(req,res)->{
-            String csvFile = "src/main/cityData.csv";
+            String csvFile = "cityData.csv";
             String searchString = req.splat()[0];
             Logger.addLog("cityCheck", "Checking value: " + searchString);
-
+            res.type("application/json");
 
             try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
                 String line;
