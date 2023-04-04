@@ -153,7 +153,9 @@ public class UtilitiesFunction {
             strikes = 0;
 
             // Put a formatted version of the amenities into the buildings object
-            building.put("AmenitiesString", amenitiesString(building));
+            if (!building.containsKey("AmenitiesString")){
+                building.put("AmenitiesString", amenitiesString(building));
+            }
 
 
             for (String column : filters.keySet()){     // iterate through every filter key as a String
