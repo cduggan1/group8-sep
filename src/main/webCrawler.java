@@ -83,7 +83,7 @@ public class webCrawler implements Callable {
         if (json.contains("title")) { //If there is a property...
             json_sb.deleteCharAt(json_sb.length() - 1); //Remove the last character, which is a stray comma  >:^(
         } else {
-            json_sb.append("{}"); //If there are no properties, simply add an empty json object, {}
+            json_sb.append("{\"title\":\"\",\"price\":\"\",\"BER\": \"\",\"type\": \"\",\"lease\": \"\",\"beds\": \"\",\"baths\": \"\",\"img\": \"\",\"url\": \"\",\"floorPlan\": \"\",\"amenity0\": \"\",\"amenity1\": \"\",\"amenity2\": \"\",\"amenity3\": \"\",\"amenity4\": \"\",\"amenity5\": \"\",\"amenity6\": \"\",\"amenity7\": \"\",\"amenity8\": \"\",\"amenity9\": \"\",\"amenity10\": \"\"}"); //If there are no properties, simply add an empty json object, {}
         }
         json = json_sb.toString(); //make the json string equal to the stringBuilder we were working with
         String tempJson =  json + "]}";
@@ -106,7 +106,7 @@ public class webCrawler implements Callable {
 
         try {
             System.out.println(Country);
-            if (Country.equals("Ireland")) {
+            if (Country.equals("ireland")) {
                 System.out.println("Got to daft api call");
                 String prepend = "{\"section\":\"residential-to-rent\",\"filters\":[{\"name\":\"adState\",\"values\":[\"published\"]}" +
                         ",{\"values\":[\"furnished\"],\"name\":\"furnishing\"},{\"values\":[\"" + filterMap.get("propertyType=") + "\"],\"name\":\"propertyType\"}]," +
@@ -161,7 +161,7 @@ public class webCrawler implements Callable {
                         endOfList = true;
                     }
                 }
-            } else if (Country.equals("Abroad")) {
+            } else if (Country.equals("abroad")) {
 
                 String prepend = "{\"requests\":[{\"query\":\"\",\"params\":\"distinct=true&insideBoundingBox=%5B%5B";
 
@@ -260,6 +260,7 @@ public class webCrawler implements Callable {
 
         try {
             document = Jsoup.connect(urlMap.get(Thread.currentThread().getName())).get(); //Get the url with an index matching the thread number
+            System.out.println("Successful connection");
 
             //Creating elements containing required info.
             Element title = document.selectFirst(config.value(Country, "Country", "title")); //Select first h1 tag with a class containing "TitleBlock"
@@ -275,14 +276,6 @@ public class webCrawler implements Callable {
             Element baths = document.selectFirst(config.value(Country, "Country", "baths"));
             Element beds = document.selectFirst(config.value(Country, "Country", "beds"));
             Element lease = document.selectFirst(config.value(Country, "Country", "lease"));
-
-            /*if (Country.equals("Ireland")) {
-                for (Element li : details) {
-                    if (li.select("li").text().contains("Bath")) baths = li.selectFirst("li:contains(Bath)");
-                    if (li.select("li").text().contains("Minimum")) lease = li.selectFirst("li:contains(Minimum)");
-                    if (li.select("li").text().contains("Bedroom")) beds = li.selectFirst("li:contains(Bedroom)");
-                }
-            }*/
 
             Element img = document.selectFirst(config.value(Country, "Country", "img"));
 
