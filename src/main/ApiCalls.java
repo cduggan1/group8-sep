@@ -11,7 +11,7 @@ public class ApiCalls {
     public void init(CsvData accomsData, CsvData cityData) {
 
 
-        port(443); // Open port for Spark
+        port(4567); // Open port for Spark
 
         get("/killapi", (req, res)->{
             System.out.println(Logger.RED + "Request to quit API" + Logger.RESET);
@@ -116,7 +116,7 @@ public class ApiCalls {
             String filterString = "";
             HashMap<String, String> scrapeFilters = new HashMap<>();
 
-            if (req.splat()[0].equals("Ireland")) {
+            if (req.splat()[0].equals("ireland")) {
 
                 //Base url used to built parentUrl
                 parentURL = "https://www.daft.ie/property-for-rent/dublin-city-centre-dublin?furnishing=furnished";
@@ -139,7 +139,8 @@ public class ApiCalls {
                             BER_Query = req.queryParams(key);
                         } else if (key.equals("leaseLength_from")) {
                             System.out.println(req.queryParams(key));
-                            Matcher matcher = Pattern.compile("(\\d+)?.*?(?<!\\d)(\\d+)").matcher(req.queryParams(key));
+
+                            Matcher matcher = Pattern.compile("(\\d+)?.*?(?<!\\d)(\\d+)").matcher(req.queryParams(key).replace("%20"," "));
                             matcher.find();
 
                             if (req.queryParams(key).contains("y") || req.queryParams(key).contains("Y")) {
@@ -170,7 +171,7 @@ public class ApiCalls {
                             }
                         } else if (key.equals("facilities")) {
                                 ParserML facilities = new ParserML(System.getProperty("user.dir") + "/src/main");
-                                String parsedFacilities = facilities.query(req.queryParams(key), true);
+                                String parsedFacilities = facilities.query(req.queryParams(key).replace("%20"," "), true);
                                 System.out.println("Parsed Facilities: " + parsedFacilities);
                                 scrapeFilters.put(key + "=", parsedFacilities);
                         } else {
