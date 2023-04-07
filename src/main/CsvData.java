@@ -19,7 +19,7 @@ public class CsvData {
         {
             System.out.println("Directory Failed. Trying again...");
             try{Thread.sleep(200);}catch(Exception f){f.printStackTrace();}
-            accoms= buildObject("src/main/info.csv");
+            accoms= buildObject("info.csv");
         }
     }
 

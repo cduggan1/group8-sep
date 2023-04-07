@@ -39,7 +39,7 @@ public class Main {
         CsvData accomsData = new CsvData();
         accomsData.init();
         CsvData cityData = new CsvData();
-        cityData.updateObject("src/main/cityData.csv");
+        cityData.updateObject("cityData.csv");
 
         if(accomsData.accoms==null) {
             System.out.println("Error Parsing CSV");

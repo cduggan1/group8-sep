@@ -1,7 +1,7 @@
 FROM openjdk:11-jre
 
 COPY out/artifacts/group8_sep_jar/group8-sep.jar .
-COPY src/main/info.csv .
+COPY info.csv .
 
 EXPOSE 4567
 EXPOSE 443

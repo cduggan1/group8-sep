@@ -42,8 +42,8 @@ public class webCrawler implements Callable {
 
     public static String init(String parentUrl, String BER_Query, HashMap<String, String> filterMap, String search, String city) { //Main method. Handles all other methods.
 
-        config.updateObject("src/main/config.csv");
-        cityData.updateObject("src/main/cityData.csv");
+        config.updateObject("config.csv");
+        cityData.updateObject("cityData.csv");
 
         int index = 0;
         int crawlerIndex = 0;
