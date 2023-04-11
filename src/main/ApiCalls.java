@@ -1,5 +1,7 @@
 package main;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -258,6 +260,28 @@ public class ApiCalls {
                 Logger.addLog("ID", "Invalid input");
                 return "Invalid input";
             }
+        });
+
+        get("/checkCity/*/", (req, res)->{
+            res.type("application/json");
+            String city = req.splat()[0];
+            Logger.addLog("API", "Checking if cityData contains " + city);
+            try (BufferedReader reader = new BufferedReader(new FileReader("cityData.csv"))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] cols = line.split(",");
+                    if (cols.length > 0 && cols[0].equalsIgnoreCase(city)) {
+                        return "{\n" +
+                                "“value”:”true”\n" +
+                                "} ";
+                    }
+                }
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            Logger.addLog("API", "Search returning 404.");
+            res.status(404);
+            return null;
         });
 
         //Receives -> Ask for All
