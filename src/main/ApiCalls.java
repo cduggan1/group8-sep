@@ -271,9 +271,7 @@ public class ApiCalls {
                 while ((line = reader.readLine()) != null) {
                     String[] cols = line.split(",");
                     if (cols.length > 0 && cols[0].equalsIgnoreCase(city)) {
-                        return "{\n" +
-                                "“value”:”true”\n" +
-                                "} ";
+                        return "{\"value\":\"true\"} ";
                     }
                 }
             }catch(Exception e){
