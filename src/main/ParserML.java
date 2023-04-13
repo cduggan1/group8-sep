@@ -21,7 +21,7 @@
         public ParserML(String directory){
             this.directory = directory;
 
-            File file = new File(directory+"/Amenities.synonym");
+            File file = new File("Amenities.synonym");
             try (Scanner scanner = new Scanner(file)) {
                 while (scanner.hasNextLine()) {
                     String line = scanner.nextLine();
