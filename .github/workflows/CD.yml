@@ -31,6 +31,7 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/group8-sweng:latest
+          continue-on-error: true
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
